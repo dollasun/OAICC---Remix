@@ -32,3 +32,11 @@ export interface UserProfile {
   phone: string;
   avatar?: string;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  body: string;
+  timestamp: string;
+  read: boolean;
+}

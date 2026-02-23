@@ -21,6 +21,8 @@ import StudentList from './Teacher/StudentList';
 import StudentDetails from './Teacher/StudentDetails';
 import TeacherProfile from './Teacher/TeacherProfile';
 import TeacherEvents from './Teacher/TeacherEvents';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
+import NotificationPage from '../Notifications/NotificationPage';
 
 const classes = [
   { id: 'sss2a', name: 'SSS 2 A' },
@@ -66,7 +68,7 @@ export default function TeacherDashboard() {
           </Link>
         </div>
         
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
           {/* Class Section with Submenu */}
           <div className="space-y-1">
             <button
@@ -137,7 +139,7 @@ export default function TeacherDashboard() {
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/teacher/settings')}
             className="w-full flex items-center gap-3 p-3 mb-4 hover:bg-slate-50 rounded-2xl transition-all text-left"
@@ -179,41 +181,7 @@ export default function TeacherDashboard() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <button 
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl relative"
-              >
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-
-              <AnimatePresence>
-                {isNotificationOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsNotificationOpen(false)} />
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 py-4 z-50 overflow-hidden"
-                    >
-                      <div className="px-6 py-2 border-b border-slate-50 mb-2">
-                        <h3 className="font-bold text-slate-900">Notification</h3>
-                      </div>
-                      <div className="max-h-[400px] overflow-y-auto">
-                        {notifications.map((notif) => (
-                          <div key={notif.id} className="px-6 py-3 hover:bg-slate-50 transition-all cursor-pointer border-b border-slate-50 last:border-none">
-                            <p className="text-xs font-bold text-slate-400 mb-1">{notif.time}</p>
-                            <p className="text-sm text-slate-700 font-medium leading-tight">{notif.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            <NotificationDropdown role="teacher" />
 
             <div className="h-8 w-px bg-slate-200 mx-2"></div>
             <div className="relative group">
@@ -259,6 +227,7 @@ export default function TeacherDashboard() {
             <Route path="/student/:id" element={<StudentDetails />} />
             <Route path="/events" element={<TeacherEvents />} />
             <Route path="/settings" element={<TeacherProfile />} />
+            <Route path="/notifications" element={<NotificationPage />} />
           </Routes>
         </div>
       </main>

@@ -32,11 +32,12 @@ import SchoolClassDetails from './School/SchoolClassDetails';
 import SchoolProfile from './School/SchoolProfile';
 import SchoolStudentDetails from './School/SchoolStudentDetails';
 import SchoolEvents from './School/SchoolEvents';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
+import NotificationPage from '../Notifications/NotificationPage';
 
 export default function SchoolDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   const isActive = (path: string) => {
@@ -44,12 +45,6 @@ export default function SchoolDashboard() {
     if (path !== '/school/dashboard' && location.pathname.startsWith(path)) return true;
     return false;
   };
-
-  const notifications = [
-    { id: 1, text: 'New teacher request from John Obi', time: '2 mins ago' },
-    { id: 2, text: 'Class SSS3 has been updated', time: '1 hour ago' },
-    { id: 3, text: 'Student enrollment report is ready', time: '5 hours ago' },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -61,7 +56,7 @@ export default function SchoolDashboard() {
           </Link>
         </div>
         
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
           <Link
             to="/school/dashboard"
             className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
@@ -111,7 +106,7 @@ export default function SchoolDashboard() {
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/')}
             className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-all"
@@ -136,41 +131,7 @@ export default function SchoolDashboard() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <button 
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl relative"
-              >
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-
-              <AnimatePresence>
-                {isNotificationOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsNotificationOpen(false)} />
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 py-4 z-50 overflow-hidden"
-                    >
-                      <div className="px-6 py-2 border-b border-slate-50 mb-2">
-                        <h3 className="font-bold text-slate-900">Notifications</h3>
-                      </div>
-                      <div className="max-h-[400px] overflow-y-auto">
-                        {notifications.map((notif) => (
-                          <div key={notif.id} className="px-6 py-3 hover:bg-slate-50 transition-all cursor-pointer border-b border-slate-50 last:border-none">
-                            <p className="text-sm text-slate-700 font-medium leading-tight">{notif.text}</p>
-                            <p className="text-xs text-slate-400 mt-1">{notif.time}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            <NotificationDropdown role="school" />
 
             <div className="h-8 w-px bg-slate-200 mx-2"></div>
             
@@ -234,6 +195,7 @@ export default function SchoolDashboard() {
             <Route path="student/:id" element={<SchoolStudentDetails />} />
             <Route path="events" element={<SchoolEvents />} />
             <Route path="settings" element={<SchoolProfile />} />
+            <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </div>
@@ -241,3 +203,4 @@ export default function SchoolDashboard() {
     </div>
   );
 }
+

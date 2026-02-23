@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { useToast } from '../../../context/ToastContext';
 import { 
   ArrowLeft, 
   Star, 
@@ -22,7 +23,13 @@ import {
 export default function MentorDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [isRequesting, setIsRequesting] = useState(false);
+
+  const handleSendRequest = () => {
+    setIsRequesting(false);
+    showToast('Mentorship request sent successfully!');
+  };
 
   // Mock data for a single mentor
   const mentor = {
@@ -245,7 +252,7 @@ export default function MentorDetails() {
                     Cancel
                   </button>
                   <button 
-                    onClick={() => setIsRequesting(false)}
+                    onClick={handleSendRequest}
                     className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
                   >
                     Send Request

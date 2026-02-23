@@ -22,6 +22,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { mentorsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialMentors = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Design', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m1/100/100' },
@@ -34,6 +35,7 @@ const initialMentors = [
 
 export default function AdminMentors() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [mentors, setMentors] = useState<any[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedMentor, setSelectedMentor] = useState<any>(null);
@@ -75,6 +77,7 @@ export default function AdminMentors() {
     setIsAddModalOpen(false);
     setSelectedMentor(null);
     setNewMentor({ name: '', email: '', role: '' });
+    showToast(selectedMentor ? 'Mentor updated successfully!' : 'Mentor added successfully!');
   };
 
   const handleEditMentor = (mentor: any, e: React.MouseEvent) => {
@@ -90,6 +93,7 @@ export default function AdminMentors() {
       const updated = mentors.filter(m => m.id !== id);
       setMentors(updated);
       mentorsStorage.save(updated);
+      showToast('Mentor deleted successfully!');
     }
   };
 

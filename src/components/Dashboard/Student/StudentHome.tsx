@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Search, 
@@ -9,16 +9,24 @@ import {
   MessageSquare, 
   Users,
   TrendingUp,
-  Bookmark
+  Bookmark,
+  ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { savedCareersStorage } from '../../../utils/storage';
 
 export default function StudentHome() {
   const navigate = useNavigate();
+  const [savedIds, setSavedIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const saved = savedCareersStorage.get([]);
+    setSavedIds(saved.map((c: any) => c.id));
+  }, []);
 
   const stats = [
     { label: 'Completed Tasks', value: '12', icon: TrendingUp, color: 'bg-emerald-500' },
-    { label: 'Saved Careers', value: '8', icon: Bookmark, color: 'bg-brand' },
+    { label: 'Saved Careers', value: savedIds.length.toString(), icon: Bookmark, color: 'bg-brand' },
     { label: 'Forum Posts', value: '24', icon: MessageSquare, color: 'bg-amber-500' },
     { label: 'Upcoming Events', value: '3', icon: Calendar, color: 'bg-indigo-500' },
   ];
@@ -33,6 +41,22 @@ export default function StudentHome() {
     { id: 1, title: 'Tech Career Fair 2024', date: 'Oct 15, 2024', time: '10:00 AM', type: 'Virtual' },
     { id: 2, title: 'Introduction to AI', date: 'Oct 18, 2024', time: '2:00 PM', type: 'Workshop' },
   ];
+
+  const handleSaveCareer = (career: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentSaved = savedCareersStorage.get([]);
+    const isSaved = currentSaved.find((c: any) => c.id === career.id);
+    
+    let updated;
+    if (isSaved) {
+      updated = currentSaved.filter((c: any) => c.id !== career.id);
+    } else {
+      updated = [...currentSaved, career];
+    }
+    
+    savedCareersStorage.save(updated);
+    setSavedIds(updated.map((c: any) => c.id));
+  };
 
   return (
     <div className="space-y-8">
@@ -74,22 +98,40 @@ export default function StudentHome() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900">Recommended for You</h2>
-            <button className="text-brand font-bold text-sm hover:underline">View all</button>
+            <button 
+              onClick={() => navigate('/student/careers')}
+              className="text-brand font-bold text-sm hover:underline"
+            >
+              View all
+            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recommendations.map((item) => (
-              <div key={item.id} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer">
+              <div key={item.id} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer relative">
                 <div className="relative h-48">
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-brand flex items-center gap-1">
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-brand flex items-center gap-1">
                     <Star className="w-3 h-3 fill-brand" /> {item.match} Match
                   </div>
+                  <button 
+                    onClick={(e) => handleSaveCareer(item, e)}
+                    className={`absolute top-4 right-4 p-2 rounded-xl backdrop-blur-sm transition-all ${
+                      savedIds.includes(item.id) 
+                        ? 'bg-brand text-white' 
+                        : 'bg-white/90 text-slate-400 hover:text-brand'
+                    }`}
+                  >
+                    <Bookmark className={`w-5 h-5 ${savedIds.includes(item.id) ? 'fill-white' : ''}`} />
+                  </button>
                 </div>
                 <div className="p-6">
                   <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-1">{item.category}</p>
                   <h3 className="text-lg font-bold text-slate-900 mb-4">{item.title}</h3>
-                  <button className="w-full py-3 bg-slate-50 text-slate-600 font-bold rounded-xl group-hover:bg-brand group-hover:text-white transition-all">
-                    View Details
+                  <button 
+                    onClick={() => navigate('/student/careers')}
+                    className="w-full py-3 bg-slate-50 text-slate-600 font-bold rounded-xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
+                    View Details <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -107,7 +149,11 @@ export default function StudentHome() {
             </div>
             <div className="space-y-4">
               {events.map((event) => (
-                <div key={event.id} className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group">
+                <div 
+                  key={event.id} 
+                  onClick={() => navigate('/student/events')}
+                  className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
+                >
                   <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{event.title}</h3>
                   <div className="flex items-center gap-4 mt-2 text-xs font-bold text-slate-400">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {event.time}</span>
@@ -115,7 +161,10 @@ export default function StudentHome() {
                   </div>
                 </div>
               ))}
-              <button className="w-full py-3 text-brand font-bold text-sm hover:bg-brand/5 rounded-xl transition-all">
+              <button 
+                onClick={() => navigate('/student/events')}
+                className="w-full py-3 text-brand font-bold text-sm hover:bg-brand/5 rounded-xl transition-all"
+              >
                 Explore all events
               </button>
             </div>
@@ -126,7 +175,10 @@ export default function StudentHome() {
             <div className="relative z-10">
               <h2 className="text-lg font-bold mb-2">Need guidance?</h2>
               <p className="text-white/80 text-sm font-medium mb-6">Connect with professional mentors in your field of interest.</p>
-              <button className="bg-white text-brand px-6 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all">
+              <button 
+                onClick={() => navigate('/student/mentors')}
+                className="bg-white text-brand px-6 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all"
+              >
                 Find a Mentor
               </button>
             </div>
@@ -137,3 +189,4 @@ export default function StudentHome() {
     </div>
   );
 }
+

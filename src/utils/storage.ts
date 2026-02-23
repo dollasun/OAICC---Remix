@@ -6,6 +6,9 @@ const STORAGE_KEY_EVENTS = 'app_events';
 const STORAGE_KEY_COUNSELORS = 'app_counselors';
 const STORAGE_KEY_ADMIN_USERS = 'app_admin_users';
 const STORAGE_KEY_ADMIN_ROLES = 'app_admin_roles';
+const STORAGE_KEY_SAVED_CAREERS = 'app_saved_careers';
+const STORAGE_KEY_NOTIFICATIONS = 'app_notifications';
+const STORAGE_KEY_REGISTERED_EVENTS = 'app_registered_events';
 
 export const getStoredData = (key: string, initialData: any) => {
   const stored = localStorage.getItem(key);
@@ -53,4 +56,19 @@ export const adminUsersStorage = {
 export const adminRolesStorage = {
   get: (initialData: any) => getStoredData(STORAGE_KEY_ADMIN_ROLES, initialData),
   save: (data: any) => saveStoredData(STORAGE_KEY_ADMIN_ROLES, data),
+};
+
+export const savedCareersStorage = {
+  get: (initialData: any = []) => getStoredData(STORAGE_KEY_SAVED_CAREERS, initialData),
+  save: (data: any) => saveStoredData(STORAGE_KEY_SAVED_CAREERS, data),
+};
+
+export const notificationsStorage = {
+  get: (initialData: any = []) => getStoredData(STORAGE_KEY_NOTIFICATIONS, initialData),
+  save: (data: any) => saveStoredData(STORAGE_KEY_NOTIFICATIONS, data),
+};
+
+export const registeredEventsStorage = {
+  get: (initialData: any = []) => getStoredData(STORAGE_KEY_REGISTERED_EVENTS, initialData),
+  save: (data: any) => saveStoredData(STORAGE_KEY_REGISTERED_EVENTS, data),
 };

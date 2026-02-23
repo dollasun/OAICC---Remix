@@ -20,6 +20,8 @@ import ChildrenList from './ChildrenList';
 import ChildDetails from './ChildDetails';
 import ProfileSettings from './ProfileSettings';
 import ParentEvents from './Parent/ParentEvents';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
+import NotificationPage from '../Notifications/NotificationPage';
 
 const children = [
   { id: '1', name: 'Favour Aina' },
@@ -53,7 +55,7 @@ export default function ParentDashboard() {
           </Link>
         </div>
         
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
           {/* Home/Dashboard Link */}
           <Link
             to="/parent/dashboard"
@@ -137,7 +139,7 @@ export default function ParentDashboard() {
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/parent/settings')}
             className="w-full flex items-center gap-3 p-3 mb-4 hover:bg-slate-50 rounded-2xl transition-all text-left"
@@ -179,10 +181,7 @@ export default function ParentDashboard() {
           </div>
           
           <div className="flex items-center gap-4">
-            <button className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl relative">
-              <Bell className="w-6 h-6" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            <NotificationDropdown role="parent" />
             <div className="h-8 w-px bg-slate-200 mx-2"></div>
             <div className="relative group">
               <button 
@@ -226,6 +225,7 @@ export default function ParentDashboard() {
             <Route path="/child/:id" element={<ChildDetails />} />
             <Route path="/events" element={<ParentEvents />} />
             <Route path="/settings" element={<ProfileSettings />} />
+            <Route path="/notifications" element={<NotificationPage />} />
           </Routes>
         </div>
       </main>

@@ -16,9 +16,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { careersStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 export default function AdminCreateCareer() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'basic' | 'resources'>('basic');
   const [bgImage, setBgImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,6 +53,30 @@ export default function AdminCreateCareer() {
     ]
   });
 
+  const handleUploadResource = (type: 'videos' | 'articles' | 'links') => {
+    const title = prompt(`Enter ${type.slice(0, -1)} title:`);
+    if (!title) return;
+    
+    const newResource = {
+      id: Date.now(),
+      title,
+      ...(type === 'videos' ? { ownedBy: 'Admin' } : type === 'articles' ? { author: 'Admin' } : { url: 'www.example.com' }),
+      thumbnail: `https://picsum.photos/seed/${Date.now()}/400/200`
+    };
+
+    setResources({
+      ...resources,
+      [type]: [...resources[type], newResource]
+    });
+  };
+
+  const handleDeleteResource = (type: 'videos' | 'articles' | 'links', id: number) => {
+    setResources({
+      ...resources,
+      [type]: resources[type].filter(r => r.id !== id)
+    });
+  };
+
   const handleImageClick = () => fileInputRef.current?.click();
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,6 +108,7 @@ export default function AdminCreateCareer() {
     };
 
     careersStorage.save([...currentCareers, newCareer]);
+    showToast('Career path created successfully!');
     navigate('/admin/careers');
   };
 
@@ -300,13 +327,19 @@ export default function AdminCreateCareer() {
                       <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleDeleteResource('videos', video.id)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 ))}
-                <div className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group">
+                <div 
+                  onClick={() => handleUploadResource('videos')}
+                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
@@ -342,13 +375,19 @@ export default function AdminCreateCareer() {
                       <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleDeleteResource('articles', article.id)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 ))}
-                <div className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group">
+                <div 
+                  onClick={() => handleUploadResource('articles')}
+                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
@@ -384,13 +423,19 @@ export default function AdminCreateCareer() {
                       <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleDeleteResource('links', link.id)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm"
+                      >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 ))}
-                <div className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group">
+                <div 
+                  onClick={() => handleUploadResource('links')}
+                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Plus className="w-6 h-6" />
                   </div>

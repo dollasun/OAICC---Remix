@@ -33,6 +33,8 @@ import AdminSettings from './Settings';
 import AdminForumDetails from './ForumDetails';
 import AdminDiscussionDetails from './DiscussionDetails';
 import AdminStudentView from './StudentView';
+import NotificationDropdown from '../../Notifications/NotificationDropdown';
+import NotificationPage from '../../Notifications/NotificationPage';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
@@ -191,10 +193,7 @@ export default function AdminDashboard() {
                   className="pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 w-64 font-medium text-sm"
                 />
               </div>
-              <button className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-slate-400">
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
+              <NotificationDropdown role="admin" />
               <div className="flex items-center gap-3 pl-4 border-l border-slate-100">
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-slate-900">Bolu Ahmed</p>
@@ -226,6 +225,7 @@ export default function AdminDashboard() {
             <Route path="events" element={<AdminEvents />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="students/:id" element={<AdminStudentView />} />
+            <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </div>

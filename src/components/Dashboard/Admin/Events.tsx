@@ -19,6 +19,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { eventsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialEvents = [
   { id: 1, title: 'Why Medicine is for you', career: 'Medicine', mentor: 'Amanda Lance', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e1/800/400' },
@@ -30,6 +31,7 @@ const initialEvents = [
 ];
 
 export default function AdminEvents() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [bgImage, setBgImage] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export default function AdminEvents() {
     setSelectedEvent(null);
     setNewEvent({ title: '', career: '', mentor: '', date: '', time: '' });
     setBgImage(null);
+    showToast(selectedEvent ? 'Event updated successfully!' : 'Event created successfully!');
   };
 
   const handleEditEvent = (event: any, e: React.MouseEvent) => {
@@ -89,6 +92,7 @@ export default function AdminEvents() {
       const updated = events.filter(e => e.id !== id);
       setEvents(updated);
       eventsStorage.save(updated);
+      showToast('Event deleted successfully!');
     }
   };
 

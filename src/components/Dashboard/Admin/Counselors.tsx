@@ -18,6 +18,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { counselorsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialCounselors = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c1/100/100' },
@@ -29,6 +30,7 @@ const initialCounselors = [
 ];
 
 export default function AdminCounselors() {
+  const { showToast } = useToast();
   const [counselors, setCounselors] = useState<any[]>([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [selectedCounselor, setSelectedCounselor] = useState<any>(null);
@@ -70,6 +72,7 @@ export default function AdminCounselors() {
     setIsInviteModalOpen(false);
     setSelectedCounselor(null);
     setInviteEmail('');
+    showToast(selectedCounselor ? 'Counselor updated successfully!' : 'Invite sent successfully!');
   };
 
   const handleEditCounselor = (counselor: any, e: React.MouseEvent) => {
@@ -84,6 +87,7 @@ export default function AdminCounselors() {
       const updated = counselors.filter(c => c.id !== id);
       setCounselors(updated);
       counselorsStorage.save(updated);
+      showToast('Counselor deleted successfully!');
     }
   };
 

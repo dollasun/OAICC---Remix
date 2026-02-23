@@ -12,7 +12,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { careersStorage } from '../../../utils/storage';
+import { careersStorage, savedCareersStorage } from '../../../utils/storage';
 
 const initialCareers = [
   {
@@ -23,7 +23,7 @@ const initialCareers = [
     growth: 'High',
     education: 'Bachelor\'s Degree',
     match: '98%',
-    image: 'https://picsum.photos/seed/software/600/400',
+    image: 'https://picsum.photos/seed/coding/600/400',
     description: 'Design, develop, and maintain software systems and applications.'
   },
   {
@@ -34,7 +34,7 @@ const initialCareers = [
     growth: 'Very High',
     education: 'Master\'s Degree',
     match: '92%',
-    image: 'https://picsum.photos/seed/data/600/400',
+    image: 'https://picsum.photos/seed/analysis/600/400',
     description: 'Analyze complex data to help organizations make better decisions.'
   },
   {
@@ -45,7 +45,7 @@ const initialCareers = [
     growth: 'Medium',
     education: 'Bachelor\'s Degree',
     match: '85%',
-    image: 'https://picsum.photos/seed/design/600/400',
+    image: 'https://picsum.photos/seed/art/600/400',
     description: 'Create visual concepts to communicate ideas that inspire and inform.'
   },
   {
@@ -56,7 +56,7 @@ const initialCareers = [
     growth: 'High',
     education: 'Bachelor\'s Degree',
     match: '78%',
-    image: 'https://picsum.photos/seed/marketing/600/400',
+    image: 'https://picsum.photos/seed/strategy/600/400',
     description: 'Plan and execute strategies to promote products or services.'
   },
   {
@@ -88,26 +88,39 @@ export default function CareerLibrary() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [careers, setCareers] = useState<any[]>([]);
+  const [savedIds, setSavedIds] = useState<number[]>([]);
 
   useEffect(() => {
     // Map admin careers to student career format if needed
     const adminCareers = careersStorage.get([]);
+    let allCareers;
     if (adminCareers.length > 0) {
-      const mapped = adminCareers.map((c: any) => ({
+      allCareers = adminCareers.map((c: any) => ({
         id: c.id,
         title: c.name,
         category: c.category,
         salary: `$${c.salaryMin || '50k'} - $${c.salaryMax || '100k'}`,
         growth: 'High',
         education: 'Bachelor\'s Degree',
-        match: '90%',
+        match: c.match || `${Math.floor(Math.random() * 40) + 60}%`,
         image: c.image,
         description: c.description
       }));
-      setCareers(mapped);
     } else {
-      setCareers(initialCareers);
+      allCareers = initialCareers;
     }
+
+    // Sort by match percentage (highest first)
+    const sorted = [...allCareers].sort((a, b) => {
+      const matchA = parseInt(a.match);
+      const matchB = parseInt(b.match);
+      return matchB - matchA;
+    });
+
+    setCareers(sorted);
+
+    const saved = savedCareersStorage.get([]);
+    setSavedIds(saved.map((c: any) => c.id));
   }, []);
 
   const categories = ['All', 'Technology', 'Creative', 'Business', 'Finance', 'Healthcare', 'Science'];
@@ -118,6 +131,22 @@ export default function CareerLibrary() {
     const matchesCategory = selectedCategory === 'All' || career.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleSaveCareer = (career: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentSaved = savedCareersStorage.get([]);
+    const isSaved = currentSaved.find((c: any) => c.id === career.id);
+    
+    let updated;
+    if (isSaved) {
+      updated = currentSaved.filter((c: any) => c.id !== career.id);
+    } else {
+      updated = [...currentSaved, career];
+    }
+    
+    savedCareersStorage.save(updated);
+    setSavedIds(updated.map((c: any) => c.id));
+  };
 
   return (
     <div className="space-y-8">
@@ -174,8 +203,15 @@ export default function CareerLibrary() {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
               />
               <div className="absolute top-4 right-4 flex gap-2">
-                <button className="p-2 bg-white/90 backdrop-blur-sm rounded-xl text-slate-400 hover:text-brand transition-colors">
-                  <Bookmark className="w-5 h-5" />
+                <button 
+                  onClick={(e) => handleSaveCareer(career, e)}
+                  className={`p-2 rounded-xl backdrop-blur-sm transition-all ${
+                    savedIds.includes(career.id) 
+                      ? 'bg-brand text-white' 
+                      : 'bg-white/90 text-slate-400 hover:text-brand'
+                  }`}
+                >
+                  <Bookmark className={`w-5 h-5 ${savedIds.includes(career.id) ? 'fill-white' : ''}`} />
                 </button>
               </div>
               <div className="absolute bottom-4 left-4">
@@ -236,3 +272,4 @@ export default function CareerLibrary() {
     </div>
   );
 }
+

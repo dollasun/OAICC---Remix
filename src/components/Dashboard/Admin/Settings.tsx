@@ -162,9 +162,17 @@ export default function AdminSettings() {
                       <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
                       <p className="text-sm font-medium text-slate-500 mt-1">Add an extra layer of security to your account</p>
                     </div>
-                    <div className="relative inline-block w-12 h-6 rounded-full bg-slate-200 cursor-pointer">
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
-                    </div>
+                    {(() => {
+                      const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+                      return (
+                        <div 
+                          onClick={() => setIs2FAEnabled(!is2FAEnabled)}
+                          className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200'}`}
+                        >
+                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </motion.div>
@@ -205,14 +213,20 @@ export default function AdminSettings() {
                     'Event Registrations',
                     'System Updates',
                     'Security Alerts'
-                  ].map((notif) => (
-                    <div key={notif} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors">
-                      <span className="font-bold text-slate-700">{notif}</span>
-                      <div className="relative inline-block w-12 h-6 rounded-full bg-brand cursor-pointer">
-                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
+                  ].map((notif) => {
+                    const [isEnabled, setIsEnabled] = useState(true);
+                    return (
+                      <div key={notif} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors">
+                        <span className="font-bold text-slate-700">{notif}</span>
+                        <div 
+                          onClick={() => setIsEnabled(!isEnabled)}
+                          className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${isEnabled ? 'bg-brand' : 'bg-slate-200'}`}
+                        >
+                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${isEnabled ? 'right-1' : 'left-1'}`}></div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
             )}

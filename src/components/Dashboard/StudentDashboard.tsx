@@ -34,12 +34,13 @@ import ActivityTracker from './Student/ActivityTracker';
 import StudentProfile from './Student/StudentProfile';
 import SavedContent from './Student/SavedContent';
 import Events from './Student/Events';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
+import NotificationPage from '../Notifications/NotificationPage';
 
 export default function StudentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const navItems = [
@@ -79,8 +80,8 @@ export default function StudentDashboard() {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 lg:translate-x-0 lg:static
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
@@ -88,7 +89,7 @@ export default function StudentDashboard() {
           </Link>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -106,7 +107,7 @@ export default function StudentDashboard() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/')}
             className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-all"
@@ -118,7 +119,7 @@ export default function StudentDashboard() {
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         {/* Header */}
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
           <button onClick={toggleSidebar} className="p-2 lg:hidden text-slate-500">
@@ -137,45 +138,7 @@ export default function StudentDashboard() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="relative">
-              <button 
-                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                className="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl relative"
-              >
-                <Bell className="w-6 h-6" />
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-              </button>
-              
-              <AnimatePresence>
-                {isNotificationOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsNotificationOpen(false)} />
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 py-4 z-50 overflow-hidden"
-                    >
-                      <div className="px-6 py-2 border-b border-slate-50 mb-2">
-                        <h3 className="font-bold text-slate-900">Notifications</h3>
-                      </div>
-                      <div className="max-h-[400px] overflow-y-auto">
-                        {[
-                          { id: 1, text: 'Your mentor request has been approved', time: 'New' },
-                          { id: 2, text: 'New career quiz result is available', time: '2h ago' },
-                          { id: 3, text: 'Upcoming event: Tech Talk tomorrow', time: '1d ago' },
-                        ].map((notif) => (
-                          <div key={notif.id} className="px-6 py-3 hover:bg-slate-50 transition-all cursor-pointer border-b border-slate-50 last:border-none">
-                            <p className="text-[10px] font-bold text-slate-400 mb-1 uppercase">{notif.time}</p>
-                            <p className="text-sm text-slate-700 font-medium leading-tight">{notif.text}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            <NotificationDropdown role="student" />
 
             <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
@@ -249,6 +212,7 @@ export default function StudentDashboard() {
             <Route path="activity" element={<ActivityTracker />} />
             <Route path="settings" element={<StudentProfile />} />
             <Route path="saved" element={<SavedContent />} />
+            <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </main>
@@ -256,3 +220,4 @@ export default function StudentDashboard() {
     </div>
   );
 }
+

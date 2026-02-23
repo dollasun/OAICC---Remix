@@ -34,6 +34,7 @@ export default function AdminForums() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedForum, setSelectedForum] = useState<any>(null);
   const [newForumTitle, setNewForumTitle] = useState('');
+  const [newForumIndustries, setNewForumIndustries] = useState<string[]>([]);
 
   useEffect(() => {
     setForums(forumsStorage.get(initialForums));
@@ -47,13 +48,41 @@ export default function AdminForums() {
       followers: '0',
       posts: '0',
       replies: '0',
-      industries: []
+      industries: newForumIndustries
     };
     const updated = [...forums, newForum];
     setForums(updated);
     forumsStorage.save(updated);
     setIsAddModalOpen(false);
     setNewForumTitle('');
+    setNewForumIndustries([]);
+  };
+
+  const handleAddIndustry = (industry: string, isEdit: boolean) => {
+    if (!industry || industry === 'Industries') return;
+    if (isEdit) {
+      if (!selectedForum.industries.includes(industry)) {
+        setSelectedForum({
+          ...selectedForum,
+          industries: [...selectedForum.industries, industry]
+        });
+      }
+    } else {
+      if (!newForumIndustries.includes(industry)) {
+        setNewForumIndustries([...newForumIndustries, industry]);
+      }
+    }
+  };
+
+  const handleRemoveIndustry = (industry: string, isEdit: boolean) => {
+    if (isEdit) {
+      setSelectedForum({
+        ...selectedForum,
+        industries: selectedForum.industries.filter((i: string) => i !== industry)
+      });
+    } else {
+      setNewForumIndustries(newForumIndustries.filter(i => i !== industry));
+    }
   };
 
   const handleUpdateForum = () => {
@@ -204,16 +233,22 @@ export default function AdminForums() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Career Industries</label>
                     <div className="flex flex-wrap gap-2 mb-2">
-                      {['Media and Internet', 'Leisure', 'Art and Design'].map((ind, i) => (
+                      {newForumIndustries.map((ind, i) => (
                         <div key={i} className="px-3 py-1 bg-brand/10 text-brand rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-2">
-                          {ind} <X className="w-3 h-3 cursor-pointer" />
+                          {ind} <X className="w-3 h-3 cursor-pointer" onClick={() => handleRemoveIndustry(ind, false)} />
                         </div>
                       ))}
                     </div>
-                    <select className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none">
+                    <select 
+                      onChange={(e) => handleAddIndustry(e.target.value, false)}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                    >
                       <option>Industries</option>
-                      <option>Tech</option>
-                      <option>Science</option>
+                      <option value="Tech">Tech</option>
+                      <option value="Science">Science</option>
+                      <option value="Arts">Arts</option>
+                      <option value="Business">Business</option>
+                      <option value="Healthcare">Healthcare</option>
                     </select>
                   </div>
                   
@@ -272,14 +307,20 @@ export default function AdminForums() {
                     <div className="flex flex-wrap gap-2 mb-2">
                       {selectedForum?.industries.map((ind: string, i: number) => (
                         <div key={i} className="px-3 py-1 bg-brand/10 text-brand rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-2">
-                          {ind} <X className="w-3 h-3 cursor-pointer" />
+                          {ind} <X className="w-3 h-3 cursor-pointer" onClick={() => handleRemoveIndustry(ind, true)} />
                         </div>
                       ))}
                     </div>
-                    <select className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none">
+                    <select 
+                      onChange={(e) => handleAddIndustry(e.target.value, true)}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                    >
                       <option>Industries</option>
-                      <option>Tech</option>
-                      <option>Science</option>
+                      <option value="Tech">Tech</option>
+                      <option value="Science">Science</option>
+                      <option value="Arts">Arts</option>
+                      <option value="Business">Business</option>
+                      <option value="Healthcare">Healthcare</option>
                     </select>
                   </div>
                   

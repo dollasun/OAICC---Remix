@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Bookmark, 
@@ -12,17 +12,23 @@ import {
   Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { savedCareersStorage } from '../../../utils/storage';
 
 export default function SavedContent() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('careers');
   const [searchQuery, setSearchQuery] = useState('');
+  const [savedCareers, setSavedCareers] = useState<any[]>([]);
 
-  const savedCareers = [
-    { id: 1, title: 'Software Engineer', category: 'Technology', match: '98%', image: 'https://picsum.photos/seed/software/400/300' },
-    { id: 2, title: 'Data Scientist', category: 'Technology', match: '92%', image: 'https://picsum.photos/seed/data/400/300' },
-    { id: 3, title: 'Graphic Designer', category: 'Creative', match: '85%', image: 'https://picsum.photos/seed/design/400/300' }
-  ];
+  useEffect(() => {
+    setSavedCareers(savedCareersStorage.get([]));
+  }, []);
+
+  const handleRemoveCareer = (id: number) => {
+    const updated = savedCareers.filter(c => c.id !== id);
+    setSavedCareers(updated);
+    savedCareersStorage.save(updated);
+  };
 
   const savedTopics = [
     { id: 1, title: 'How to start a career in AI as a high school student?', author: 'Alex Chen', time: '2h ago', replies: 24 },
@@ -79,7 +85,10 @@ export default function SavedContent() {
               >
                 <div className="relative h-48">
                   <img src={career.image} alt={career.title} className="w-full h-full object-cover" />
-                  <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-xl text-brand">
+                  <button 
+                    onClick={() => handleRemoveCareer(career.id)}
+                    className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-xl text-brand hover:bg-white transition-colors"
+                  >
                     <Bookmark className="w-5 h-5 fill-brand" />
                   </button>
                 </div>
@@ -192,3 +201,4 @@ export default function SavedContent() {
     </div>
   );
 }
+

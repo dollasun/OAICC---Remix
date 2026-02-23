@@ -34,6 +34,21 @@ const initialAdminRoles = [
   { id: 3, name: 'Counselor', users: 5, permissions: 'View Only', date: 'Jan 6, 2022 4:26 PM' },
 ];
 
+const PermissionToggle: React.FC<{ action: string }> = ({ action }) => {
+  const [isActive, setIsActive] = useState(false);
+  return (
+    <div 
+      onClick={() => setIsActive(!isActive)}
+      className="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors"
+    >
+      <span className="text-xs font-bold text-slate-500">Can {action}</span>
+      <div className={`relative inline-block w-10 h-5 rounded-full transition-colors ${isActive ? 'bg-brand' : 'bg-slate-200'}`}>
+        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-transform ${isActive ? 'right-1' : 'left-1'}`}></div>
+      </div>
+    </div>
+  );
+};
+
 export default function AdminUsers() {
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
@@ -385,7 +400,7 @@ export default function AdminUsers() {
                     </div>
                   </div>
 
-                  <div className="space-y-8">
+                    <div className="space-y-8">
                     <h3 className="text-lg font-bold text-slate-900">Assign permissions</h3>
                     <div className="space-y-6">
                       {['Career', 'Interest Quiz', 'Forum', 'Mentor', 'Events', 'Counselor', 'Admin Management'].map((perm) => (
@@ -393,12 +408,7 @@ export default function AdminUsers() {
                           <h4 className="text-sm font-bold text-slate-700">{perm}</h4>
                           <div className="grid grid-cols-2 gap-4">
                             {['View', 'Create', 'Edit', 'Delete'].map((action) => (
-                              <div key={action} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                                <span className="text-xs font-bold text-slate-500">Can {action}</span>
-                                <div className="relative inline-block w-10 h-5 rounded-full bg-slate-200 cursor-pointer">
-                                  <div className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform"></div>
-                                </div>
-                              </div>
+                              <PermissionToggle key={action} action={action} />
                             ))}
                           </div>
                         </div>

@@ -1,0 +1,194 @@
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { 
+  Bookmark, 
+  Search, 
+  Filter, 
+  Briefcase, 
+  MessageSquare, 
+  Users, 
+  ChevronRight, 
+  Trash2,
+  Star
+} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function SavedContent() {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('careers');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const savedCareers = [
+    { id: 1, title: 'Software Engineer', category: 'Technology', match: '98%', image: 'https://picsum.photos/seed/software/400/300' },
+    { id: 2, title: 'Data Scientist', category: 'Technology', match: '92%', image: 'https://picsum.photos/seed/data/400/300' },
+    { id: 3, title: 'Graphic Designer', category: 'Creative', match: '85%', image: 'https://picsum.photos/seed/design/400/300' }
+  ];
+
+  const savedTopics = [
+    { id: 1, title: 'How to start a career in AI as a high school student?', author: 'Alex Chen', time: '2h ago', replies: 24 },
+    { id: 2, title: 'Best universities for Computer Science in 2024?', author: 'Sarah Miller', time: '5h ago', replies: 18 }
+  ];
+
+  const savedMentors = [
+    { id: 1, name: 'Sarah Johnson', role: 'Senior Software Engineer', company: 'Google', rating: 4.9, image: 'https://picsum.photos/seed/sarah/100/100' },
+    { id: 2, name: 'Marcus Thorne', role: 'Product Designer', company: 'Airbnb', rating: 4.8, image: 'https://picsum.photos/seed/marcus/100/100' }
+  ];
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Saved Content</h1>
+          <p className="text-slate-500 font-medium mt-1">Access your bookmarked careers, discussions, and mentors.</p>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex flex-wrap gap-2 p-1 bg-white rounded-[24px] border border-slate-100 shadow-sm w-fit">
+        {[
+          { id: 'careers', label: 'Careers', icon: Briefcase },
+          { id: 'topics', label: 'Discussions', icon: MessageSquare },
+          { id: 'mentors', label: 'Mentors', icon: Users }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
+              activeTab === tab.id 
+                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content Grid */}
+      <div className="space-y-6">
+        {activeTab === 'careers' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {savedCareers.map((career) => (
+              <motion.div
+                key={career.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group"
+              >
+                <div className="relative h-48">
+                  <img src={career.image} alt={career.title} className="w-full h-full object-cover" />
+                  <button className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-xl text-brand">
+                    <Bookmark className="w-5 h-5 fill-brand" />
+                  </button>
+                </div>
+                <div className="p-6">
+                  <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-1">{career.category}</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-4">{career.title}</h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                      <Star className="w-3.5 h-3.5 fill-amber-500" /> {career.match} Match
+                    </div>
+                    <button 
+                      onClick={() => navigate(`/student/careers/${career.id}`)}
+                      className="text-brand font-bold text-sm flex items-center gap-1 hover:underline"
+                    >
+                      View <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'topics' && (
+          <div className="space-y-4">
+            {savedTopics.map((topic) => (
+              <motion.div
+                key={topic.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
+                    <MessageSquare className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors line-clamp-1">{topic.title}</h3>
+                    <p className="text-xs font-bold text-slate-400 mt-1">By {topic.author} • {topic.time} • {topic.replies} replies</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-end gap-2 border-t sm:border-t-0 pt-4 sm:pt-0">
+                  <button className="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => navigate(`/student/forum/${topic.id}`)}
+                    className="p-2 text-slate-300 hover:text-brand transition-colors"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'mentors' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {savedMentors.map((mentor) => (
+              <motion.div
+                key={mentor.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+              >
+                <div className="flex items-center gap-4 mb-6">
+                  <img src={mentor.image} alt={mentor.name} className="w-16 h-16 rounded-2xl object-cover" />
+                  <div>
+                    <h3 className="font-bold text-slate-900">{mentor.name}</h3>
+                    <p className="text-xs font-bold text-brand">{mentor.role}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{mentor.company}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                  <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                    <Star className="w-3.5 h-3.5 fill-amber-500" /> {mentor.rating}
+                  </div>
+                  <button 
+                    onClick={() => navigate(`/student/mentors/${mentor.id}`)}
+                    className="text-brand font-bold text-sm flex items-center gap-1 hover:underline"
+                  >
+                    Profile <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {((activeTab === 'careers' && savedCareers.length === 0) ||
+          (activeTab === 'topics' && savedTopics.length === 0) ||
+          (activeTab === 'mentors' && savedMentors.length === 0)) && (
+          <div className="text-center py-20 bg-white rounded-[40px] border border-slate-100">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Bookmark className="w-10 h-10 text-slate-200" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900">No saved {activeTab} yet</h3>
+            <p className="text-slate-500 font-medium mt-2">Start exploring and bookmarking content you find interesting!</p>
+            <button 
+              onClick={() => navigate(`/student/${activeTab === 'topics' ? 'forum' : activeTab}`)}
+              className="mt-6 px-8 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+            >
+              Explore {activeTab}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

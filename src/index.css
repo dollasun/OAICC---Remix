@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #00B4D8;
+  --color-brand-hover: #0096B4;
+  --color-brand-light: #E0F7FA;
+  
+  --font-sans: "SF Pro Rounded", "Quicksand", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "SF Pro Rounded", "Quicksand", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+}
+
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.btn-primary {
+  @apply bg-brand hover:bg-brand-hover text-white font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand/20 active:scale-[0.98];
+}
+
+.input-field {
+  @apply w-full px-5 py-4 rounded-2xl border border-slate-200 bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 placeholder:text-slate-400 font-medium;
+}
+
+/* Ensure icons in inputs have proper separation */
+.input-with-icon {
+  @apply relative flex items-center;
+}
+
+.input-with-icon .icon-wrapper {
+  @apply absolute left-5 text-slate-400 pointer-events-none flex items-center justify-center border-r border-slate-100 pr-3;
+}
+
+.input-with-icon input {
+  @apply pl-16;
+}

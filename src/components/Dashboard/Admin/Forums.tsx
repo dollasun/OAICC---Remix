@@ -17,6 +17,7 @@ import {
 
 import { useNavigate } from 'react-router-dom';
 import { forumsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialForums = [
   { id: 1, title: 'General', followers: '400', posts: '100', replies: '3,988', industries: ['Media and Internet', 'Leisure', 'Art and Design'] },
@@ -29,6 +30,7 @@ const initialForums = [
 
 export default function AdminForums() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [forums, setForums] = useState<any[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,6 +58,7 @@ export default function AdminForums() {
     setIsAddModalOpen(false);
     setNewForumTitle('');
     setNewForumIndustries([]);
+    showToast('Forum category created successfully!');
   };
 
   const handleAddIndustry = (industry: string, isEdit: boolean) => {
@@ -91,6 +94,7 @@ export default function AdminForums() {
     setForums(updated);
     forumsStorage.save(updated);
     setIsEditModalOpen(false);
+    showToast('Forum category updated successfully!');
   };
 
   const handleDeleteForum = (id: number) => {
@@ -98,6 +102,7 @@ export default function AdminForums() {
       const updated = forums.filter(f => f.id !== id);
       setForums(updated);
       forumsStorage.save(updated);
+      showToast('Forum category deleted successfully!');
     }
   };
 

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { careersStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialCareers = [
   { 
@@ -82,6 +83,7 @@ const initialCareers = [
 
 export default function AdminCareers() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [careers, setCareers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
@@ -105,6 +107,7 @@ export default function AdminCareers() {
       const updated = careers.filter(c => c.id !== id);
       setCareers(updated);
       careersStorage.save(updated);
+      showToast('Career deleted successfully!');
     }
   };
 

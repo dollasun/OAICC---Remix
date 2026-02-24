@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { useToast } from '../../../context/ToastContext';
 import { 
   ArrowLeft, 
   Mail, 
@@ -21,6 +22,7 @@ import {
 export default function SchoolStudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
@@ -282,7 +284,13 @@ export default function SchoolStudentDetails() {
                 >
                   Cancel
                 </button>
-                <button className="flex-1 btn-primary">
+                <button 
+                  onClick={() => {
+                    setIsNoteModalOpen(false);
+                    showToast('Admin note saved successfully!');
+                  }}
+                  className="flex-1 btn-primary"
+                >
                   Save Note
                 </button>
               </div>

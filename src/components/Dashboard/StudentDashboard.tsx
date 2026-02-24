@@ -41,6 +41,7 @@ export default function StudentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
   const navItems = [
@@ -80,13 +81,20 @@ export default function StudentDashboard() {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300
+        fixed inset-y-0 left-0 z-50 bg-white border-r border-slate-200 flex flex-col transition-all duration-300
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${isSidebarCollapsed ? 'w-24' : 'w-64'}
       `}>
-        <div className="p-6">
+        <div className="p-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <Logo size="sm" />
+            <Logo size={isSidebarCollapsed ? 'sm' : 'sm'} hideText={isSidebarCollapsed} />
           </Link>
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="hidden lg:flex p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"
+          >
+            {isSidebarCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+          </button>
         </div>
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -99,10 +107,10 @@ export default function StudentDashboard() {
                 isActive(item.path)
                   ? 'bg-brand text-white shadow-lg shadow-brand/20'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`}
+              } ${isSidebarCollapsed ? 'justify-center' : ''}`}
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
+              <item.icon className="w-5 h-5 shrink-0" />
+              {!isSidebarCollapsed && <span>{item.label}</span>}
             </Link>
           ))}
         </nav>
@@ -110,16 +118,16 @@ export default function StudentDashboard() {
         <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/')}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-all"
+            className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-all ${isSidebarCollapsed ? 'justify-center' : ''}`}
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
+            <LogOut className="w-5 h-5 shrink-0" />
+            {!isSidebarCollapsed && <span>Sign Out</span>}
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isSidebarCollapsed ? 'lg:pl-24' : 'lg:pl-64'}`}>
         {/* Header */}
         <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
           <button onClick={toggleSidebar} className="p-2 lg:hidden text-slate-500">

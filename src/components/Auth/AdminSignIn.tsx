@@ -51,7 +51,7 @@ export default function AdminSignIn() {
           <div className="mb-10">
             <h2 className="text-3xl font-bold text-slate-900 mb-2">Sign In</h2>
             <p className="text-slate-500 font-medium">
-              Don't have an account? <Link to="/admin/signup" className="text-brand font-bold hover:underline">Sign up</Link>
+              Enter your credentials to access the admin portal.
             </p>
           </div>
 

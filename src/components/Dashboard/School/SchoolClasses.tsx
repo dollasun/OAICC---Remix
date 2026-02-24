@@ -12,6 +12,7 @@ import {
   Users
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../../context/ToastContext';
 
 const initialClasses = [
   { id: 'jss1', name: 'JSS1', students: ['JO', 'ER', 'DA', 'DW', 'ED', 'WO', 'LM'], count: 344, date: 'Jan 6, 2022 4:26 PM' },
@@ -24,6 +25,7 @@ const initialClasses = [
 
 export default function SchoolClasses() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [classes, setClasses] = useState(initialClasses);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -121,7 +123,13 @@ export default function SchoolClasses() {
                           <Edit2 className="w-5 h-5" />
                         </button>
                         <button 
-                          onClick={(e) => { e.stopPropagation(); }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (window.confirm('Are you sure you want to delete this class?')) {
+                              setClasses(classes.filter(c => c.id !== cls.id));
+                              showToast('Class deleted successfully!');
+                            }
+                          }}
                           className="p-2 text-slate-400 hover:text-red-500 transition-all"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -212,7 +220,16 @@ export default function SchoolClasses() {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="flex-1 btn-primary">
+                  <button 
+                    type="submit" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsAddModalOpen(false);
+                      setIsEditModalOpen(false);
+                      showToast(isAddModalOpen ? 'Class added successfully!' : 'Class updated successfully!');
+                    }}
+                    className="flex-1 btn-primary"
+                  >
                     {isAddModalOpen ? 'Add class' : 'Save'}
                   </button>
                 </div>

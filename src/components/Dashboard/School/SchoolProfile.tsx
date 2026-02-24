@@ -21,9 +21,11 @@ import {
   School
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../../context/ToastContext';
 
 export default function SchoolProfile() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeAccordion, setActiveAccordion] = useState<string | null>('personal');
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
@@ -154,7 +156,10 @@ export default function SchoolProfile() {
                     </div>
                   </div>
                   <div className="flex justify-end pt-4">
-                    <button className="px-8 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all">
+                    <button 
+                      onClick={() => showToast('Profile updated successfully!')}
+                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                    >
                       Save Changes
                     </button>
                   </div>
@@ -292,7 +297,10 @@ export default function SchoolProfile() {
                       Cancel
                     </button>
                     <button 
-                      onClick={() => setIsChangePasswordOpen(false)}
+                      onClick={() => {
+                        setIsChangePasswordOpen(false);
+                        showToast('Password updated successfully!');
+                      }}
                       className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
                     >
                       Update Password

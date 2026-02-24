@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { useToast } from '../../../context/ToastContext';
 import { 
   User, 
   Target, 
@@ -25,6 +26,7 @@ const activities = [
 export default function StudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'interests' | 'tracker'>('profile');
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -211,6 +213,14 @@ export default function StudentDetails() {
               placeholder="Leave a note..." 
               className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
             />
+            <div className="mt-4 flex justify-end">
+              <button 
+                onClick={() => showToast('Note saved successfully!')}
+                className="btn-primary text-xs px-4 py-2"
+              >
+                Save Note
+              </button>
+            </div>
             <div className="mt-4 space-y-4">
               <div className="flex gap-3">
                 <img src="https://picsum.photos/seed/parent/100/100" className="w-8 h-8 rounded-full" />

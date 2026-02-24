@@ -37,40 +37,67 @@ export default function AdminCreateCareer() {
 
   const [resources, setResources] = useState({
     videos: [
-      { id: 1, title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v1/400/200' },
-      { id: 2, title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v2/400/200' },
-      { id: 3, title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v3/400/200' }
+      { id: 'v1', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v1/400/200', url: 'https://youtube.com/watch?v=1' },
+      { id: 'v2', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v2/400/200', url: 'https://youtube.com/watch?v=2' },
+      { id: 'v3', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v3/400/200', url: 'https://youtube.com/watch?v=3' }
     ],
     articles: [
-      { id: 1, title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200' },
-      { id: 2, title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200' },
-      { id: 3, title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200' }
+      { id: 'a1', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200', about: 'Detailed summary about this article...' },
+      { id: 'a2', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200', about: 'Detailed summary about this article...' },
+      { id: 'a3', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200', about: 'Detailed summary about this article...' }
     ],
     links: [
-      { id: 1, title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l1/400/200' },
-      { id: 2, title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l2/400/200' },
-      { id: 3, title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l3/400/200' }
+      { id: 'l1', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l1/400/200', type: 'Opportunity', from: 'Coursera' },
+      { id: 'l2', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l2/400/200', type: 'Opportunity', from: 'Coursera' },
+      { id: 'l3', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l3/400/200', type: 'Opportunity', from: 'Coursera' }
     ]
   });
 
-  const handleUploadResource = (type: 'videos' | 'articles' | 'links') => {
-    const title = prompt(`Enter ${type.slice(0, -1)} title:`);
-    if (!title) return;
-    
-    const newResource = {
-      id: Date.now(),
-      title,
-      ...(type === 'videos' ? { ownedBy: 'Admin' } : type === 'articles' ? { author: 'Admin' } : { url: 'www.example.com' }),
-      thumbnail: `https://picsum.photos/seed/${Date.now()}/400/200`
-    };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'video' | 'article' | 'resource' | null>(null);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [modalData, setModalData] = useState<any>({});
+  const modalFileInputRef = useRef<HTMLInputElement>(null);
 
-    setResources({
-      ...resources,
-      [type]: [...resources[type], newResource]
+  const handleOpenModal = (type: 'video' | 'article' | 'resource', item: any = null) => {
+    setModalType(type);
+    setEditingItem(item);
+    setModalData(item || {
+      title: '',
+      url: '',
+      ownedBy: '',
+      author: '',
+      about: '',
+      type: 'Opportunity',
+      from: '',
+      thumbnail: null
     });
+    setIsModalOpen(true);
   };
 
-  const handleDeleteResource = (type: 'videos' | 'articles' | 'links', id: number) => {
+  const handleSaveResource = () => {
+    const typeKey = modalType === 'video' ? 'videos' : modalType === 'article' ? 'articles' : 'links';
+    const newResource = {
+      ...modalData,
+      id: editingItem ? editingItem.id : `${modalType}-${Date.now()}`,
+      thumbnail: modalData.thumbnail || `https://picsum.photos/seed/${Date.now()}/400/200`
+    };
+
+    if (editingItem) {
+      setResources({
+        ...resources,
+        [typeKey]: resources[typeKey].map(r => r.id === editingItem.id ? newResource : r)
+      });
+    } else {
+      setResources({
+        ...resources,
+        [typeKey]: [...resources[typeKey], newResource]
+      });
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDeleteResource = (type: 'videos' | 'articles' | 'links', id: string) => {
     setResources({
       ...resources,
       [type]: resources[type].filter(r => r.id !== id)
@@ -310,7 +337,10 @@ export default function AdminCreateCareer() {
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Videos have to be based on the career you are creating.</p>
                 </div>
-                <button className="p-3 bg-brand/10 text-brand rounded-2xl hover:bg-brand/20 transition-all">
+                <button 
+                  onClick={() => handleOpenModal('video')}
+                  className="p-3 bg-brand/10 text-brand rounded-2xl hover:bg-brand/20 transition-all"
+                >
                   <Plus className="w-6 h-6" />
                 </button>
               </div>
@@ -324,7 +354,10 @@ export default function AdminCreateCareer() {
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Owned by - {video.ownedBy}</p>
                     </div>
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleOpenModal('video', video)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
+                      >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button 
@@ -337,7 +370,7 @@ export default function AdminCreateCareer() {
                   </div>
                 ))}
                 <div 
-                  onClick={() => handleUploadResource('videos')}
+                  onClick={() => handleOpenModal('video')}
                   className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
@@ -358,7 +391,10 @@ export default function AdminCreateCareer() {
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Articles have to be based on the career you are creating.</p>
                 </div>
-                <button className="p-3 bg-indigo-50 text-indigo-500 rounded-2xl hover:bg-indigo-100 transition-all">
+                <button 
+                  onClick={() => handleOpenModal('article')}
+                  className="p-3 bg-indigo-50 text-indigo-500 rounded-2xl hover:bg-indigo-100 transition-all"
+                >
                   <Plus className="w-6 h-6" />
                 </button>
               </div>
@@ -372,7 +408,10 @@ export default function AdminCreateCareer() {
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Author - {article.author}</p>
                     </div>
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleOpenModal('article', article)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
+                      >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button 
@@ -385,7 +424,7 @@ export default function AdminCreateCareer() {
                   </div>
                 ))}
                 <div 
-                  onClick={() => handleUploadResource('articles')}
+                  onClick={() => handleOpenModal('article')}
                   className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
@@ -406,7 +445,10 @@ export default function AdminCreateCareer() {
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Resources have to be based on the career you are creating.</p>
                 </div>
-                <button className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl hover:bg-emerald-100 transition-all">
+                <button 
+                  onClick={() => handleOpenModal('resource')}
+                  className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl hover:bg-emerald-100 transition-all"
+                >
                   <Plus className="w-6 h-6" />
                 </button>
               </div>
@@ -420,7 +462,10 @@ export default function AdminCreateCareer() {
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Web Link: {link.url}</p>
                     </div>
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm">
+                      <button 
+                        onClick={() => handleOpenModal('resource', link)}
+                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
+                      >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button 
@@ -433,7 +478,7 @@ export default function AdminCreateCareer() {
                   </div>
                 ))}
                 <div 
-                  onClick={() => handleUploadResource('links')}
+                  onClick={() => handleOpenModal('resource')}
                   className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
                   <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
@@ -460,6 +505,169 @@ export default function AdminCreateCareer() {
               </button>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Resource Modals */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                      {editingItem ? 'Edit' : 'Add'} {modalType === 'video' ? 'Video URL' : modalType === 'article' ? 'Article' : 'Resources'}
+                    </h3>
+                    <p className="text-slate-500 font-medium mt-1">Fill in the details</p>
+                  </div>
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                    <X className="w-6 h-6 text-slate-400" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {modalType === 'resource' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Resource Type</label>
+                      <select 
+                        value={modalData.type}
+                        onChange={(e) => setModalData({ ...modalData, type: e.target.value })}
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                      >
+                        <option value="Opportunity">Opportunity</option>
+                        <option value="Course">Course</option>
+                        <option value="Tool">Tool</option>
+                      </select>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Title</label>
+                    <input 
+                      type="text"
+                      value={modalData.title}
+                      onChange={(e) => setModalData({ ...modalData, title: e.target.value })}
+                      placeholder="Enter Title"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                    />
+                  </div>
+
+                  {modalType === 'video' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Paste Video URL</label>
+                      <input 
+                        type="text"
+                        value={modalData.url}
+                        onChange={(e) => setModalData({ ...modalData, url: e.target.value })}
+                        placeholder="URL"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                      />
+                    </div>
+                  )}
+
+                  {modalType === 'article' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">About</label>
+                      <textarea 
+                        rows={4}
+                        value={modalData.about}
+                        onChange={(e) => setModalData({ ...modalData, about: e.target.value })}
+                        placeholder="Write a detailed summary about this article..."
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                      />
+                    </div>
+                  )}
+
+                  {modalType === 'resource' && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Website Link</label>
+                      <input 
+                        type="text"
+                        value={modalData.url}
+                        onChange={(e) => setModalData({ ...modalData, url: e.target.value })}
+                        placeholder="Enter Website Link"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Upload a Thumbnail (JPG/GIF/PNG only)</label>
+                    <div 
+                      onClick={() => modalFileInputRef.current?.click()}
+                      className="relative h-40 bg-slate-50 rounded-[24px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 transition-all overflow-hidden group"
+                    >
+                      {modalData.thumbnail ? (
+                        <img src={modalData.thumbnail} className="absolute inset-0 w-full h-full object-cover" alt="Thumbnail" />
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                          <p className="text-xs font-bold text-slate-400">Select Thumbnail</p>
+                        </div>
+                      )}
+                      <input 
+                        type="file" 
+                        ref={modalFileInputRef} 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => setModalData({ ...modalData, thumbnail: reader.result as string });
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      {modalType === 'video' ? 'Owned by' : modalType === 'article' ? 'Author' : 'From'}
+                    </label>
+                    <input 
+                      type="text"
+                      value={modalData.ownedBy || modalData.author || modalData.from}
+                      onChange={(e) => setModalData({ 
+                        ...modalData, 
+                        [modalType === 'video' ? 'ownedBy' : modalType === 'article' ? 'author' : 'from']: e.target.value 
+                      })}
+                      placeholder={modalType === 'video' ? 'Enter Owner Name' : modalType === 'article' ? 'Enter Author Name' : 'What Resources is from?'}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button 
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleSaveResource}
+                      className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

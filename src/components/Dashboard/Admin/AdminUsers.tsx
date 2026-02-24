@@ -19,6 +19,7 @@ import {
   Settings2
 } from 'lucide-react';
 import { adminUsersStorage, adminRolesStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 const initialAdminUsers = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Super Admin', status: 'Accepted', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/a1/100/100' },
@@ -50,6 +51,7 @@ const PermissionToggle: React.FC<{ action: string }> = ({ action }) => {
 };
 
 export default function AdminUsers() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'users' | 'roles'>('users');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [isAddRoleModalOpen, setIsAddRoleModalOpen] = useState(false);
@@ -77,6 +79,7 @@ export default function AdminUsers() {
     adminUsersStorage.save(updated);
     setIsAddUserModalOpen(false);
     setNewUser({ name: '', email: '', role: 'Admin' });
+    showToast('Admin user added successfully!');
   };
 
   const handleAddRole = () => {
@@ -92,6 +95,7 @@ export default function AdminUsers() {
     adminRolesStorage.save(updated);
     setIsAddRoleModalOpen(false);
     setNewRole({ name: '', permissions: 'Limited Access' });
+    showToast('Admin role created successfully!');
   };
 
   const handleDeleteUser = (id: number) => {
@@ -99,6 +103,7 @@ export default function AdminUsers() {
       const updated = users.filter(u => u.id !== id);
       setUsers(updated);
       adminUsersStorage.save(updated);
+      showToast('Admin user deleted successfully!');
     }
   };
 
@@ -107,6 +112,7 @@ export default function AdminUsers() {
       const updated = roles.filter(r => r.id !== id);
       setRoles(updated);
       adminRolesStorage.save(updated);
+      showToast('Admin role deleted successfully!');
     }
   };
 

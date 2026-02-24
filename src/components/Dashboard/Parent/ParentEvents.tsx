@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { useToast } from '../../../context/ToastContext';
 import { 
   Calendar, 
   Clock, 
@@ -66,6 +67,7 @@ const events = [
 ];
 
 export default function ParentEvents() {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -73,6 +75,11 @@ export default function ParentEvents() {
     event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     event.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleRegister = (eventTitle: string) => {
+    // In a real app, this would call an API
+    showToast(`Successfully registered for: ${eventTitle}`);
+  };
 
   return (
     <div className="space-y-8">
@@ -173,7 +180,10 @@ export default function ParentEvents() {
                   </div>
                   <span>+{event.attendees} attending</span>
                 </div>
-                <button className="flex items-center gap-2 text-brand font-bold text-sm hover:underline">
+                <button 
+                  onClick={() => handleRegister(event.title)}
+                  className="flex items-center gap-2 text-brand font-bold text-sm hover:underline"
+                >
                   {event.isRegistered ? 'View Details' : 'Register Now'} <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
@@ -212,7 +222,10 @@ export default function ParentEvents() {
               </div>
             </div>
           </div>
-          <button className="bg-brand text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2">
+          <button 
+            onClick={() => handleRegister('Navigating the Digital Future')}
+            className="bg-brand text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2"
+          >
             Register for Free <ExternalLink className="w-5 h-5" />
           </button>
         </div>

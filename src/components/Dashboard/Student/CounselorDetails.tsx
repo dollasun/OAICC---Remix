@@ -22,6 +22,7 @@ export default function CounselorDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isBooking, setIsBooking] = useState(false);
+  const [activeTab, setActiveTab] = useState<'about' | 'activity'>('about');
 
   // Mock data for a single counselor
   const counselor = {
@@ -49,6 +50,14 @@ export default function CounselorDetails() {
       { name: 'University Application Review', price: 'Free for students' },
       { name: 'Scholarship Guidance', price: 'Free for students' },
       { name: 'Subject Selection Consultation', price: 'Free for students' }
+    ],
+    scheduledSessions: [
+      { id: 1, title: 'Career Path Discussion', date: 'Oct 25, 2024', time: '2:00 PM', type: 'Virtual' },
+    ],
+    activityTree: [
+      { id: 1, title: 'Initial Consultation', date: 'Oct 01, 2024', status: 'Completed', type: 'session' },
+      { id: 2, title: 'Career Interest Quiz Review', date: 'Oct 10, 2024', status: 'Completed', type: 'quiz' },
+      { id: 3, title: 'University Selection', date: 'Oct 25, 2024', status: 'Upcoming', type: 'session' },
     ]
   };
 
@@ -95,81 +104,154 @@ export default function CounselorDetails() {
                 </div>
               </div>
 
-              <div className="mt-12 space-y-8">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-4">About Me</h3>
-                  <p className="text-slate-600 font-medium leading-relaxed text-lg">
-                    {counselor.bio}
-                  </p>
+              {/* Tabs */}
+              <div className="flex gap-4 mt-12 border-b border-slate-100">
+                <button 
+                  onClick={() => setActiveTab('about')}
+                  className={`pb-4 text-sm font-bold transition-all relative ${activeTab === 'about' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  About Counselor
+                  {activeTab === 'about' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand" />}
+                </button>
+                <button 
+                  onClick={() => setActiveTab('activity')}
+                  className={`pb-4 text-sm font-bold transition-all relative ${activeTab === 'activity' ? 'text-brand' : 'text-slate-400 hover:text-slate-600'}`}
+                >
+                  Activity Tree
+                  {activeTab === 'activity' && <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand" />}
+                </button>
+              </div>
+
+              <div className="mt-8">
+                {activeTab === 'about' ? (
+                  <div className="space-y-8">
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-4">About Me</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed text-lg">
+                        {counselor.bio}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {counselor.expertise.map((exp) => (
+                          <span key={exp} className="px-5 py-2.5 bg-brand/5 border border-brand/10 rounded-2xl text-sm font-bold text-brand">
+                            {exp}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    <div className="relative pl-8 space-y-12 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
+                      {counselor.activityTree.map((activity) => (
+                        <div key={activity.id} className="relative">
+                          <div className={`absolute left-[-36px] top-0 w-8 h-8 rounded-full flex items-center justify-center shadow-sm ${
+                            activity.status === 'Completed' ? 'bg-emerald-500 text-white' : 'bg-brand text-white'
+                          }`}>
+                            {activity.type === 'session' ? <Calendar className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
+                          </div>
+                          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{activity.date}</span>
+                              <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
+                                activity.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' : 'bg-brand/10 text-brand'
+                              }`}>
+                                {activity.status}
+                              </span>
+                            </div>
+                            <h4 className="text-lg font-bold text-slate-900">{activity.title}</h4>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {activeTab === 'about' && (
+            <>
+              {/* Services */}
+              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <Award className="w-5 h-5 text-brand" /> Counseling Services
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {counselor.services.map((service, i) => (
+                    <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand/20 transition-all group">
+                      <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{service.name}</h4>
+                      <p className="text-xs font-bold text-emerald-500 mt-2 uppercase tracking-wider">{service.price}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Experience & Education */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                  <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-brand" /> Education
+                  </h3>
+                  <div className="space-y-6">
+                    {counselor.education.map((edu, i) => (
+                      <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
+                        <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
+                        <h4 className="font-bold text-slate-900">{edu.degree}</h4>
+                        <p className="text-sm font-bold text-slate-500">{edu.school}</p>
+                        <p className="text-xs font-bold text-slate-400 mt-1">{edu.year}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {counselor.expertise.map((exp) => (
-                      <span key={exp} className="px-5 py-2.5 bg-brand/5 border border-brand/10 rounded-2xl text-sm font-bold text-brand">
-                        {exp}
-                      </span>
+                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                  <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-brand" /> Professional History
+                  </h3>
+                  <div className="space-y-6">
+                    {counselor.experience.map((exp, i) => (
+                      <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
+                        <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
+                        <h4 className="font-bold text-slate-900">{exp.role}</h4>
+                        <p className="text-sm font-bold text-slate-500">{exp.school}</p>
+                        <p className="text-xs font-bold text-slate-400 mt-1">{exp.period}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Services */}
-          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-            <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-              <Award className="w-5 h-5 text-brand" /> Counseling Services
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {counselor.services.map((service, i) => (
-                <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand/20 transition-all group">
-                  <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{service.name}</h4>
-                  <p className="text-xs font-bold text-emerald-500 mt-2 uppercase tracking-wider">{service.price}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Experience & Education */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-brand" /> Education
-              </h3>
-              <div className="space-y-6">
-                {counselor.education.map((edu, i) => (
-                  <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
-                    <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
-                    <h4 className="font-bold text-slate-900">{edu.degree}</h4>
-                    <p className="text-sm font-bold text-slate-500">{edu.school}</p>
-                    <p className="text-xs font-bold text-slate-400 mt-1">{edu.year}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <Users className="w-5 h-5 text-brand" /> Professional History
-              </h3>
-              <div className="space-y-6">
-                {counselor.experience.map((exp, i) => (
-                  <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
-                    <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
-                    <h4 className="font-bold text-slate-900">{exp.role}</h4>
-                    <p className="text-sm font-bold text-slate-500">{exp.school}</p>
-                    <p className="text-xs font-bold text-slate-400 mt-1">{exp.period}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Sidebar Actions */}
         <div className="space-y-6">
+          {counselor.scheduledSessions.length > 0 && (
+            <div className="bg-emerald-500 p-8 rounded-[32px] text-white shadow-xl shadow-emerald-500/20">
+              <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                <Calendar className="w-6 h-6" /> Scheduled Session
+              </h3>
+              <div className="space-y-4">
+                {counselor.scheduledSessions.map((session) => (
+                  <div key={session.id} className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
+                    <p className="font-bold">{session.title}</p>
+                    <div className="flex items-center gap-4 mt-2 text-sm font-medium text-white/80">
+                      <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {session.time}</span>
+                      <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {session.date}</span>
+                    </div>
+                    <button className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all text-sm">
+                      Join Meeting
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6 sticky top-28">
             <div className="text-center pb-6 border-b border-slate-50">
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Appointment</p>

@@ -13,11 +13,13 @@ import SchoolDashboard from './components/Dashboard/SchoolDashboard';
 import StudentOnboarding from './components/Onboarding/StudentOnboarding';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
 import AdminSignIn from './components/Auth/AdminSignIn';
-import AdminSignUp from './components/Auth/AdminSignUp';
 import AdminForgotPassword from './components/Auth/AdminForgotPassword';
 import AdminCheckEmail from './components/Auth/AdminCheckEmail';
 import AdminSetPassword from './components/Auth/AdminSetPassword';
 import AdminDashboard from './components/Dashboard/Admin/AdminDashboard';
+import CounselorSignIn from './components/Auth/CounselorSignIn';
+import CounselorOnboarding from './components/Auth/CounselorOnboarding';
+import CounselorDashboard from './components/Dashboard/CounselorDashboard';
 
 export default function App() {
   return (
@@ -57,6 +59,11 @@ export default function App() {
           <Route path="/admin/check-email" element={<AdminCheckEmail />} />
           <Route path="/admin/set-password" element={<AdminSetPassword />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
+
+          {/* Counselor Routes */}
+          <Route path="/counselor/signin" element={<CounselorSignIn />} />
+          <Route path="/counselor/onboarding" element={<CounselorOnboarding />} />
+          <Route path="/counselor/*" element={<CounselorDashboard />} />
           
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

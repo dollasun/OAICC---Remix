@@ -89,6 +89,8 @@ export default function LandingPage() {
             onClick={() => {
               if (role.id === 'admin') {
                 navigate('/admin/signin');
+              } else if (role.id === 'counselor') {
+                navigate('/counselor/signin');
               } else {
                 navigate(`/auth/signin?role=${role.id}`);
               }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
   Filter, 
@@ -11,7 +11,8 @@ import {
   MapPin,
   CheckCircle2,
   Clock,
-  BookOpen
+  BookOpen,
+  X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -58,6 +59,14 @@ export default function Counselors() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState('All');
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedCounselor, setSelectedCounselor] = useState<any>(null);
+  const [bookingStep, setBookingStep] = useState(1); // 1: Select Counselor, 2: Form
+  const [bookingData, setBookingData] = useState({
+    date: '',
+    time: '',
+    reason: ''
+  });
 
   const expertiseList = ['All', 'University Admissions', 'Scholarships', 'Career Mapping', 'Mental Health', 'Subject Selection'];
 
@@ -69,6 +78,31 @@ export default function Counselors() {
     return matchesSearch && matchesExpertise;
   });
 
+  const handleBookSession = () => {
+    if (counselors.length === 1) {
+      setSelectedCounselor(counselors[0]);
+      setBookingStep(2);
+    } else {
+      setBookingStep(1);
+    }
+    setIsBookingModalOpen(true);
+  };
+
+  const handleSelectCounselor = (counselor: any) => {
+    setSelectedCounselor(counselor);
+    setBookingStep(2);
+  };
+
+  const handleConfirmBooking = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would call an API
+    alert(`Session booked with ${selectedCounselor.name} for ${bookingData.date} at ${bookingData.time}. Reason: ${bookingData.reason}`);
+    setIsBookingModalOpen(false);
+    setBookingStep(1);
+    setSelectedCounselor(null);
+    setBookingData({ date: '', time: '', reason: '' });
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -77,10 +111,117 @@ export default function Counselors() {
           <h1 className="text-3xl font-bold text-slate-900">Academic Counselors</h1>
           <p className="text-slate-500 font-medium mt-1">Get professional guidance on your academic journey and university applications.</p>
         </div>
-        <button className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand/20 hover:scale-105 transition-all">
+        <button 
+          onClick={handleBookSession}
+          className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+        >
           <Calendar className="w-5 h-5" /> Book a Session
         </button>
       </div>
+
+      {/* Booking Modal */}
+      <AnimatePresence>
+        {isBookingModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsBookingModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    {bookingStep === 1 ? 'Select a Counselor' : `Book Session with ${selectedCounselor?.name}`}
+                  </h2>
+                  <button onClick={() => setIsBookingModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {bookingStep === 1 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    {counselors.map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => handleSelectCounselor(c)}
+                        className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand hover:bg-brand/5 transition-all text-left group"
+                      >
+                        <img src={c.image} alt={c.name} className="w-12 h-12 rounded-xl object-cover" />
+                        <div>
+                          <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{c.name}</h4>
+                          <p className="text-xs font-bold text-slate-500">{c.role}</p>
+                        </div>
+                        <ChevronRight className="w-5 h-5 ml-auto text-slate-300 group-hover:text-brand" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <form onSubmit={handleConfirmBooking} className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 ml-1">Date</label>
+                        <input 
+                          type="date" 
+                          required
+                          value={bookingData.date}
+                          onChange={(e) => setBookingData({...bookingData, date: e.target.value})}
+                          className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 ml-1">Time</label>
+                        <input 
+                          type="time" 
+                          required
+                          value={bookingData.time}
+                          onChange={(e) => setBookingData({...bookingData, time: e.target.value})}
+                          className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Reason for Appointment</label>
+                      <textarea 
+                        required
+                        rows={4}
+                        placeholder="Briefly describe what you'd like to discuss..."
+                        value={bookingData.reason}
+                        onChange={(e) => setBookingData({...bookingData, reason: e.target.value})}
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                      />
+                    </div>
+                    <div className="flex gap-4 pt-4">
+                      {counselors.length > 1 && (
+                        <button 
+                          type="button"
+                          onClick={() => setBookingStep(1)}
+                          className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                        >
+                          Back
+                        </button>
+                      )}
+                      <button 
+                        type="submit"
+                        className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                      >
+                        Confirm Booking
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Search and Filter */}
       <div className="flex flex-col md:flex-row gap-4">

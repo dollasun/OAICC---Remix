@@ -14,7 +14,8 @@ import {
   Menu, 
   X,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Scale
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../../Logo';
@@ -26,9 +27,13 @@ import AdminCreateCareer from './CreateCareer';
 import AdminEditCareer from './EditCareer';
 import AdminForums from './Forums';
 import AdminMentors from './Mentors';
+import AdminCreateMentor from './CreateMentor';
+import AdminEditMentor from './EditMentor';
+import AdminMentorDetails from './MentorDetails';
 import AdminCounselors from './Counselors';
 import AdminUsers from './AdminUsers';
 import AdminEvents from './Events';
+import AdminInterestQuiz from './InterestQuiz';
 import AdminSettings from './Settings';
 import AdminForumDetails from './ForumDetails';
 import AdminDiscussionDetails from './DiscussionDetails';
@@ -44,6 +49,7 @@ const menuItems = [
   { icon: UserSquare2, label: 'Counselor', path: '/admin/counselors' },
   { icon: Calendar, label: 'Events', path: '/admin/events' },
   { icon: ShieldCheck, label: 'Admin Users', path: '/admin/users' },
+  { icon: Scale, label: 'Interest Quiz', path: '/admin/quiz' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
@@ -220,9 +226,13 @@ export default function AdminDashboard() {
             <Route path="forums/:id" element={<AdminForumDetails />} />
             <Route path="forums/:id/discussion/:discussionId" element={<AdminDiscussionDetails />} />
             <Route path="mentors" element={<AdminMentors />} />
+            <Route path="mentors/create" element={<AdminCreateMentor />} />
+            <Route path="mentors/:id" element={<AdminMentorDetails />} />
+            <Route path="mentors/edit/:id" element={<AdminEditMentor />} />
             <Route path="counselors" element={<AdminCounselors />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="events" element={<AdminEvents />} />
+            <Route path="quiz" element={<AdminInterestQuiz />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="students/:id" element={<AdminStudentView />} />
             <Route path="notifications" element={<NotificationPage />} />

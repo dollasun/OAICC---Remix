@@ -36,7 +36,20 @@ const initialTopics = [
     author: 'Alex Chen',
     authorImage: 'https://picsum.photos/seed/alex/100/100',
     category: 'Career Advice',
-    replies: 24,
+    replies: [
+      {
+        id: 101,
+        author: 'Dr. Sarah Johnson',
+        authorRole: 'AI Researcher',
+        authorImage: 'https://picsum.photos/seed/sarah/100/100',
+        isVerified: true,
+        content: 'Great question, Alex! AI is a fantastic field to get into. At your stage, the most important thing is building a strong foundation in Mathematics—specifically Linear Algebra and Calculus.',
+        time: '1 hour ago',
+        likes: 15,
+        dislikes: 2,
+        replies: []
+      }
+    ],
     views: 156,
     likes: 42,
     time: '2h ago',
@@ -49,7 +62,7 @@ const initialTopics = [
     author: 'Sarah Miller',
     authorImage: 'https://picsum.photos/seed/sarah/100/100',
     category: 'Education & Degrees',
-    replies: 18,
+    replies: [],
     views: 320,
     likes: 25,
     time: '5h ago',
@@ -62,7 +75,7 @@ const initialTopics = [
     author: 'David Wilson',
     authorImage: 'https://picsum.photos/seed/david/100/100',
     category: 'Internships',
-    replies: 12,
+    replies: [],
     views: 89,
     likes: 15,
     time: '1d ago',
@@ -75,7 +88,7 @@ const initialTopics = [
     author: 'Emily Brown',
     authorImage: 'https://picsum.photos/seed/emily/100/100',
     category: 'Skill Development',
-    replies: 56,
+    replies: [],
     views: 1200,
     likes: 110,
     time: '3d ago',
@@ -88,33 +101,17 @@ export default function Forum() {
   const { showToast } = useToast();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [categories, setCategories] = useState<any[]>([]);
-  const [topics, setTopics] = useState<any[]>([]);
-  const [careers, setCareers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // New topic state
+  const [topics, setTopics] = useState<any[]>([]);
   const [newTopic, setNewTopic] = useState({
     title: '',
-    body: '',
-    careerId: ''
+    content: '',
+    category: 'Career Advice'
   });
 
   useEffect(() => {
-    const storedTopics = forumsStorage.get(initialTopics);
-    setTopics(storedTopics);
-    
-    const storedCareers = careersStorage.get([]);
-    setCareers(storedCareers);
-
-    const adminForums = forumsStorage.get([]);
-    if (adminForums.length > 0 && adminForums !== initialTopics) {
-      // This is a bit tricky since forumsStorage might contain initialTopics or admin-created ones
-      // For now let's just use initialCategories if no specific categories are found
-      setCategories(initialCategories);
-    } else {
-      setCategories(initialCategories);
-    }
+    const stored = forumsStorage.get(initialTopics);
+    setTopics(stored);
   }, []);
 
   const filteredTopics = topics.filter(topic => {
@@ -124,19 +121,13 @@ export default function Forum() {
     return matchesSearch && matchesCategory;
   });
 
-  const handleStartTopic = (e: React.FormEvent) => {
+  const handleCreateTopic = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTopic.title || !newTopic.body || !newTopic.careerId) return;
-
-    const selectedCareer = careers.find(c => c.id.toString() === newTopic.careerId);
-    
     const topic = {
+      ...newTopic,
       id: Date.now(),
-      title: newTopic.title,
-      content: newTopic.body,
       author: 'Bolu Ahmed',
       authorImage: 'https://picsum.photos/seed/student/100/100',
-      category: selectedCareer?.category || 'General',
       replies: 0,
       views: 0,
       likes: 0,
@@ -149,8 +140,8 @@ export default function Forum() {
     forumsStorage.save(updatedTopics);
     
     setIsModalOpen(false);
-    setNewTopic({ title: '', body: '', careerId: '' });
-    showToast('Topic posted successfully!');
+    setNewTopic({ title: '', content: '', category: 'Career Advice' });
+    showToast('Topic created successfully!');
   };
 
   return (
@@ -169,13 +160,98 @@ export default function Forum() {
         </button>
       </div>
 
+      {/* New Topic Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <form onSubmit={handleCreateTopic} className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-2xl font-bold text-slate-900">Start New Topic</h2>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Topic Title</label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="What's on your mind?"
+                      value={newTopic.title}
+                      onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Category</label>
+                    <select 
+                      value={newTopic.category}
+                      onChange={(e) => setNewTopic({...newTopic, category: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 appearance-none"
+                    >
+                      {initialCategories.filter(c => c.id !== 'all').map(cat => (
+                        <option key={cat.id} value={cat.label}>{cat.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Content</label>
+                    <textarea 
+                      required
+                      rows={6}
+                      placeholder="Describe your topic in detail..."
+                      value={newTopic.content}
+                      onChange={(e) => setNewTopic({...newTopic, content: e.target.value})}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button 
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit"
+                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                    >
+                      Post Topic
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar Filters */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Categories</h3>
             <div className="space-y-1">
-              {categories.map((cat) => (
+              {initialCategories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
@@ -262,7 +338,7 @@ export default function Forum() {
                       </span>
                       <div className="flex items-center gap-4 ml-auto">
                         <span className="flex items-center gap-1.5 hover:text-brand transition-colors">
-                          <MessageCircle className="w-4 h-4" /> {topic.replies}
+                          <MessageCircle className="w-4 h-4" /> {Array.isArray(topic.replies) ? topic.replies.length : topic.replies}
                         </span>
                         <span className="flex items-center gap-1.5 hover:text-red-500 transition-colors">
                           <ThumbsUp className="w-4 h-4" /> {topic.likes}
@@ -283,119 +359,12 @@ export default function Forum() {
                   <MessageSquare className="w-10 h-10 text-slate-200" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900">No topics found</h3>
-                <p className="text-slate-500 font-medium mt-2">Be the first to start a conversation about this topic!</p>
-                <button 
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-6 text-brand font-bold hover:underline"
-                >
-                  Start a new topic
-                </button>
+                <p className="text-slate-500 font-medium mt-2">Try adjusting your search or filters.</p>
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* Start Topic Modal */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
-            >
-              <div className="p-8 sm:p-10">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center text-brand">
-                      <Plus className="w-6 h-6" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-slate-900">Start New Topic</h2>
-                      <p className="text-slate-500 font-medium">Share your thoughts with the community</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-2 hover:bg-slate-50 rounded-xl transition-colors"
-                  >
-                    <X className="w-6 h-6 text-slate-400" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleStartTopic} className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Select Career</label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <select
-                        required
-                        value={newTopic.careerId}
-                        onChange={(e) => setNewTopic({ ...newTopic, careerId: e.target.value })}
-                        className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-bold text-slate-700 appearance-none"
-                      >
-                        <option value="">Choose a career...</option>
-                        {careers.map(career => (
-                          <option key={career.id} value={career.id}>{career.title}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Topic Title</label>
-                    <input 
-                      required
-                      type="text" 
-                      placeholder="What's on your mind?"
-                      value={newTopic.title}
-                      onChange={(e) => setNewTopic({ ...newTopic, title: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-bold text-slate-700"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Topic Body</label>
-                    <textarea 
-                      required
-                      rows={6}
-                      placeholder="Tell us more about it..."
-                      value={newTopic.body}
-                      onChange={(e) => setNewTopic({ ...newTopic, body: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium text-slate-700 resize-none"
-                    />
-                  </div>
-
-                  <div className="flex gap-4 pt-4">
-                    <button 
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="flex-1 px-6 py-4 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button 
-                      type="submit"
-                      className="flex-1 px-6 py-4 bg-brand text-white rounded-2xl font-bold shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                    >
-                      Post Topic
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

@@ -75,17 +75,12 @@ export default function ForumThread() {
     const storedTopics = forumsStorage.get(initialTopics);
     const found = storedTopics.find((t: any) => t.id.toString() === id);
     if (found) {
-      // Ensure replies is an array and has the new fields
-      if (!Array.isArray(found.replies)) {
-        found.replies = [];
-      }
-      found.replies = found.replies.map((r: any) => ({
-        ...r,
-        dislikes: r.dislikes || 0,
-        replies: r.replies || []
-      }));
-      found.dislikes = found.dislikes || 0;
-      setThread(found);
+      // Ensure replies is an array for robust rendering
+      const sanitizedThread = {
+        ...found,
+        replies: Array.isArray(found.replies) ? found.replies : []
+      };
+      setThread(sanitizedThread);
     }
   }, [id]);
 
@@ -108,7 +103,6 @@ export default function ForumThread() {
 
     let updatedThread;
     if (replyingTo) {
-      // Add as a nested reply to the specific reply
       updatedThread = {
         ...thread,
         replies: thread.replies.map((r: any) => 
@@ -118,7 +112,6 @@ export default function ForumThread() {
         )
       };
     } else {
-      // Add as a top-level reply
       updatedThread = {
         ...thread,
         replies: [...thread.replies, newReply]
@@ -127,7 +120,6 @@ export default function ForumThread() {
 
     setThread(updatedThread);
     
-    // Update in storage
     const storedTopics = forumsStorage.get(initialTopics);
     const updatedTopics = storedTopics.map((t: any) => 
       t.id.toString() === id ? updatedThread : t
@@ -139,7 +131,7 @@ export default function ForumThread() {
     showToast('Reply posted successfully!');
   };
 
-  const handleLikeReply = (replyId: number, isNested = false, parentId?: number) => {
+  const handleLikeReply = (replyId: number) => {
     if (!thread) return;
     
     const updateReplies = (replies: any[]) => {
@@ -366,7 +358,7 @@ export default function ForumThread() {
                           </p>
                           <div className="flex items-center gap-4 mt-4">
                             <button 
-                              onClick={() => handleLikeReply(nested.id, true, reply.id)}
+                              onClick={() => handleLikeReply(nested.id)}
                               className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand transition-colors"
                             >
                               <ThumbsUp className="w-3.5 h-3.5" /> {nested.likes}

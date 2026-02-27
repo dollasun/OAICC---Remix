@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Activity, 
   CheckCircle2, 
@@ -63,6 +63,8 @@ const milestones = [
 ];
 
 export default function ActivityTracker() {
+  const [isAchievementsModalOpen, setIsAchievementsModalOpen] = React.useState(false);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -153,10 +155,65 @@ export default function ActivityTracker() {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-6 py-3 text-brand font-bold text-sm hover:underline">
+            <button 
+              onClick={() => setIsAchievementsModalOpen(true)}
+              className="w-full mt-6 py-3 text-brand font-bold text-sm hover:underline"
+            >
               View all achievements
             </button>
           </div>
+
+          <AnimatePresence>
+            {isAchievementsModalOpen && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsAchievementsModalOpen(false)}
+                  className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                />
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+                >
+                  <div className="p-8 sm:p-10">
+                    <div className="flex items-center justify-between mb-8">
+                      <h2 className="text-2xl font-bold text-slate-900">All Achievements</h2>
+                      <button onClick={() => setIsAchievementsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                        <ChevronRight className="w-6 h-6 rotate-90" />
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+                      {[...milestones, 
+                        { id: 4, title: 'First Quiz Passed', date: 'Oct 15, 2024', icon: Award },
+                        { id: 5, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users },
+                        { id: 6, title: 'Career Path Saved', date: 'Oct 20, 2024', icon: BookOpen },
+                        { id: 7, title: 'Forum Expert', date: 'Oct 22, 2024', icon: Star },
+                        { id: 8, title: 'Weekly Streak', date: 'Oct 25, 2024', icon: Activity }
+                      ].map((milestone) => (
+                        <div key={milestone.id} className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                          <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center text-brand">
+                            <milestone.icon className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-slate-900">{milestone.title}</h4>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">{milestone.date}</p>
+                          </div>
+                          <div className="ml-auto">
+                            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>
 
           <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden">
             <div className="relative z-10">

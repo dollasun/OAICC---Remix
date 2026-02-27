@@ -127,7 +127,9 @@ export default function SavedContent() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors line-clamp-1">{topic.title}</h3>
-                    <p className="text-xs font-bold text-slate-400 mt-1">By {topic.author} • {topic.time} • {topic.replies} replies</p>
+                    <p className="text-xs font-bold text-slate-400 mt-1">
+                      By {topic.author} • {topic.time} • {Array.isArray(topic.replies) ? topic.replies.length : topic.replies} replies
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-end gap-2 border-t sm:border-t-0 pt-4 sm:pt-0">

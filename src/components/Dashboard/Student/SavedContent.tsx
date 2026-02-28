@@ -30,11 +30,6 @@ export default function SavedContent() {
     savedCareersStorage.save(updated);
   };
 
-  const savedTopics = [
-    { id: 1, title: 'How to start a career in AI as a high school student?', author: 'Alex Chen', time: '2h ago', replies: 24 },
-    { id: 2, title: 'Best universities for Computer Science in 2024?', author: 'Sarah Miller', time: '5h ago', replies: 18 }
-  ];
-
   const savedMentors = [
     { id: 1, name: 'Sarah Johnson', role: 'Senior Software Engineer', company: 'Google', rating: 4.9, image: 'https://picsum.photos/seed/sarah/100/100' },
     { id: 2, name: 'Marcus Thorne', role: 'Product Designer', company: 'Airbnb', rating: 4.8, image: 'https://picsum.photos/seed/marcus/100/100' }
@@ -54,7 +49,6 @@ export default function SavedContent() {
       <div className="flex flex-wrap gap-2 p-1 bg-white rounded-[24px] border border-slate-100 shadow-sm w-fit">
         {[
           { id: 'careers', label: 'Careers', icon: Briefcase },
-          { id: 'topics', label: 'Discussions', icon: MessageSquare },
           { id: 'mentors', label: 'Mentors', icon: Users }
         ].map((tab) => (
           <button
@@ -112,42 +106,6 @@ export default function SavedContent() {
           </div>
         )}
 
-        {activeTab === 'topics' && (
-          <div className="space-y-4">
-            {savedTopics.map((topic) => (
-              <motion.div
-                key={topic.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
-                    <MessageSquare className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors line-clamp-1">{topic.title}</h3>
-                    <p className="text-xs font-bold text-slate-400 mt-1">
-                      By {topic.author} • {topic.time} • {Array.isArray(topic.replies) ? topic.replies.length : topic.replies} replies
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-end gap-2 border-t sm:border-t-0 pt-4 sm:pt-0">
-                  <button className="p-2 text-slate-300 hover:text-red-500 transition-colors">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                  <button 
-                    onClick={() => navigate(`/student/forum/${topic.id}`)}
-                    className="p-2 text-slate-300 hover:text-brand transition-colors"
-                  >
-                    <ChevronRight className="w-6 h-6" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-
         {activeTab === 'mentors' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {savedMentors.map((mentor) => (
@@ -183,7 +141,6 @@ export default function SavedContent() {
 
         {/* Empty State */}
         {((activeTab === 'careers' && savedCareers.length === 0) ||
-          (activeTab === 'topics' && savedTopics.length === 0) ||
           (activeTab === 'mentors' && savedMentors.length === 0)) && (
           <div className="text-center py-20 bg-white rounded-[40px] border border-slate-100">
             <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -192,7 +149,7 @@ export default function SavedContent() {
             <h3 className="text-xl font-bold text-slate-900">No saved {activeTab} yet</h3>
             <p className="text-slate-500 font-medium mt-2">Start exploring and bookmarking content you find interesting!</p>
             <button 
-              onClick={() => navigate(`/student/${activeTab === 'topics' ? 'forum' : activeTab}`)}
+              onClick={() => navigate(`/student/${activeTab}`)}
               className="mt-6 px-8 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
             >
               Explore {activeTab}

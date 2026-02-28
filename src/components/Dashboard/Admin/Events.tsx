@@ -22,12 +22,13 @@ import { eventsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 
 const initialEvents = [
-  { id: 1, title: 'Why Medicine is for you', career: 'Medicine', mentor: 'Amanda Lance', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e1/800/400' },
-  { id: 2, title: 'Understanding Design fundamentals', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e2/800/400' },
-  { id: 3, title: 'Pattern and Colors', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e3/800/400' },
-  { id: 4, title: 'Data Structure', career: 'Software Engineering', mentor: 'John Chidiebere', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e4/800/400' },
-  { id: 5, title: 'Architecture Fundamental', career: 'Architecture', mentor: 'Adeola Bisoye', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e5/800/400' },
-  { id: 6, title: 'Engineering Fundamental', career: 'Engineering', mentor: 'Bolu Ahmed', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e6/800/400' },
+  { id: 1, title: 'Why Medicine is for you', career: 'Medicine', mentor: 'Amanda Lance', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e1/800/400', registeredCount: 124, attendedCount: 89 },
+  { id: 2, title: 'Understanding Design fundamentals', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e2/800/400', registeredCount: 210, attendedCount: 145 },
+  { id: 3, title: 'Pattern and Colors', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e3/800/400', registeredCount: 156, attendedCount: 112 },
+  { id: 4, title: 'Data Structure', career: 'Software Engineering', mentor: 'John Chidiebere', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e4/800/400', registeredCount: 320, attendedCount: 280 },
+  { id: 5, title: 'Architecture Fundamental', career: 'Architecture', mentor: 'Adeola Bisoye', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e5/800/400', registeredCount: 98, attendedCount: 72 },
+  { id: 6, title: 'Engineering Fundamental', career: 'Engineering', mentor: 'Bolu Ahmed', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e6/800/400', registeredCount: 180, attendedCount: 150 },
+  { id: 7, title: 'Future of AI in Healthcare', career: 'Medicine', mentor: 'Amanda Lance', date: 'March 15, 2026', time: '4:00 PM', image: 'https://picsum.photos/seed/e7/800/400', registeredCount: 45, attendedCount: 0 },
 ];
 
 export default function AdminEvents() {
@@ -45,11 +46,25 @@ export default function AdminEvents() {
     setEvents(eventsStorage.get(initialEvents));
   }, []);
 
-  const filteredEvents = events.filter(e => 
-    e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    e.career.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    e.mentor.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isPastEvent = (dateStr: string) => {
+    const eventDate = new Date(dateStr);
+    const now = new Date();
+    // Set both to start of day for accurate comparison if needed, 
+    // but here we just compare the full date objects
+    return eventDate < now;
+  };
+
+  const filteredEvents = events.filter(e => {
+    const matchesSearch = 
+      e.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.career.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.mentor.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const isPast = isPastEvent(e.date);
+    const matchesTab = activeTab === 'past' ? isPast : !isPast;
+
+    return matchesSearch && matchesTab;
+  });
 
   const handleAddEvent = () => {
     if (!newEvent.title) return;
@@ -61,7 +76,9 @@ export default function AdminEvents() {
       const event = {
         id: Date.now(),
         ...newEvent,
-        image: bgImage || 'https://picsum.photos/seed/event/800/400'
+        image: bgImage || 'https://picsum.photos/seed/event/800/400',
+        registeredCount: 0,
+        attendedCount: 0
       };
       const updated = [...events, event];
       setEvents(updated);
@@ -199,6 +216,15 @@ export default function AdminEvents() {
             </div>
           </motion.div>
         ))}
+        {filteredEvents.length === 0 && (
+          <div className="col-span-full py-20 text-center">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="w-10 h-10 text-slate-300" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900">No {activeTab} events found</h3>
+            <p className="text-slate-500 font-medium">Try searching for something else or create a new event.</p>
+          </div>
+        )}
       </div>
 
       {/* Create Event Modal */}
@@ -388,6 +414,20 @@ export default function AdminEvents() {
                   </span>
                 </div>
                 <h2 className="text-3xl font-bold text-slate-900 mb-6">{selectedEvent.title}</h2>
+                
+                {isPastEvent(selectedEvent.date) && (
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="p-6 bg-slate-50 rounded-[32px] text-center">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Registered</p>
+                      <p className="text-2xl font-black text-slate-900">{selectedEvent.registeredCount || 0}</p>
+                    </div>
+                    <div className="p-6 bg-slate-50 rounded-[32px] text-center">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Attended</p>
+                      <p className="text-2xl font-black text-slate-900">{selectedEvent.attendedCount || 0}</p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-[32px] mb-8">
                   <img src={`https://picsum.photos/seed/${selectedEvent.mentor}/100/100`} className="w-14 h-14 rounded-2xl object-cover" alt={selectedEvent.mentor} />
                   <div>
@@ -397,7 +437,14 @@ export default function AdminEvents() {
                 </div>
                 <div className="flex gap-4">
                   <button onClick={() => setIsViewModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Close</button>
-                  <button className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                  <button 
+                    disabled={isPastEvent(selectedEvent.date)}
+                    className={`flex-1 py-4 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 ${
+                      isPastEvent(selectedEvent.date) 
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                        : 'bg-brand text-white shadow-lg shadow-brand/20 hover:scale-[1.02]'
+                    }`}
+                  >
                     Join Event <Video className="w-5 h-5" />
                   </button>
                 </div>

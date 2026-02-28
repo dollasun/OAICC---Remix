@@ -15,31 +15,53 @@ import {
   ArrowUpRight,
   UserSquare2,
   Send,
-  Calendar
+  Calendar,
+  UserPlus,
+  Clock,
+  Check,
+  Video
 } from 'lucide-react';
-import { counselorsStorage } from '../../../utils/storage';
+import { counselorsStorage, counselorRequestsStorage, studentsStorage, counselingSessionsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 
 const initialCounselors = [
-  { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c1/100/100' },
-  { id: 2, name: 'Amanda Lance', email: 'lance@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c2/100/100' },
-  { id: 3, name: 'Bolu Ahmed', email: 'bolu@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c3/100/100' },
-  { id: 4, name: 'Lilian Okoh', email: 'lilian@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c4/100/100' },
-  { id: 5, name: 'John Chidiebere', email: 'john@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c5/100/100' },
-  { id: 6, name: 'Adeola Bisoye', email: 'adeola@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c6/100/100' },
+  { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c1/100/100', assignedStudents: 7 },
+  { id: 2, name: 'Amanda Lance', email: 'lance@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c2/100/100', assignedStudents: 3 },
+  { id: 3, name: 'Bolu Ahmed', email: 'bolu@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c3/100/100', assignedStudents: 0 },
+  { id: 4, name: 'Lilian Okoh', email: 'lilian@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c4/100/100', assignedStudents: 0 },
+  { id: 5, name: 'John Chidiebere', email: 'john@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c5/100/100', assignedStudents: 0 },
+  { id: 6, name: 'Adeola Bisoye', email: 'adeola@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c6/100/100', assignedStudents: 0 },
+];
+
+const initialStudents = [
+  { id: 1, name: 'Osayuki Yuki', email: 'osayuki.a+1@gmail.com', counselorId: 1, avatar: 'https://picsum.photos/seed/s1/100/100' },
+  { id: 2, name: 'Oyindamola Olambiwooninu', email: 'ooolambiwooninu@gmail.com', counselorId: 1, avatar: 'https://picsum.photos/seed/s2/100/100' },
+  { id: 3, name: 'Fola Kareem', email: 'yartview@gmail.com', counselorId: null, avatar: 'https://picsum.photos/seed/s3/100/100' },
+  { id: 4, name: 'Oyin Olam', email: 'ooolambiwooninu@hotmail.co.uk', counselorId: null, avatar: 'https://picsum.photos/seed/s4/100/100' },
+];
+
+const initialRequests = [
+  { id: 1, studentId: 1, studentName: 'Osayuki Yuki', studentEmail: 'osayuki.a+1@gmail.com', date: '2026-02-27', status: 'pending', avatar: 'https://picsum.photos/seed/s1/100/100' },
+  { id: 2, studentId: 3, studentName: 'Fola Kareem', studentEmail: 'yartview@gmail.com', date: '2026-02-26', status: 'pending', avatar: 'https://picsum.photos/seed/s3/100/100' },
 ];
 
 export default function AdminCounselors() {
   const { showToast } = useToast();
   const [counselors, setCounselors] = useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedCounselor, setSelectedCounselor] = useState<any>(null);
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     setCounselors(counselorsStorage.get(initialCounselors));
+    setStudents(studentsStorage.get(initialStudents));
+    setRequests(counselorRequestsStorage.get(initialRequests));
   }, []);
 
   const filteredCounselors = counselors.filter(c => 
@@ -49,6 +71,10 @@ export default function AdminCounselors() {
     if (sortBy === 'name') return a.name.localeCompare(b.name);
     return 0;
   });
+
+  const getCounselorSessions = (counselorId: number) => {
+    return counselingSessionsStorage.get([]).filter((s: any) => s.counselorId === counselorId);
+  };
 
   const handleInvite = () => {
     if (!inviteEmail) return;
@@ -63,7 +89,8 @@ export default function AdminCounselors() {
         email: inviteEmail,
         role: 'Counselor',
         date: new Date().toLocaleString(),
-        avatar: `https://picsum.photos/seed/${Date.now()}/100/100`
+        avatar: `https://picsum.photos/seed/${Date.now()}/100/100`,
+        assignedStudents: 0
       };
       const updated = [...counselors, newCounselor];
       setCounselors(updated);
@@ -73,6 +100,40 @@ export default function AdminCounselors() {
     setSelectedCounselor(null);
     setInviteEmail('');
     showToast(selectedCounselor ? 'Counselor updated successfully!' : 'Invite sent successfully!');
+  };
+
+  const handleAssignStudents = () => {
+    if (!selectedCounselor || selectedStudents.length === 0) return;
+
+    // Update students
+    const updatedStudents = students.map(s => 
+      selectedStudents.includes(s.id) ? { ...s, counselorId: selectedCounselor.id } : s
+    );
+    setStudents(updatedStudents);
+    studentsStorage.save(updatedStudents);
+
+    // Update counselor's assigned count
+    const updatedCounselors = counselors.map(c => 
+      c.id === selectedCounselor.id ? { ...c, assignedStudents: (c.assignedStudents || 0) + selectedStudents.length } : c
+    );
+    setCounselors(updatedCounselors);
+    counselorsStorage.save(updatedCounselors);
+
+    // If assigning from requests, update requests
+    const updatedRequests = requests.filter(r => !selectedStudents.includes(r.studentId));
+    setRequests(updatedRequests);
+    counselorRequestsStorage.save(updatedRequests);
+
+    setIsAssignModalOpen(false);
+    setSelectedStudents([]);
+    setSelectedCounselor(null);
+    showToast(`Successfully assigned ${selectedStudents.length} student(s) to ${selectedCounselor.name}`);
+  };
+
+  const toggleStudentSelection = (studentId: number) => {
+    setSelectedStudents(prev => 
+      prev.includes(studentId) ? prev.filter(id => id !== studentId) : [...prev, studentId]
+    );
   };
 
   const handleEditCounselor = (counselor: any, e: React.MouseEvent) => {
@@ -107,10 +168,11 @@ export default function AdminCounselors() {
       </div>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
-          { label: 'Total Counselors', value: '400', icon: UserSquare2, color: 'text-brand', bg: 'bg-brand/10' },
-          { label: 'Total Students', value: '388', icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+          { label: 'Total Counselors', value: counselors.length.toString(), icon: UserSquare2, color: 'text-brand', bg: 'bg-brand/10' },
+          { label: 'Total Students', value: students.length.toString(), icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+          { label: 'Pending Requests', value: requests.length.toString(), icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-6">
             <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
@@ -124,81 +186,252 @@ export default function AdminCounselors() {
         ))}
       </div>
 
-      {/* Counselors Table */}
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search counselors..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
-            />
-          </div>
-          <select 
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-transparent border-none text-slate-400 font-bold text-sm outline-none focus:ring-0 cursor-pointer hover:text-brand transition-colors"
-          >
-            <option value="newest">Newest First</option>
-            <option value="name">Sort by Name</option>
-          </select>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredCounselors.map((counselor) => (
-                <tr 
-                  key={counselor.id} 
-                  onClick={() => setSelectedCounselor(counselor)}
-                  className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Counselors Table */}
+        <div className={`${requests.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-6`}>
+          <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-slate-50 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Counselors</h2>
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-xs"
+                  />
+                </div>
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent border-none text-slate-400 font-bold text-xs outline-none focus:ring-0 cursor-pointer hover:text-brand transition-colors"
                 >
-                  <td className="px-8 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-xl object-cover" />
-                      <span className="font-bold text-slate-900">{counselor.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.email}</td>
-                  <td className="px-8 py-4">
-                    <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                      {counselor.role}
-                    </span>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.date}</td>
-                  <td className="px-8 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => handleEditCounselor(counselor, e)}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
-                      >
-                        <Edit2 className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDeleteCounselor(counselor.id); }}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  <option value="newest">Newest First</option>
+                  <option value="name">Sort by Name</option>
+                </select>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50">
+                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
+                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filteredCounselors.map((counselor) => (
+                    <tr 
+                      key={counselor.id} 
+                      onClick={() => setSelectedCounselor(counselor)}
+                      className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
+                    >
+                      <td className="px-8 py-4">
+                        <div className="flex items-center gap-3">
+                          <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <span className="font-bold text-slate-900">{counselor.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.email}</td>
+                      <td className="px-8 py-4">
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold text-slate-700">{counselor.assignedStudents || 0}</span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCounselor(counselor);
+                              setIsAssignModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-100 rounded-lg text-[10px] font-bold hover:bg-brand hover:text-white hover:border-brand transition-all"
+                          >
+                            + Assign Student
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.date.split(',')[0]}</td>
+                      <td className="px-8 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={(e) => handleEditCounselor(counselor, e)}
+                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleDeleteCounselor(counselor.id); }}
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+
+        {/* Counselor Requests */}
+        {requests.length > 0 && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+              <div className="p-8 border-b border-slate-50">
+                <h2 className="text-xl font-bold text-slate-900">Counselor Requests</h2>
+                <p className="text-xs font-medium text-slate-500 mt-1">Students waiting for assignment</p>
+              </div>
+              <div className="p-6 space-y-4">
+                {requests.map((request) => (
+                  <div 
+                    key={request.id}
+                    className="p-4 bg-slate-50 rounded-3xl border border-slate-100 hover:border-brand/20 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <img src={request.avatar} alt={request.studentName} className="w-10 h-10 rounded-xl object-cover" />
+                        <div>
+                          <p className="font-bold text-slate-900 text-sm">{request.studentName}</p>
+                          <p className="text-[10px] font-medium text-slate-500">{request.studentEmail}</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 bg-amber-100 text-amber-600 rounded-lg text-[8px] font-bold uppercase tracking-widest">
+                        Pending
+                      </span>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" /> {request.date}
+                      </p>
+                      <button 
+                        onClick={() => {
+                          setSelectedCounselor(null); // Clear to show counselor selection in assign modal
+                          setSelectedStudents([request.studentId]);
+                          setIsAssignModalOpen(true);
+                        }}
+                        className="p-2 bg-white text-brand border border-slate-100 rounded-xl hover:bg-brand hover:text-white hover:border-brand transition-all shadow-sm"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Assign Student Modal */}
+      <AnimatePresence>
+        {isAssignModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { setIsAssignModalOpen(false); setSelectedStudents([]); setSelectedCounselor(null); }}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 sm:p-10">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">Assign Student</h2>
+                    <p className="text-sm font-medium text-slate-500 mt-1">
+                      {selectedCounselor ? `Assigning to ${selectedCounselor.name}` : 'Select a counselor and students'}
+                    </p>
+                  </div>
+                  <button onClick={() => { setIsAssignModalOpen(false); setSelectedStudents([]); setSelectedCounselor(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                <div className="space-y-8">
+                  {!selectedCounselor && (
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Select Counselor</label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-48 overflow-y-auto p-1">
+                        {counselors.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => setSelectedCounselor(c)}
+                            className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                              selectedCounselor?.id === c.id ? 'border-brand bg-brand/5 shadow-sm' : 'border-slate-100 hover:border-brand/20'
+                            }`}
+                          >
+                            <img src={c.avatar} className="w-8 h-8 rounded-lg object-cover" alt={c.name} />
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{c.name}</p>
+                              <p className="text-[10px] text-slate-500">{c.email}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-sm font-bold text-slate-700">Select Students</label>
+                      <span className="text-xs font-bold text-brand">{selectedStudents.length} selected</span>
+                    </div>
+                    <div className="space-y-2 max-h-64 overflow-y-auto p-1">
+                      {students.map(student => (
+                        <div 
+                          key={student.id}
+                          onClick={() => toggleStudentSelection(student.id)}
+                          className={`p-4 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
+                            selectedStudents.includes(student.id) ? 'border-brand bg-brand/5 shadow-sm' : 'border-slate-100 hover:border-brand/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                              selectedStudents.includes(student.id) ? 'bg-brand border-brand' : 'border-slate-200 bg-white'
+                            }`}>
+                              {selectedStudents.includes(student.id) && <Check className="w-4 h-4 text-white" />}
+                            </div>
+                            <img src={student.avatar} className="w-10 h-10 rounded-xl object-cover" alt={student.name} />
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{student.name}</p>
+                              <p className="text-[10px] font-medium text-slate-500">{student.email}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              {student.counselorId ? 'Assigned' : 'Nil'}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button 
+                      onClick={handleAssignStudents}
+                      disabled={!selectedCounselor || selectedStudents.length === 0}
+                      className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                    >
+                      Assign Student(s) <UserPlus className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Invite Counselor Modal */}
       <AnimatePresence>
@@ -259,7 +492,7 @@ export default function AdminCounselors() {
 
       {/* Counselor Detail Modal */}
       <AnimatePresence>
-        {selectedCounselor && (
+        {selectedCounselor && !isAssignModalOpen && !isInviteModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -294,28 +527,65 @@ export default function AdminCounselors() {
                   <div className="space-y-6">
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Mail className="w-4 h-4 text-brand" /> {selectedCounselor.email}</p>
+                      <p className="font-bold text-slate-700 flex items-center gap-2 text-sm"><Mail className="w-4 h-4 text-brand" /> {selectedCounselor.email}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone Number</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Phone className="w-4 h-4 text-brand" /> +123 456 7890</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Assigned Students</p>
+                      <p className="font-bold text-slate-700 flex items-center gap-2 text-sm"><Users className="w-4 h-4 text-brand" /> {selectedCounselor.assignedStudents || 0} Students</p>
                     </div>
                   </div>
                   <div className="space-y-6">
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">User ID</p>
-                      <p className="font-bold text-slate-700">recR23ortRikranhx</p>
+                      <p className="font-bold text-slate-700 text-sm">recR23ortRikranhx</p>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Joined</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Calendar className="w-4 h-4 text-brand" /> {selectedCounselor.date}</p>
+                      <p className="font-bold text-slate-700 flex items-center gap-2 text-sm"><Calendar className="w-4 h-4 text-brand" /> {selectedCounselor.date}</p>
                     </div>
                   </div>
                 </div>
 
+                {/* Scheduled Sessions */}
+                <div className="mt-10">
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-brand" /> Scheduled Sessions
+                  </h3>
+                  <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
+                    {getCounselorSessions(selectedCounselor.id).length > 0 ? (
+                      getCounselorSessions(selectedCounselor.id).map((session: any) => (
+                        <div key={session.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <img src={session.studentImage} className="w-10 h-10 rounded-xl object-cover" alt={session.studentName} />
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{session.title}</p>
+                              <p className="text-[10px] font-medium text-slate-500">with {session.studentName}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs font-bold text-slate-700">{session.date}</p>
+                            <p className="text-[10px] font-medium text-slate-400">{session.time}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <p className="text-sm font-medium text-slate-400">No scheduled sessions</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="mt-12 flex gap-4">
-                  <button className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Close</button>
-                  <button className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                  <button 
+                    onClick={() => {
+                      setIsAssignModalOpen(true);
+                    }}
+                    className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                  >
+                    Assign Students <UserPlus className="w-5 h-5" />
+                  </button>
+                  <button className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                     Message Counselor <Send className="w-5 h-5" />
                   </button>
                 </div>

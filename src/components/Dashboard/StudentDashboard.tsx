@@ -24,8 +24,6 @@ import Logo from '../Logo';
 import StudentHome from './Student/StudentHome';
 import CareerLibrary from './Student/CareerLibrary';
 import CareerDetails from './Student/CareerDetails';
-import Forum from './Student/Forum';
-import ForumThread from './Student/ForumThread';
 import Mentors from './Student/Mentors';
 import MentorDetails from './Student/MentorDetails';
 import Counselors from './Student/Counselors';
@@ -47,7 +45,6 @@ export default function StudentDashboard() {
   const navItems = [
     { icon: Home, label: 'Home', path: '/student/dashboard' },
     { icon: BookOpen, label: 'Career library', path: '/student/careers' },
-    { icon: MessageSquare, label: 'Forum', path: '/student/forum' },
     { icon: Users, label: 'Mentors', path: '/student/mentors' },
     { icon: Bell, label: 'Events', path: '/student/events' },
     { icon: UserCircle, label: 'Counselors', path: '/student/counselors' },
@@ -210,8 +207,6 @@ export default function StudentDashboard() {
             <Route path="dashboard" element={<StudentHome />} />
             <Route path="careers" element={<CareerLibrary />} />
             <Route path="careers/:id" element={<CareerDetails />} />
-            <Route path="forum" element={<Forum />} />
-            <Route path="forum/:id" element={<ForumThread />} />
             <Route path="mentors" element={<Mentors />} />
             <Route path="mentors/:id" element={<MentorDetails />} />
             <Route path="events" element={<Events />} />

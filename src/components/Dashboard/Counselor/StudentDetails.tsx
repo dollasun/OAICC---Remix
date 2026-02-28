@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
@@ -18,33 +18,128 @@ import {
   UserCircle
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { studentsStorage, counselingSessionsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 type Tab = 'profile' | 'career' | 'tracker';
 
 export default function CounselorStudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [student, setStudent] = useState<any>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [newSession, setNewSession] = useState({
+    title: '',
+    date: '',
+    time: '10:00 AM',
+    type: 'Virtual',
+    notes: ''
+  });
 
-  // Mock student data
-  const student = {
-    id: 's1',
-    name: 'Favour Aina',
-    email: 'favouraina@gmail.com',
-    phone: '08034567890',
-    gender: 'Female',
-    class: 'SS3 A',
-    bio: 'I am an SS3 student at The Oke-Odo School District in Nigeria. I would like to pursue a degree in Computer Science as I am currently in my last year of secondary school.',
-    image: 'https://picsum.photos/seed/s1/200/200',
-    career: 'Product Design',
-    interests: ['UI/UX Design', 'Product Management', 'Graphic Design'],
-    topSubjects: ['English Language', 'Mathematics', 'Economics', 'Accounting'],
-    activities: [
-      { id: 1, type: 'session', title: 'Career Path Discussion', date: 'Today, 2:00 PM', status: 'Upcoming' },
-      { id: 2, type: 'quiz', title: 'Career Interest Quiz', date: 'Yesterday', status: 'Completed', score: '85%' },
-      { id: 3, type: 'article', title: 'Introduction to Product Design', date: '2 days ago', status: 'Read' },
-    ]
+  useEffect(() => {
+    const allStudents = studentsStorage.get();
+    const foundStudent = allStudents.find((s: any) => s.id === Number(id));
+    
+    if (foundStudent) {
+      setStudent({
+        ...foundStudent,
+        phone: foundStudent.phone || '08034567890',
+        gender: foundStudent.gender || 'Female',
+        bio: foundStudent.bio || `I am an ${foundStudent.class || 'SS3'} student. I would like to pursue a degree in ${foundStudent.career || 'Computer Science'} as I am currently in my last year of secondary school.`,
+        image: foundStudent.avatar || `https://picsum.photos/seed/${foundStudent.id}/200/200`,
+        career: foundStudent.career || 'Product Design',
+        interests: foundStudent.interests || ['UI/UX Design', 'Product Management', 'Graphic Design'],
+        topSubjects: foundStudent.topSubjects || ['English Language', 'Mathematics', 'Economics', 'Accounting'],
+        activities: foundStudent.activities || [
+          { id: 1, type: 'quiz', title: 'Career Interest Quiz', date: 'Yesterday', status: 'Completed', score: '85%' },
+          { id: 2, type: 'article', title: 'Introduction to Product Design', date: '2 days ago', status: 'Read' },
+        ]
+      });
+    }
+
+    const allSessions = counselingSessionsStorage.get();
+    const studentSessions = allSessions.filter((s: any) => s.studentId === Number(id));
+    setSessions(studentSessions);
+  }, [id]);
+
+  const handleScheduleSession = () => {
+    if (!newSession.title || !newSession.date) {
+      showToast('Please fill in all required fields');
+      return;
+    }
+
+    const session = {
+      id: Date.now(),
+      counselorId: 1,
+      counselorName: 'Mr. Alfred Funmbi',
+      studentId: student.id,
+      studentName: student.name,
+      studentImage: student.image,
+      title: newSession.title,
+      date: newSession.date,
+      time: newSession.time,
+      type: newSession.type,
+      link: 'https://zoom.us/j/123456789',
+      status: 'Upcoming'
+    };
+
+    const allSessions = counselingSessionsStorage.get([]);
+    counselingSessionsStorage.save([...allSessions, session]);
+    setSessions(prev => [...prev, session]);
+    setIsScheduleModalOpen(false);
+    showToast('Session scheduled successfully!');
+  };
+
+  if (!student) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <UserCircle className="w-10 h-10 text-slate-300" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">Student not found</h2>
+        <button onClick={() => navigate('/counselor/students')} className="mt-4 text-brand font-bold hover:underline">
+          Back to Students
+        </button>
+      </div>
+    );
+  }
+
+  const combinedActivities = [
+    ...sessions.map(s => ({
+      id: s.id,
+      type: 'session',
+      title: s.title,
+      date: `${s.date}, ${s.time}`,
+      status: s.status
+    })),
+    ...student.activities
+  ];
+
+  const getCareerDescription = (career: string) => {
+    const descriptions: Record<string, string> = {
+      'Software Engineering': 'Software engineering is a branch of computer science that deals with the design, development, testing, and maintenance of software applications. Software engineers apply engineering principles and knowledge of programming languages to build software solutions for end users.',
+      'Medicine': 'Medicine is the science and practice of caring for patients, managing the diagnosis, prognosis, prevention, treatment, palliation of their injury or disease, and promoting their health. It encompasses a variety of health care practices evolved to maintain and restore health by the prevention and treatment of illness.',
+      'Product Design': 'Product design is the process of imagining, creating, and iterating products that solve users\' problems or address specific needs in a given market. It involves a mix of user research, prototyping, and visual design to create functional and aesthetic products.',
+      'Data Science': 'Data science is an interdisciplinary field that uses scientific methods, processes, algorithms and systems to extract knowledge and insights from noisy, structured and unstructured data, and apply knowledge from data across a broad range of application domains.',
+      'Law': 'Law is a set of rules that are created and are enforceable by social or governmental institutions to regulate behavior, with its precise definition a matter of longstanding debate. It has been variously described as a science and as the art of justice.',
+      'Engineering': 'Engineering is the use of scientific principles to design and build machines, structures, and other items, including bridges, tunnels, roads, vehicles, and buildings. The discipline of engineering encompasses a broad range of more specialized fields of engineering.'
+    };
+    return descriptions[career] || descriptions['Product Design'];
+  };
+
+  const getCareerImage = (career: string) => {
+    const images: Record<string, string> = {
+      'Software Engineering': 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80',
+      'Medicine': 'https://images.unsplash.com/photo-1505751172107-5739a00723a5?auto=format&fit=crop&q=80',
+      'Product Design': 'https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?auto=format&fit=crop&q=80',
+      'Data Science': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80',
+      'Law': 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80',
+      'Engineering': 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80'
+    };
+    return images[career] || images['Product Design'];
   };
 
   return (
@@ -179,8 +274,8 @@ export default function CounselorStudentDetails() {
                 <div>
                   <div className="relative rounded-[32px] overflow-hidden mb-6 aspect-video">
                     <img 
-                      src="https://images.unsplash.com/photo-1586717791821-3f44a563dc4c?auto=format&fit=crop&q=80" 
-                      alt="Product Design" 
+                      src={getCareerImage(student.career)} 
+                      alt={student.career} 
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
@@ -188,7 +283,7 @@ export default function CounselorStudentDetails() {
                     </div>
                   </div>
                   <p className="text-slate-600 font-medium leading-relaxed">
-                    Product design is a branch of industrial design. They use design tools and technical knowledge to design, create and improve the visual and functional aspects of a product. Product designers use product research, sketch and build prototypes to create products that solve problems for users.
+                    {getCareerDescription(student.career)}
                   </p>
                 </div>
 
@@ -251,7 +346,7 @@ export default function CounselorStudentDetails() {
                 <div className="absolute left-8 top-0 bottom-0 w-px bg-slate-100" />
 
                 <div className="space-y-12">
-                  {student.activities.map((activity, i) => (
+                  {combinedActivities.map((activity, i) => (
                     <div key={activity.id} className="relative flex items-start gap-8 pl-4">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 shadow-sm ${
                         activity.status === 'Completed' ? 'bg-emerald-500 text-white' : 
@@ -315,6 +410,8 @@ export default function CounselorStudentDetails() {
                   <input 
                     type="text" 
                     placeholder="e.g. Career Path Review"
+                    value={newSession.title}
+                    onChange={(e) => setNewSession({ ...newSession, title: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                   />
                 </div>
@@ -324,22 +421,38 @@ export default function CounselorStudentDetails() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Date</label>
                     <input 
                       type="date" 
+                      value={newSession.date}
+                      onChange={(e) => setNewSession({ ...newSession, date: e.target.value })}
                       className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Time</label>
-                    <input 
-                      type="time" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
-                    />
+                    <select 
+                      value={newSession.time}
+                      onChange={(e) => setNewSession({ ...newSession, time: e.target.value })}
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
+                    >
+                      <option>09:00 AM</option>
+                      <option>10:00 AM</option>
+                      <option>11:00 AM</option>
+                      <option>12:00 PM</option>
+                      <option>01:00 PM</option>
+                      <option>02:00 PM</option>
+                      <option>03:00 PM</option>
+                      <option>04:00 PM</option>
+                    </select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">Session Type</label>
-                  <select className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none">
-                    <option>Video Call (Google Meet)</option>
+                  <select 
+                    value={newSession.type}
+                    onChange={(e) => setNewSession({ ...newSession, type: e.target.value })}
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
+                  >
+                    <option>Virtual</option>
                     <option>In-person Meeting</option>
                     <option>Voice Call</option>
                   </select>
@@ -350,6 +463,8 @@ export default function CounselorStudentDetails() {
                   <textarea 
                     rows={3}
                     placeholder="Add any specific topics to discuss..."
+                    value={newSession.notes}
+                    onChange={(e) => setNewSession({ ...newSession, notes: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
                   />
                 </div>
@@ -363,10 +478,7 @@ export default function CounselorStudentDetails() {
                   Cancel
                 </button>
                 <button 
-                  onClick={() => {
-                    // Logic to save session
-                    setIsScheduleModalOpen(false);
-                  }}
+                  onClick={handleScheduleSession}
                   className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Confirm Schedule

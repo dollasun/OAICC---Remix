@@ -1,16 +1,32 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Logo from '../Logo';
 
+const carouselImages = [
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&q=80",
+  "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80",
+];
+
 export default function AdminSignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,22 +38,49 @@ export default function AdminSignIn() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Image */}
+      {/* Left Side - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-slate-900">
-        <img 
-          src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80" 
-          alt="Admin" 
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-        <div className="absolute bottom-20 left-20 right-20">
+        <AnimatePresence mode="wait">
+          <motion.img 
+            key={currentImageIndex}
+            src={carouselImages[currentImageIndex]} 
+            alt="Education" 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.6, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent" />
+        
+        <div className="absolute bottom-20 left-20 right-20 z-10">
           <Logo variant="white" size="lg" className="mb-8" />
-          <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-            Manage the future of <span className="text-brand">education</span>.
-          </h1>
-          <p className="text-xl text-slate-300 font-medium max-w-lg">
-            Access the administrative portal to manage careers, mentors, and student growth.
-          </p>
+          <motion.div
+            key={currentImageIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
+              Manage the future of <span className="text-brand">education</span>.
+            </h1>
+            <p className="text-xl text-slate-300 font-medium max-w-lg">
+              Access the administrative portal to manage careers, mentors, and student growth.
+            </p>
+          </motion.div>
+
+          {/* Carousel Indicators */}
+          <div className="flex gap-2 mt-12">
+            {carouselImages.map((_, i) => (
+              <button 
+                key={i} 
+                onClick={() => setCurrentImageIndex(i)}
+                className={`h-1.5 rounded-full transition-all duration-500 ${currentImageIndex === i ? 'w-8 bg-brand' : 'w-2 bg-white/30'}`} 
+              />
+            ))}
+          </div>
         </div>
       </div>
 

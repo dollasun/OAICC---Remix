@@ -127,10 +127,11 @@ export default function Forum() {
       ...newTopic,
       id: Date.now(),
       author: 'Bolu Ahmed',
-      authorImage: 'https://picsum.photos/seed/student/100/100',
-      replies: 0,
+      authorImage: 'https://picsum.photos/seed/bolu/100/100',
+      replies: [],
       views: 0,
       likes: 0,
+      dislikes: 0,
       time: 'Just now',
       isTrending: false
     };
@@ -145,21 +146,7 @@ export default function Forum() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Community Forum</h1>
-          <p className="text-slate-500 font-medium mt-1">Connect, share, and learn from other students and professionals.</p>
-        </div>
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand/20 hover:scale-105 transition-all"
-        >
-          <Plus className="w-5 h-5" /> Start New Topic
-        </button>
-      </div>
-
+    <div className="max-w-7xl mx-auto space-y-10 pb-20">
       {/* New Topic Modal */}
       <AnimatePresence>
         {isModalOpen && (
@@ -169,71 +156,77 @@ export default function Forum() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              exit={{ opacity: 0, scale: 0.9, y: 40 }}
+              className="relative w-full max-w-2xl bg-white rounded-[48px] shadow-2xl overflow-hidden"
             >
-              <form onSubmit={handleCreateTopic} className="p-8 sm:p-10">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-bold text-slate-900">Start New Topic</h2>
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+              <form onSubmit={handleCreateTopic} className="p-8 sm:p-12">
+                <div className="flex items-center justify-between mb-10">
+                  <div>
+                    <h2 className="text-3xl font-black text-slate-900">Start a Conversation</h2>
+                    <p className="text-slate-500 font-bold mt-1">Share your thoughts with the community.</p>
+                  </div>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Topic Title</label>
+                <div className="space-y-8">
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Topic Title</label>
                     <input 
                       type="text" 
                       required
-                      placeholder="What's on your mind?"
+                      placeholder="What would you like to discuss?"
                       value={newTopic.title}
                       onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all" 
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Category</label>
-                    <select 
-                      value={newTopic.category}
-                      onChange={(e) => setNewTopic({...newTopic, category: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 appearance-none"
-                    >
-                      {initialCategories.filter(c => c.id !== 'all').map(cat => (
-                        <option key={cat.id} value={cat.label}>{cat.label}</option>
-                      ))}
-                    </select>
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
+                    <div className="relative">
+                      <select 
+                        value={newTopic.category}
+                        onChange={(e) => setNewTopic({...newTopic, category: e.target.value})}
+                        className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
+                      >
+                        {initialCategories.filter(c => c.id !== 'all').map(cat => (
+                          <option key={cat.id} value={cat.label}>{cat.label}</option>
+                        ))}
+                      </select>
+                      <ChevronRight className="absolute right-8 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none rotate-90" />
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Content</label>
+                  <div className="space-y-3">
+                    <label className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Content</label>
                     <textarea 
                       required
-                      rows={6}
-                      placeholder="Describe your topic in detail..."
+                      rows={5}
+                      placeholder="Tell us more about it..."
                       value={newTopic.content}
                       onChange={(e) => setNewTopic({...newTopic, content: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all resize-none"
                     />
                   </div>
 
-                  <div className="flex gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
                     <button 
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-3xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit"
-                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                      className="flex-[2] py-5 bg-brand text-white font-black rounded-3xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all"
                     >
                       Post Topic
                     </button>
@@ -245,127 +238,230 @@ export default function Forum() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Sidebar Filters */}
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Categories</h3>
-            <div className="space-y-1">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-[48px] bg-gradient-to-br from-brand to-indigo-600 p-8 sm:p-12 text-white shadow-2xl shadow-brand/20">
+        <div className="relative z-10 max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-4">
+              Community <span className="text-brand-light">Forum</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-white/80 font-medium mb-8 leading-relaxed">
+              The heart of our student community. Ask questions, share your journey, and grow together with peers and mentors.
+            </p>
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="group flex items-center gap-3 bg-white text-brand px-8 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition-all active:scale-95"
+            >
+              <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" /> 
+              Start a Conversation
+            </button>
+          </motion.div>
+        </div>
+        
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-64 h-64 bg-brand-light/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-12 -translate-y-1/2 hidden lg:block opacity-20">
+          <MessageSquare className="w-64 h-64" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Sidebar - Desktop */}
+        <div className="lg:col-span-3 space-y-8 hidden lg:block">
+          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm sticky top-8">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Explore Topics</h3>
+            <div className="space-y-2">
               {initialCategories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl font-bold text-sm transition-all group ${
                     activeCategory === cat.id 
-                      ? 'bg-brand/10 text-brand' 
+                      ? 'bg-brand text-white shadow-lg shadow-brand/20' 
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
                   {cat.label}
-                  {activeCategory === cat.id && <ChevronRight className="w-4 h-4" />}
+                  <ChevronRight className={`w-4 h-4 transition-transform ${activeCategory === cat.id ? 'translate-x-1' : 'opacity-0 group-hover:opacity-100'}`} />
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className="bg-slate-900 p-6 rounded-3xl text-white">
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-brand" /> Trending Now
-            </h3>
-            <div className="space-y-4">
-              {topics.filter(t => t.isTrending).slice(0, 3).map(topic => (
-                <div key={topic.id} className="group cursor-pointer" onClick={() => navigate(`/student/forum/${topic.id}`)}>
-                  <p className="text-xs font-bold text-white/50 uppercase mb-1">{topic.category}</p>
-                  <p className="text-sm font-bold group-hover:text-brand transition-colors line-clamp-2">{topic.title}</p>
-                </div>
-              ))}
+            <div className="mt-10 pt-10 border-t border-slate-100">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Trending Now</h3>
+              <div className="space-y-6">
+                {topics.filter(t => t.isTrending).slice(0, 3).map(topic => (
+                  <div 
+                    key={topic.id} 
+                    className="group cursor-pointer" 
+                    onClick={() => navigate(`/student/forum/${topic.id}`)}
+                  >
+                    <p className="text-[10px] font-black text-brand uppercase tracking-wider mb-1">{topic.category}</p>
+                    <p className="text-sm font-bold text-slate-700 group-hover:text-brand transition-colors line-clamp-2 leading-snug">{topic.title}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Main Forum Content */}
-        <div className="lg:col-span-3 space-y-6">
+        {/* Main Content */}
+        <div className="lg:col-span-9 space-y-8">
+          {/* Mobile Categories Scroll */}
+          <div className="lg:hidden -mx-4 px-4 overflow-x-auto no-scrollbar flex gap-3 pb-2">
+            {initialCategories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`whitespace-nowrap px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
+                  activeCategory === cat.id 
+                    ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                    : 'bg-white text-slate-500 border border-slate-100 shadow-sm'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
           {/* Search and Sort */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <div className="relative flex-1 group">
+              <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-brand transition-colors" />
               <input 
                 type="text" 
-                placeholder="Search for topics, questions, or keywords..." 
+                placeholder="Search topics, questions, or keywords..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+                className="w-full pl-14 pr-6 py-4.5 bg-white border-2 border-transparent rounded-[24px] shadow-sm focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-bold text-slate-700"
               />
             </div>
-            <button className="flex items-center gap-2 px-6 py-3.5 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all">
+            <button className="flex items-center justify-center gap-3 px-8 py-4.5 bg-white border border-slate-100 rounded-[24px] font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
               <Filter className="w-5 h-5" /> Filter
             </button>
           </div>
 
           {/* Topic List */}
-          <div className="space-y-4">
-            {filteredTopics.map((topic, index) => (
-              <motion.div
-                key={topic.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => navigate(`/student/forum/${topic.id}`)}
-                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-              >
-                <div className="flex items-start gap-4">
-                  <img src={topic.authorImage} alt={topic.author} className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-50" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] font-bold text-brand uppercase tracking-widest px-2 py-0.5 bg-brand/5 rounded-lg">
-                        {topic.category}
-                      </span>
+          <div className="grid grid-cols-1 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredTopics.map((topic, index) => (
+                <motion.div
+                  key={topic.id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  onClick={() => navigate(`/student/forum/${topic.id}`)}
+                  className="group bg-white p-6 sm:p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-brand/5 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
+                >
+                  {/* Hover Accent */}
+                  <div className="absolute top-0 left-0 w-2 h-full bg-brand opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
+                  <div className="flex flex-col sm:flex-row items-start gap-6">
+                    <div className="relative shrink-0">
+                      <img 
+                        src={topic.authorImage} 
+                        alt={topic.author} 
+                        className="w-16 h-16 rounded-2xl object-cover border-4 border-slate-50 shadow-md group-hover:scale-110 transition-transform duration-500" 
+                      />
                       {topic.isTrending && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 uppercase tracking-widest px-2 py-0.5 bg-amber-50 rounded-lg">
-                          <TrendingUp className="w-3 h-3" /> Trending
-                        </span>
+                        <div className="absolute -top-2 -right-2 bg-amber-400 text-white p-1.5 rounded-lg shadow-lg">
+                          <TrendingUp className="w-3 h-3" />
+                        </div>
                       )}
                     </div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-brand transition-colors line-clamp-1">
-                      {topic.title}
-                    </h3>
-                    <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
-                      <span className="flex items-center gap-1.5 text-slate-600">
-                        <Users className="w-3.5 h-3.5" /> {topic.author}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" /> {topic.time}
-                      </span>
-                      <div className="flex items-center gap-4 ml-auto">
-                        <span className="flex items-center gap-1.5 hover:text-brand transition-colors">
-                          <MessageCircle className="w-4 h-4" /> {Array.isArray(topic.replies) ? topic.replies.length : topic.replies}
+                    
+                    <div className="flex-1 min-w-0 space-y-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-black text-brand uppercase tracking-[0.15em] px-3 py-1 bg-brand/5 rounded-full">
+                          {topic.category}
                         </span>
-                        <span className="flex items-center gap-1.5 hover:text-red-500 transition-colors">
-                          <ThumbsUp className="w-4 h-4" /> {topic.likes}
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          {topic.time}
                         </span>
-                        <span className="flex items-center gap-1.5">
-                          <Eye className="w-4 h-4" /> {topic.views}
-                        </span>
+                      </div>
+                      
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight group-hover:text-brand transition-colors">
+                        {topic.title}
+                      </h3>
+                      
+                      <p className="text-slate-500 font-medium line-clamp-2 text-sm sm:text-base leading-relaxed">
+                        {topic.content}
+                      </p>
+                      
+                      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-50">
+                        <div className="flex items-center gap-3">
+                          <div className="flex -space-x-2">
+                            {[1, 2, 3].map((i) => (
+                              <img 
+                                key={i}
+                                src={`https://picsum.photos/seed/${topic.id + i}/40/40`} 
+                                className="w-8 h-8 rounded-full border-2 border-white object-cover"
+                                alt="Participant"
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs font-bold text-slate-400">
+                            {topic.author} and others
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-6 text-slate-400">
+                          <div className="flex items-center gap-2 group/stat">
+                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-brand/10 group-hover/stat:text-brand transition-colors">
+                              <MessageCircle className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-sm font-black">{Array.isArray(topic.replies) ? topic.replies.length : topic.replies}</span>
+                          </div>
+                          <div className="flex items-center gap-2 group/stat">
+                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-red-50 group-hover/stat:text-red-500 transition-colors">
+                              <ThumbsUp className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-sm font-black">{topic.likes}</span>
+                          </div>
+                          <div className="flex items-center gap-2 group/stat">
+                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-indigo-50 group-hover/stat:text-indigo-500 transition-colors">
+                              <Eye className="w-4.5 h-4.5" />
+                            </div>
+                            <span className="text-sm font-black">{topic.views}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
             {filteredTopics.length === 0 && (
-              <div className="text-center py-20 bg-white rounded-[32px] border border-slate-100">
-                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MessageSquare className="w-10 h-10 text-slate-200" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-24 bg-white rounded-[48px] border-2 border-dashed border-slate-100"
+              >
+                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
+                  <MessageSquare className="w-12 h-12 text-slate-200" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">No topics found</h3>
-                <p className="text-slate-500 font-medium mt-2">Try adjusting your search or filters.</p>
-              </div>
+                <h3 className="text-2xl font-black text-slate-900">No conversations found</h3>
+                <p className="text-slate-500 font-bold mt-3 max-w-xs mx-auto">Try adjusting your search or be the first to start a new topic!</p>
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="mt-8 text-brand font-black hover:underline underline-offset-8"
+                >
+                  Start a new topic now
+                </button>
+              </motion.div>
             )}
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
 

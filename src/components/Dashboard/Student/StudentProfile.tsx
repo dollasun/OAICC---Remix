@@ -36,7 +36,6 @@ export default function StudentProfile() {
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
-    forum: true,
     mentor: true
   });
 
@@ -256,7 +255,6 @@ export default function StudentProfile() {
                   {[
                     { id: 'email', label: 'Email Notifications', desc: 'Receive updates via email' },
                     { id: 'push', label: 'Push Notifications', desc: 'Receive alerts on your device' },
-                    { id: 'forum', label: 'Forum Mentions', desc: 'Alert when someone mentions you in forum' },
                     { id: 'mentor', label: 'Mentor Messages', desc: 'Alert for new messages from mentors' }
                   ].map((item) => (
                     <div key={item.id} className="flex items-center justify-between py-2">

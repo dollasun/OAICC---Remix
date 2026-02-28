@@ -1,52 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MessageSquare, Search, Send, MoreVertical, Phone, Video, Info, X } from 'lucide-react';
-
-const initialChats = [
-  {
-    id: 1,
-    name: 'Favour Aina',
-    lastMessage: 'Thank you for the session today, it was really helpful!',
-    time: '2m ago',
-    unread: 2,
-    image: 'https://picsum.photos/seed/s1/100/100',
-    online: true,
-    messages: [
-      { id: 1, sender: 'student', text: 'Hello Mr. Alfred, I just wanted to ask about the next steps for my computer science application.', time: '10:00 AM' },
-      { id: 2, sender: 'counselor', text: 'Hi Favour! We\'ll discuss that in our session today at 2:00 PM. Make sure you have your transcripts ready.', time: '10:15 AM' },
-      { id: 3, sender: 'student', text: 'Thank you for the session today, it was really helpful!', time: '3:30 PM' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Adebayo Samuel',
-    lastMessage: 'When is our next meeting scheduled?',
-    time: '1h ago',
-    unread: 0,
-    image: 'https://picsum.photos/seed/s2/100/100',
-    online: false,
-    messages: [
-      { id: 1, sender: 'student', text: 'When is our next meeting scheduled?', time: '11:00 AM' }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Chioma Okeke',
-    lastMessage: 'I have updated my career interests.',
-    time: '3h ago',
-    unread: 0,
-    image: 'https://picsum.photos/seed/s3/100/100',
-    online: true,
-    messages: [
-      { id: 1, sender: 'student', text: 'I have updated my career interests.', time: '9:00 AM' }
-    ]
-  }
-];
+import { messagesStorage } from '../../../utils/storage';
 
 export default function Messages() {
-  const [chats, setChats] = useState(initialChats);
+  const [chats, setChats] = useState<any[]>([]);
   const [selectedChatId, setSelectedChatId] = useState(1);
   const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    const storedChats = messagesStorage.get();
+    setChats(storedChats);
+  }, []);
 
   const selectedChat = chats.find(c => c.id === selectedChatId) || chats[0];
 
@@ -56,7 +21,7 @@ export default function Messages() {
 
     const updatedChats = chats.map(chat => {
       if (chat.id === selectedChatId) {
-        return {
+        const updatedChat = {
           ...chat,
           lastMessage: newMessage,
           time: 'Just now',
@@ -70,19 +35,25 @@ export default function Messages() {
             }
           ]
         };
+        return updatedChat;
       }
       return chat;
     });
 
     setChats(updatedChats);
+    messagesStorage.save(updatedChats);
     setNewMessage('');
   };
 
   const selectChat = (id: number) => {
     setSelectedChatId(id);
     // Mark as read
-    setChats(chats.map(c => c.id === id ? { ...c, unread: 0 } : c));
+    const updatedChats = chats.map(c => c.id === id ? { ...c, unread: 0 } : c);
+    setChats(updatedChats);
+    messagesStorage.save(updatedChats);
   };
+
+  if (chats.length === 0) return null;
 
   return (
     <div className="h-[calc(100vh-12rem)] flex gap-8">

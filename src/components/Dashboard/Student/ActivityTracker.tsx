@@ -25,16 +25,6 @@ const activities = [
     details: 'You matched with 12 potential career paths based on your interests.'
   },
   {
-    id: 2,
-    type: 'forum',
-    title: 'Started a Discussion',
-    status: 'Active',
-    date: 'Oct 12, 2024',
-    icon: MessageSquare,
-    color: 'bg-amber-500',
-    details: 'Topic: "How to start a career in AI as a high school student?"'
-  },
-  {
     id: 3,
     type: 'mentor',
     title: 'Mentorship Request',
@@ -58,8 +48,7 @@ const activities = [
 
 const milestones = [
   { id: 1, title: 'Profile 100% Complete', date: 'Oct 05, 2024', icon: Award },
-  { id: 2, title: 'First Career Match', date: 'Oct 10, 2024', icon: Star },
-  { id: 3, title: 'Community Contributor', date: 'Oct 12, 2024', icon: MessageSquare }
+  { id: 2, title: 'First Career Match', date: 'Oct 10, 2024', icon: Star }
 ];
 
 export default function ActivityTracker() {
@@ -192,7 +181,6 @@ export default function ActivityTracker() {
                         { id: 4, title: 'First Quiz Passed', date: 'Oct 15, 2024', icon: Award },
                         { id: 5, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users },
                         { id: 6, title: 'Career Path Saved', date: 'Oct 20, 2024', icon: BookOpen },
-                        { id: 7, title: 'Forum Expert', date: 'Oct 22, 2024', icon: Star },
                         { id: 8, title: 'Weekly Streak', date: 'Oct 25, 2024', icon: Activity }
                       ].map((milestone) => (
                         <div key={milestone.id} className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">

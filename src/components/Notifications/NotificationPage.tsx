@@ -19,22 +19,29 @@ export default function NotificationPage() {
       },
       {
         id: '2',
-        title: 'New Event Added',
-        body: 'A new workshop "Introduction to AI" has been added to your schedule.',
-        timestamp: '5 hours ago',
-        read: true
-      },
-      {
-        id: '3',
-        title: 'Mentor Request Accepted',
-        body: 'Dr. John Obi has accepted your mentor request. You can now message him.',
-        timestamp: '1 day ago',
+        title: 'New Student Assigned',
+        body: 'A new student, Tunde Bakare, has been assigned to you for counseling.',
+        timestamp: '4 hours ago',
         read: false
       },
       {
+        id: '3',
+        title: 'Session Reminder',
+        body: 'Your session with Osayuki Yuki starts in 30 minutes.',
+        timestamp: '1 hour ago',
+        read: true
+      },
+      {
         id: '4',
-        title: 'Profile Update',
-        body: 'Your profile has been successfully updated.',
+        title: 'New Message',
+        body: 'Favour Aina sent you a new message regarding their portfolio.',
+        timestamp: 'Yesterday',
+        read: true
+      },
+      {
+        id: '5',
+        title: 'System Update',
+        body: 'The counseling dashboard has been updated with new analytics features.',
         timestamp: '2 days ago',
         read: true
       }

@@ -84,6 +84,13 @@ export default function ForumThread() {
     }
   }, [id]);
 
+  const updateThreadPersistence = (updatedThread: any) => {
+    setThread(updatedThread);
+    const storedTopics = forumsStorage.get(initialTopics);
+    const updatedTopics = storedTopics.map((t: any) => t.id.toString() === id ? updatedThread : t);
+    forumsStorage.save(updatedTopics);
+  };
+
   const handleReply = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyText.trim() || !thread) return;
@@ -92,7 +99,7 @@ export default function ForumThread() {
       id: Date.now(),
       author: 'Bolu Ahmed',
       authorRole: 'Student',
-      authorImage: 'https://picsum.photos/seed/student/100/100',
+      authorImage: 'https://picsum.photos/seed/bolu/100/100',
       isVerified: false,
       content: replyingTo ? `@${replyingTo.author} ${replyText}` : replyText,
       time: 'Just now',
@@ -118,14 +125,7 @@ export default function ForumThread() {
       };
     }
 
-    setThread(updatedThread);
-    
-    const storedTopics = forumsStorage.get(initialTopics);
-    const updatedTopics = storedTopics.map((t: any) => 
-      t.id.toString() === id ? updatedThread : t
-    );
-    forumsStorage.save(updatedTopics);
-    
+    updateThreadPersistence(updatedThread);
     setReplyText('');
     setReplyingTo(null);
     showToast('Reply posted successfully!');
@@ -133,196 +133,237 @@ export default function ForumThread() {
 
   const handleLikeReply = (replyId: number) => {
     if (!thread) return;
-    
     const updateReplies = (replies: any[]) => {
       return replies.map(r => {
-        if (r.id === replyId) {
-          return { ...r, likes: r.likes + 1 };
-        }
-        if (r.replies && r.replies.length > 0) {
-          return { ...r, replies: updateReplies(r.replies) };
-        }
+        if (r.id === replyId) return { ...r, likes: r.likes + 1 };
+        if (r.replies?.length > 0) return { ...r, replies: updateReplies(r.replies) };
         return r;
       });
     };
-
-    const updatedThread = {
-      ...thread,
-      replies: updateReplies(thread.replies)
-    };
-
-    setThread(updatedThread);
-    const storedTopics = forumsStorage.get(initialTopics);
-    const updatedTopics = storedTopics.map((t: any) => 
-      t.id.toString() === id ? updatedThread : t
-    );
-    forumsStorage.save(updatedTopics);
+    updateThreadPersistence({ ...thread, replies: updateReplies(thread.replies) });
   };
 
   const handleDislikeReply = (replyId: number) => {
     if (!thread) return;
-    
     const updateReplies = (replies: any[]) => {
       return replies.map(r => {
-        if (r.id === replyId) {
-          return { ...r, dislikes: (r.dislikes || 0) + 1 };
-        }
-        if (r.replies && r.replies.length > 0) {
-          return { ...r, replies: updateReplies(r.replies) };
-        }
+        if (r.id === replyId) return { ...r, dislikes: (r.dislikes || 0) + 1 };
+        if (r.replies?.length > 0) return { ...r, replies: updateReplies(r.replies) };
         return r;
       });
     };
+    updateThreadPersistence({ ...thread, replies: updateReplies(thread.replies) });
+  };
 
-    const updatedThread = {
-      ...thread,
-      replies: updateReplies(thread.replies)
-    };
+  const handleLikePost = () => {
+    if (!thread) return;
+    let newLikes = thread.likes;
+    let newDislikes = thread.dislikes || 0;
+    let newIsLiked = !isLiked;
+    let newIsDisliked = isDisliked;
 
-    setThread(updatedThread);
-    const storedTopics = forumsStorage.get(initialTopics);
-    const updatedTopics = storedTopics.map((t: any) => 
-      t.id.toString() === id ? updatedThread : t
-    );
-    forumsStorage.save(updatedTopics);
+    if (newIsLiked) {
+      newLikes += 1;
+      if (isDisliked) {
+        newDislikes -= 1;
+        newIsDisliked = false;
+      }
+    } else {
+      newLikes -= 1;
+    }
+
+    setIsLiked(newIsLiked);
+    setIsDisliked(newIsDisliked);
+
+    const updatedThread = { ...thread, likes: newLikes, dislikes: newDislikes };
+    updateThreadPersistence(updatedThread);
+  };
+
+  const handleDislikePost = () => {
+    if (!thread) return;
+    let newLikes = thread.likes;
+    let newDislikes = thread.dislikes || 0;
+    let newIsLiked = isLiked;
+    let newIsDisliked = !isDisliked;
+
+    if (newIsDisliked) {
+      newDislikes += 1;
+      if (isLiked) {
+        newLikes -= 1;
+        newIsLiked = false;
+      }
+    } else {
+      newDislikes -= 1;
+    }
+
+    setIsLiked(newIsLiked);
+    setIsDisliked(newIsDisliked);
+
+    const updatedThread = { ...thread, likes: newLikes, dislikes: newDislikes };
+    updateThreadPersistence(updatedThread);
   };
 
   if (!thread) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
+      <div className="flex items-center justify-center py-40">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-brand/20 border-t-brand rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 bg-brand/10 rounded-full animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-10 pb-20">
       {/* Navigation */}
-      <button 
+      <motion.button 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 transition-colors"
+        className="group flex items-center gap-3 text-slate-400 font-black hover:text-brand transition-all"
       >
-        <ArrowLeft className="w-5 h-5" /> Back to Forum
-      </button>
+        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all shadow-sm">
+          <ArrowLeft className="w-5 h-5" />
+        </div>
+        Back to Community
+      </motion.button>
 
       {/* Main Post */}
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 sm:p-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <img src={thread.authorImage} alt={thread.author} className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-50" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-[48px] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden"
+      >
+        <div className="p-8 sm:p-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
+            <div className="flex items-center gap-5">
+              <div className="relative">
+                <img src={thread.authorImage} alt={thread.author} className="w-16 h-16 rounded-[24px] object-cover border-4 border-slate-50 shadow-lg" />
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full" />
+              </div>
               <div>
-                <h4 className="font-bold text-slate-900">{thread.author}</h4>
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <span>{thread.authorRole || 'Student'}</span>
-                  <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                <h4 className="text-xl font-black text-slate-900">{thread.author}</h4>
+                <div className="flex items-center gap-3 text-xs font-black text-slate-400 uppercase tracking-widest">
+                  <span className="text-brand">{thread.authorRole || 'Student'}</span>
+                  <span className="w-1.5 h-1.5 bg-slate-200 rounded-full"></span>
                   <span>{thread.time}</span>
                 </div>
               </div>
             </div>
-            <button className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
-              <MoreVertical className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-3">
+              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-brand/5 text-brand rounded-lg text-[10px] font-bold uppercase tracking-widest">
+              <span className="px-4 py-1.5 bg-brand/5 text-brand rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
                 {thread.category}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 leading-tight">
               {thread.title}
             </h1>
-            <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap text-lg">
+            <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap text-lg sm:text-xl">
               {thread.content}
             </p>
           </div>
 
-          <div className="flex items-center gap-6 mt-10 pt-8 border-t border-slate-50">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-6 mt-12 pt-10 border-t border-slate-50">
+            <div className="flex items-center bg-slate-50 p-1.5 rounded-2xl gap-1">
               <button 
-                onClick={() => {
-                  setIsLiked(!isLiked);
-                  if (isDisliked) setIsDisliked(false);
-                }}
-                className={`flex items-center gap-2 font-bold text-sm transition-all ${
-                  isLiked ? 'text-brand' : 'text-slate-400 hover:text-slate-600'
+                onClick={handleLikePost}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all ${
+                  isLiked ? 'bg-white text-brand shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
-                <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-brand' : ''}`} /> {thread.likes + (isLiked ? 1 : 0)}
+                <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-brand' : ''}`} /> {thread.likes}
               </button>
+              <div className="w-px h-6 bg-slate-200 mx-1" />
               <button 
-                onClick={() => {
-                  setIsDisliked(!isDisliked);
-                  if (isLiked) setIsLiked(false);
-                }}
-                className={`flex items-center gap-2 font-bold text-sm transition-all ${
-                  isDisliked ? 'text-red-500' : 'text-slate-400 hover:text-slate-600'
+                onClick={handleDislikePost}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all ${
+                  isDisliked ? 'bg-white text-red-500 shadow-md' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
-                <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-red-500' : ''}`} /> {thread.dislikes + (isDisliked ? 1 : 0)}
+                <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-red-500' : ''}`} /> {thread.dislikes || 0}
               </button>
             </div>
-            <button className="flex items-center gap-2 font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">
-              <MessageCircle className="w-5 h-5" /> {thread.replies.length} Replies
-            </button>
-            <button className="flex items-center gap-2 font-bold text-sm text-slate-400 hover:text-slate-600 transition-all ml-auto">
-              <Share2 className="w-5 h-5" /> Share
-            </button>
+            
+            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-2xl text-slate-500 font-black text-sm">
+              <MessageCircle className="w-5 h-5 text-brand" /> {thread.replies.length} Replies
+            </div>
+            
+            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-2xl text-slate-500 font-black text-sm ml-auto">
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Verified Discussion
+            </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Replies Section */}
-      <div className="space-y-6">
-        <h3 className="text-xl font-bold text-slate-900 px-4">Replies ({thread.replies.length})</h3>
+      <div className="space-y-8">
+        <div className="flex items-center justify-between px-4">
+          <h3 className="text-2xl font-black text-slate-900">Community Thoughts</h3>
+          <div className="text-sm font-bold text-slate-400">Sort by: <span className="text-brand cursor-pointer">Most Helpful</span></div>
+        </div>
         
-        <div className="space-y-4">
-          {thread.replies.map((reply: any) => (
+        <div className="space-y-6">
+          {thread.replies.map((reply: any, index: number) => (
             <div key={reply.id} className="space-y-4">
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-white p-6 sm:p-8 rounded-[32px] border border-slate-100 shadow-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-md transition-all"
               >
-                <div className="flex items-start gap-4">
-                  <img src={reply.authorImage} alt={reply.author} className="w-12 h-12 rounded-xl object-cover" />
+                <div className="flex items-start gap-5">
+                  <img src={reply.authorImage} alt={reply.author} className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-50 shadow-sm" />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h5 className="font-bold text-slate-900">{reply.author}</h5>
+                          <h5 className="font-black text-slate-900">{reply.author}</h5>
                           {reply.isVerified && <CheckCircle2 className="w-4 h-4 text-brand fill-brand/10" />}
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{reply.authorRole} • {reply.time}</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{reply.authorRole} • {reply.time}</p>
                       </div>
-                      <button className="p-1.5 text-slate-300 hover:text-slate-500 transition-colors">
+                      <button className="p-2 text-slate-300 hover:text-red-400 transition-colors">
                         <Flag className="w-4 h-4" />
                       </button>
                     </div>
-                    <p className="text-slate-600 font-medium leading-relaxed">
+                    <p className="text-slate-600 font-medium leading-relaxed text-lg">
                       {reply.content}
                     </p>
-                    <div className="flex items-center gap-4 mt-4">
-                      <button 
-                        onClick={() => handleLikeReply(reply.id)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand transition-colors"
-                      >
-                        <ThumbsUp className="w-4 h-4" /> {reply.likes}
-                      </button>
-                      <button 
-                        onClick={() => handleDislikeReply(reply.id)}
-                        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors"
-                      >
-                        <ThumbsDown className="w-4 h-4" /> {reply.dislikes || 0}
-                      </button>
+                    <div className="flex items-center gap-6 mt-6">
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => handleLikeReply(reply.id)}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs text-slate-400 hover:text-brand hover:bg-brand/5 transition-all"
+                        >
+                          <ThumbsUp className="w-4 h-4" /> {reply.likes}
+                        </button>
+                        <button 
+                          onClick={() => handleDislikeReply(reply.id)}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                        >
+                          <ThumbsDown className="w-4 h-4" /> {reply.dislikes || 0}
+                        </button>
+                      </div>
                       <button 
                         onClick={() => {
                           setReplyingTo(reply);
-                          document.querySelector('input')?.focus();
+                          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                         }}
-                        className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 rounded-xl font-black text-xs hover:bg-brand hover:text-white transition-all"
                       >
                         <Reply className="w-4 h-4" /> Reply
                       </button>
@@ -333,24 +374,24 @@ export default function ForumThread() {
 
               {/* Nested Replies */}
               {reply.replies && reply.replies.length > 0 && (
-                <div className="ml-12 space-y-4 border-l-2 border-slate-100 pl-6">
+                <div className="ml-8 sm:ml-16 space-y-4 border-l-4 border-slate-100 pl-6 sm:pl-10">
                   {reply.replies.map((nested: any) => (
                     <motion.div
                       key={nested.id}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="bg-slate-50/50 p-6 rounded-[24px] border border-slate-100"
+                      className="bg-slate-50/50 p-6 rounded-[32px] border border-slate-100"
                     >
                       <div className="flex items-start gap-4">
-                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-xl object-cover" />
+                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-xl object-cover shadow-sm" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
                             <div>
                               <div className="flex items-center gap-2">
-                                <h5 className="font-bold text-slate-900 text-sm">{nested.author}</h5>
+                                <h5 className="font-black text-slate-900 text-sm">{nested.author}</h5>
                                 {nested.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-brand fill-brand/10" />}
                               </div>
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{nested.authorRole} • {nested.time}</p>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{nested.authorRole} • {nested.time}</p>
                             </div>
                           </div>
                           <p className="text-slate-600 font-medium leading-relaxed text-sm">
@@ -359,13 +400,13 @@ export default function ForumThread() {
                           <div className="flex items-center gap-4 mt-4">
                             <button 
                               onClick={() => handleLikeReply(nested.id)}
-                              className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand transition-colors"
+                              className="flex items-center gap-1.5 text-xs font-black text-slate-400 hover:text-brand transition-all"
                             >
                               <ThumbsUp className="w-3.5 h-3.5" /> {nested.likes}
                             </button>
                             <button 
                               onClick={() => handleDislikeReply(nested.id)}
-                              className="flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors"
+                              className="flex items-center gap-1.5 text-xs font-black text-slate-400 hover:text-red-500 transition-all"
                             >
                               <ThumbsDown className="w-3.5 h-3.5" /> {nested.dislikes || 0}
                             </button>
@@ -382,17 +423,17 @@ export default function ForumThread() {
       </div>
 
       {/* Reply Input */}
-      <div className="sticky bottom-8">
+      <div className="sticky bottom-8 z-50 px-4">
         <AnimatePresence>
           {replyingTo && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="bg-brand/5 border border-brand/10 px-6 py-2 rounded-t-2xl flex items-center justify-between mb-[-1px] relative z-0"
+              className="bg-brand text-white px-8 py-3 rounded-t-[32px] flex items-center justify-between mb-[-1px] relative z-0 shadow-lg"
             >
-              <p className="text-xs font-bold text-brand">Replying to {replyingTo.author}</p>
-              <button onClick={() => setReplyingTo(null)} className="text-brand hover:text-brand/80">
+              <p className="text-xs font-black uppercase tracking-widest">Replying to {replyingTo.author}</p>
+              <button onClick={() => setReplyingTo(null)} className="hover:scale-110 transition-transform">
                 <X className="w-4 h-4" />
               </button>
             </motion.div>
@@ -400,22 +441,22 @@ export default function ForumThread() {
         </AnimatePresence>
         <form 
           onSubmit={handleReply}
-          className="bg-white p-4 rounded-[32px] border border-slate-200 shadow-2xl flex items-center gap-4 relative z-10"
+          className="bg-white p-4 rounded-[40px] border-2 border-slate-100 shadow-2xl flex items-center gap-4 relative z-10"
         >
-          <img src="https://picsum.photos/seed/student/100/100" alt="Me" className="w-10 h-10 rounded-xl object-cover hidden sm:block" />
+          <img src="https://picsum.photos/seed/bolu/100/100" alt="Me" className="w-12 h-12 rounded-2xl object-cover hidden sm:block border-2 border-slate-50" />
           <input 
             type="text" 
-            placeholder={replyingTo ? `Reply to ${replyingTo.author}...` : "Write a reply..."}
+            placeholder={replyingTo ? `Write your reply to ${replyingTo.author}...` : "Share your thoughts..."}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            className="flex-1 bg-slate-50 border-none rounded-2xl px-6 py-3 outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+            className="flex-1 bg-slate-50 border-none rounded-[24px] px-8 py-4 outline-none focus:ring-4 focus:ring-brand/10 font-bold text-slate-700 placeholder:text-slate-300"
           />
           <button 
             type="submit"
             disabled={!replyText.trim()}
-            className="p-3 bg-brand text-white rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+            className="p-4 bg-brand text-white rounded-[24px] shadow-xl shadow-brand/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-6 h-6" />
           </button>
         </form>
       </div>

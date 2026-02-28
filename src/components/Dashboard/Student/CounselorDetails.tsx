@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
   Star, 
@@ -15,18 +15,23 @@ import {
   BookOpen,
   Award,
   Users,
-  Info
+  Info,
+  Video
 } from 'lucide-react';
+import { counselingSessionsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
 
 export default function CounselorDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [isBooking, setIsBooking] = useState(false);
   const [activeTab, setActiveTab] = useState<'about' | 'activity'>('about');
+  const [bookingData, setBookingData] = useState({ date: '', time: '09:00 AM', reason: '' });
 
   // Mock data for a single counselor
   const counselor = {
-    id: 1,
+    id: Number(id) || 1,
     name: 'Mrs. Adebayo Funke',
     role: 'Senior Academic Counselor',
     school: 'Lagos City College',
@@ -51,14 +56,37 @@ export default function CounselorDetails() {
       { name: 'Scholarship Guidance', price: 'Free for students' },
       { name: 'Subject Selection Consultation', price: 'Free for students' }
     ],
-    scheduledSessions: [
-      { id: 1, title: 'Career Path Discussion', date: 'Oct 25, 2024', time: '2:00 PM', type: 'Virtual' },
-    ],
     activityTree: [
       { id: 1, title: 'Initial Consultation', date: 'Oct 01, 2024', status: 'Completed', type: 'session' },
       { id: 2, title: 'Career Interest Quiz Review', date: 'Oct 10, 2024', status: 'Completed', type: 'quiz' },
       { id: 3, title: 'University Selection', date: 'Oct 25, 2024', status: 'Upcoming', type: 'session' },
     ]
+  };
+
+  const sessions = counselingSessionsStorage.get([]).filter((s: any) => s.counselorId === counselor.id);
+
+  const handleConfirmBooking = () => {
+    if (!bookingData.date) {
+      showToast('Please select a date');
+      return;
+    }
+    const newSession = {
+      id: Date.now(),
+      counselorId: counselor.id,
+      counselorName: counselor.name,
+      studentName: 'Osayuki Yuki', // Mocked current student
+      studentImage: 'https://picsum.photos/seed/student/100/100',
+      title: bookingData.reason || 'General Consultation',
+      date: bookingData.date,
+      time: bookingData.time,
+      type: 'Virtual',
+      status: 'Upcoming'
+    };
+    const allSessions = counselingSessionsStorage.get([]);
+    counselingSessionsStorage.save([...allSessions, newSession]);
+    setIsBooking(false);
+    setBookingData({ date: '', time: '09:00 AM', reason: '' });
+    showToast('Session booked successfully!');
   };
 
   return (
@@ -230,13 +258,13 @@ export default function CounselorDetails() {
 
         {/* Sidebar Actions */}
         <div className="space-y-6">
-          {counselor.scheduledSessions.length > 0 && (
+          {sessions.length > 0 && (
             <div className="bg-emerald-500 p-8 rounded-[32px] text-white shadow-xl shadow-emerald-500/20">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Calendar className="w-6 h-6" /> Scheduled Session
               </h3>
               <div className="space-y-4">
-                {counselor.scheduledSessions.map((session) => (
+                {sessions.map((session: any) => (
                   <div key={session.id} className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
                     <p className="font-bold">{session.title}</p>
                     <div className="flex items-center gap-4 mt-2 text-sm font-medium text-white/80">
@@ -292,69 +320,84 @@ export default function CounselorDetails() {
         </div>
       </div>
 
-      {/* Booking Modal Placeholder */}
-      {isBooking && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={() => setIsBooking(false)}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-          />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
-          >
-            <div className="p-8 sm:p-10">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Book a Session</h2>
-              <p className="text-slate-500 font-medium mb-8">Select a date and time for your session with {counselor.name}.</p>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>
-                    <input type="date" className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-2">Time</label>
-                    <select className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700">
-                      <option>09:00 AM</option>
-                      <option>10:30 AM</option>
-                      <option>01:00 PM</option>
-                      <option>02:30 PM</option>
-                    </select>
-                  </div>
-                </div>
+      {/* Booking Modal */}
+      <AnimatePresence>
+        {isBooking && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsBooking(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8 sm:p-10">
+                <h2 className="text-2xl font-bold text-slate-900 mb-2">Book a Session</h2>
+                <p className="text-slate-500 font-medium mb-8">Select a date and time for your session with {counselor.name}.</p>
                 
-                <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Reason for Visit</label>
-                  <textarea 
-                    rows={3}
-                    placeholder="I need help with my university application..."
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
-                  ></textarea>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <button 
-                    onClick={() => setIsBooking(false)}
-                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={() => setIsBooking(false)}
-                    className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
-                  >
-                    Confirm Booking
-                  </button>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Date</label>
+                      <input 
+                        type="date" 
+                        value={bookingData.date}
+                        onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Time</label>
+                      <select 
+                        value={bookingData.time}
+                        onChange={(e) => setBookingData({ ...bookingData, time: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+                      >
+                        <option>09:00 AM</option>
+                        <option>10:30 AM</option>
+                        <option>01:00 PM</option>
+                        <option>02:30 PM</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Reason for Visit</label>
+                    <textarea 
+                      rows={3}
+                      value={bookingData.reason}
+                      onChange={(e) => setBookingData({ ...bookingData, reason: e.target.value })}
+                      placeholder="I need help with my university application..."
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                    ></textarea>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => setIsBooking(false)}
+                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleConfirmBooking}
+                      className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                    >
+                      Confirm Booking
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

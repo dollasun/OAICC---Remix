@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../Logo';
+import { messagesStorage } from '../../utils/storage';
 
 // Import Counselor Pages
 import CounselorOverview from './Counselor/Overview';
@@ -24,18 +25,12 @@ import CounselorProfile from './Counselor/CounselorProfile';
 import Sessions from './Counselor/Sessions';
 import Messages from './Counselor/Messages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
-
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/counselor/dashboard' },
-  { icon: Users, label: 'Students', path: '/counselor/students' },
-  { icon: Calendar, label: 'Sessions', path: '/counselor/sessions' },
-  { icon: MessageSquare, label: 'Messages', path: '/counselor/messages', badge: 2 },
-  { icon: Settings, label: 'Settings', path: '/counselor/settings' },
-];
+import NotificationPage from '../Notifications/NotificationPage';
 
 export default function CounselorDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -44,7 +39,19 @@ export default function CounselorDashboard() {
     if (!isCounselor) {
       navigate('/counselor/signin');
     }
-  }, [navigate]);
+
+    const chats = messagesStorage.get();
+    const count = chats.reduce((acc: number, chat: any) => acc + (chat.unread || 0), 0);
+    setUnreadCount(count);
+  }, [navigate, location.pathname]);
+
+  const navItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/counselor/dashboard' },
+    { icon: Users, label: 'Students', path: '/counselor/students' },
+    { icon: Calendar, label: 'Sessions', path: '/counselor/sessions' },
+    { icon: MessageSquare, label: 'Messages', path: '/counselor/messages', badge: unreadCount },
+    { icon: Settings, label: 'Settings', path: '/counselor/settings' },
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem('counselor_auth');
@@ -211,6 +218,7 @@ export default function CounselorDashboard() {
             <Route path="sessions" element={<Sessions />} />
             <Route path="messages" element={<Messages />} />
             <Route path="settings" element={<CounselorProfile />} />
+            <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>
         </div>

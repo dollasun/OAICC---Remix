@@ -10,24 +10,30 @@ import {
   Users,
   TrendingUp,
   Bookmark,
-  ChevronRight
+  ChevronRight,
+  Video
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { savedCareersStorage } from '../../../utils/storage';
+import { savedCareersStorage, counselingSessionsStorage } from '../../../utils/storage';
 
 export default function StudentHome() {
   const navigate = useNavigate();
   const [savedIds, setSavedIds] = useState<number[]>([]);
+  const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = savedCareersStorage.get([]);
     setSavedIds(saved.map((c: any) => c.id));
+
+    const allSessions = counselingSessionsStorage.get([]);
+    // Filter sessions for the current student (mocked as student ID 1)
+    const studentSessions = allSessions.filter((s: any) => s.studentId === 1 || s.studentName === 'Osayuki Yuki');
+    setUpcomingSessions(studentSessions.slice(0, 2));
   }, []);
 
   const stats = [
     { label: 'Completed Tasks', value: '12', icon: TrendingUp, color: 'bg-emerald-500' },
     { label: 'Saved Careers', value: savedIds.length.toString(), icon: Bookmark, color: 'bg-brand' },
-    { label: 'Forum Posts', value: '24', icon: MessageSquare, color: 'bg-amber-500' },
     { label: 'Upcoming Events', value: '3', icon: Calendar, color: 'bg-indigo-500' },
   ];
 
@@ -141,6 +147,54 @@ export default function StudentHome() {
 
         {/* Sidebar Content */}
         <div className="space-y-8">
+          {/* Counseling Sessions */}
+          <section className="bg-emerald-500 p-6 rounded-3xl text-white shadow-xl shadow-emerald-500/20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold">Counseling Sessions</h2>
+              <Video className="w-5 h-5 text-white/60" />
+            </div>
+            <div className="space-y-4">
+              {upcomingSessions.map((session) => (
+                <div 
+                  key={session.id} 
+                  className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all cursor-pointer group"
+                >
+                  <h3 className="font-bold text-white">{session.title}</h3>
+                  <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">with {session.counselorName}</p>
+                  <div className="flex items-center gap-4 mt-3 text-[10px] font-bold text-white/80">
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {session.time}</span>
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {session.date}</span>
+                  </div>
+                  <button 
+                    onClick={() => window.open(session.link || 'https://zoom.us', '_blank')}
+                    className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all text-xs"
+                  >
+                    Join Meeting
+                  </button>
+                </div>
+              ))}
+              {upcomingSessions.length === 0 && (
+                <div className="text-center py-6">
+                  <p className="text-sm font-medium text-white/60 mb-4">No scheduled sessions</p>
+                  <button 
+                    onClick={() => navigate('/student/counselors')}
+                    className="w-full py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all text-sm"
+                  >
+                    Book a Session
+                  </button>
+                </div>
+              )}
+              {upcomingSessions.length > 0 && (
+                <button 
+                  onClick={() => navigate('/student/counselors')}
+                  className="w-full py-3 text-white font-bold text-sm hover:bg-white/10 rounded-xl transition-all"
+                >
+                  View all sessions
+                </button>
+              )}
+            </div>
+          </section>
+
           {/* Upcoming Events */}
           <section className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-6">

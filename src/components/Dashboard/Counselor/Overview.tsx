@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -16,82 +16,36 @@ import {
   Info
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
-const students = [
-  { 
-    id: 's1', 
-    name: 'Favour Aina', 
-    email: 'favouraina@gmail.com', 
-    career: 'Design', 
-    class: 'SS3',
-    image: 'https://picsum.photos/seed/s1/100/100',
-    status: 'Active'
-  },
-  { 
-    id: 's2', 
-    name: 'Adebayo Samuel', 
-    email: 'adebayo@gmail.com', 
-    career: 'Medicine', 
-    class: 'SS2',
-    image: 'https://picsum.photos/seed/s2/100/100',
-    status: 'Active'
-  },
-  { 
-    id: 's3', 
-    name: 'Chioma Okeke', 
-    email: 'chioma@gmail.com', 
-    career: 'Engineering', 
-    class: 'SS3',
-    image: 'https://picsum.photos/seed/s3/100/100',
-    status: 'Active'
-  },
-  { 
-    id: 's4', 
-    name: 'Tunde Bakare', 
-    email: 'tunde@gmail.com', 
-    career: 'Law', 
-    class: 'SS1',
-    image: 'https://picsum.photos/seed/s4/100/100',
-    status: 'Inactive'
-  },
-];
-
-const upcomingSessions = [
-  {
-    id: 1,
-    student: 'Favour Aina',
-    title: 'Career Path Discussion',
-    date: 'Today',
-    time: '2:00 PM',
-    type: 'Virtual',
-    link: 'https://meet.google.com/abc-defg-hij',
-    image: 'https://picsum.photos/seed/s1/100/100',
-    description: 'Reviewing the student\'s interest in Computer Science and discussing university options in Nigeria and abroad.'
-  },
-  {
-    id: 2,
-    student: 'Adebayo Samuel',
-    title: 'Academic Performance Review',
-    date: 'Tomorrow',
-    time: '10:00 AM',
-    type: 'In-person',
-    location: 'Counselor Office, Room 204',
-    image: 'https://picsum.photos/seed/s2/100/100',
-    description: 'Discussing recent mock exam results and identifying areas for improvement in core science subjects.'
-  }
-];
+import { counselingSessionsStorage, studentsStorage, messagesStorage } from '../../../utils/storage';
 
 export default function CounselorOverview() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedSession, setSelectedSession] = useState<typeof upcomingSessions[0] | null>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [assignedStudents, setAssignedStudents] = useState<any[]>([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [selectedSession, setSelectedSession] = useState<any | null>(null);
+
+  useEffect(() => {
+    const allSessions = counselingSessionsStorage.get();
+    setSessions(allSessions);
+
+    const allStudents = studentsStorage.get();
+    // Filter students assigned to this counselor (ID 1)
+    const assigned = allStudents.filter((s: any) => s.counselorId === 1);
+    setAssignedStudents(assigned);
+
+    const chats = messagesStorage.get();
+    const unread = chats.reduce((acc: number, chat: any) => acc + (chat.unread || 0), 0);
+    setUnreadMessages(unread);
+  }, []);
 
   const isDashboard = location.pathname.includes('/dashboard');
 
   const stats = [
     { 
       label: 'Total Students', 
-      value: students.length, 
+      value: assignedStudents.length, 
       icon: Users, 
       color: 'text-blue-600', 
       bg: 'bg-blue-50',
@@ -99,7 +53,7 @@ export default function CounselorOverview() {
     },
     { 
       label: 'Scheduled Sessions', 
-      value: 12, 
+      value: sessions.length, 
       icon: Calendar, 
       color: 'text-brand', 
       bg: 'bg-brand/10',
@@ -107,7 +61,7 @@ export default function CounselorOverview() {
     },
     { 
       label: 'Unread Messages', 
-      value: 2, 
+      value: unreadMessages, 
       icon: MessageSquare, 
       color: 'text-emerald-600', 
       bg: 'bg-emerald-50',
@@ -186,7 +140,7 @@ export default function CounselorOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.map((student) => (
+                  {assignedStudents.map((student) => (
                     <tr 
                       key={student.id}
                       onClick={() => navigate(`/counselor/students/${student.id}`)}
@@ -194,21 +148,28 @@ export default function CounselorOverview() {
                     >
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-3">
-                          <img src={student.image} alt={student.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <img src={student.avatar} alt={student.name} className="w-10 h-10 rounded-xl object-cover" />
                           <span className="font-bold text-slate-900 text-sm">{student.name}</span>
                         </div>
                       </td>
                       <td className="px-8 py-4">
-                        <span className="px-2 py-1 bg-brand/5 text-brand rounded-lg text-[10px] font-bold">{student.career}</span>
+                        <span className="px-2 py-1 bg-brand/5 text-brand rounded-lg text-[10px] font-bold">{student.career || 'General'}</span>
                       </td>
                       <td className="px-8 py-4">
-                        <span className="text-sm font-bold text-slate-700">{student.class}</span>
+                        <span className="text-sm font-bold text-slate-700">{student.class || 'N/A'}</span>
                       </td>
                       <td className="px-8 py-4 text-right">
                         <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand ml-auto" />
                       </td>
                     </tr>
                   ))}
+                  {assignedStudents.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-8 py-12 text-center text-slate-400 font-medium">
+                        No students assigned to you yet.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -223,17 +184,17 @@ export default function CounselorOverview() {
                 <Calendar className="w-6 h-6 text-brand" /> Upcoming Sessions
               </h2>
               <div className="space-y-4">
-                {upcomingSessions.map((session) => (
+                {sessions.slice(0, 3).map((session) => (
                   <div 
                     key={session.id}
                     onClick={() => navigate('/counselor/sessions')}
                     className="p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-brand/20 hover:bg-white hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <img src={session.image} alt={session.student} className="w-10 h-10 rounded-xl object-cover" />
+                      <img src={session.studentImage || `https://picsum.photos/seed/${session.id}/100/100`} alt={session.studentName} className="w-10 h-10 rounded-xl object-cover" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">{session.title}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.student}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.studentName}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
@@ -245,6 +206,9 @@ export default function CounselorOverview() {
                     </div>
                   </div>
                 ))}
+                {sessions.length === 0 && (
+                  <p className="text-sm font-medium text-slate-400 text-center py-4">No upcoming sessions</p>
+                )}
               </div>
               <button 
                 onClick={() => navigate('/counselor/sessions')}

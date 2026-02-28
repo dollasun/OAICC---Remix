@@ -1,16 +1,42 @@
-import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import Logo from '../Logo';
 
+const slides = [
+  {
+    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80",
+    title: <>Guide the next <span className="text-brand">generation</span>.</>,
+    description: "Access your counselor portal to manage student sessions and track their progress."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80",
+    title: <>Empower student <span className="text-brand">potential</span>.</>,
+    description: "Help students discover their strengths and navigate their path to a successful career."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80",
+    title: <>Impactful <span className="text-brand">mentorship</span>.</>,
+    description: "Build meaningful relationships and provide the support students need to thrive."
+  }
+];
+
 export default function CounselorSignIn() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,23 +48,57 @@ export default function CounselorSignIn() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Image */}
+      {/* Left Side - Image Carousel */}
       <div className="hidden lg:block lg:w-1/2 relative overflow-hidden bg-slate-900">
-        <img 
-          src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80" 
-          alt="Counselor" 
-          className="absolute inset-0 w-full h-full object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-        <div className="absolute bottom-20 left-20 right-20">
-          <Logo variant="white" size="lg" className="mb-8" />
-          <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-            Guide the next <span className="text-brand">generation</span>.
-          </h1>
-          <p className="text-xl text-slate-300 font-medium max-w-lg">
-            Access your counselor portal to manage student sessions and track their progress.
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0"
+          >
+            <img 
+              src={slides[currentSlide].image} 
+              alt="Counselor" 
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+            <div className="absolute bottom-20 left-20 right-20">
+              <Logo variant="white" size="lg" className="mb-8" />
+              <motion.h1 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="text-5xl font-bold text-white mb-6 leading-tight"
+              >
+                {slides[currentSlide].title}
+              </motion.h1>
+              <motion.p 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+                className="text-xl text-slate-300 font-medium max-w-lg"
+              >
+                {slides[currentSlide].description}
+              </motion.p>
+              
+              {/* Slide Indicators */}
+              <div className="flex gap-2 mt-12">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentSlide(index)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      index === currentSlide ? 'w-8 bg-brand' : 'w-4 bg-white/20'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Right Side - Form */}

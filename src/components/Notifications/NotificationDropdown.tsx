@@ -25,10 +25,10 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
       },
       {
         id: '2',
-        title: 'New Event Added',
-        body: 'A new workshop "Introduction to AI" has been added to your schedule.',
-        timestamp: '5 hours ago',
-        read: true
+        title: 'New Student Assigned',
+        body: 'A new student, Tunde Bakare, has been assigned to you for counseling.',
+        timestamp: '4 hours ago',
+        read: false
       }
     ];
     setNotifications(notificationsStorage.get(initialNotifications));
@@ -77,7 +77,7 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
               <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900">Notifications</h3>
                 <span className="px-2 py-1 bg-brand/10 text-brand text-[10px] font-bold rounded-lg uppercase tracking-wider">
-                  {unreadCount} New
+                  {unreadCount} NEW
                 </span>
               </div>
 
@@ -125,7 +125,7 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
 
               <button 
                 onClick={handleViewAll}
-                className="w-full py-4 bg-slate-50 text-brand font-bold text-sm hover:bg-slate-100 transition-colors border-t border-slate-100"
+                className="w-full py-4 bg-brand/5 text-brand font-bold text-sm hover:bg-brand/10 transition-colors border-t border-slate-100"
               >
                 View all notifications
               </button>

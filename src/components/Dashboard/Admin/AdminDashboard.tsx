@@ -25,18 +25,17 @@ import AdminOverview from './Overview';
 import AdminCareers from './Careers';
 import AdminCreateCareer from './CreateCareer';
 import AdminEditCareer from './EditCareer';
-import AdminForums from './Forums';
 import AdminMentors from './Mentors';
 import AdminCreateMentor from './CreateMentor';
 import AdminEditMentor from './EditMentor';
 import AdminMentorDetails from './MentorDetails';
 import AdminCounselors from './Counselors';
+import AdminForum from './Forum';
+import AdminForumThread from './ForumThread';
 import AdminUsers from './AdminUsers';
 import AdminEvents from './Events';
 import AdminInterestQuiz from './InterestQuiz';
 import AdminSettings from './Settings';
-import AdminForumDetails from './ForumDetails';
-import AdminDiscussionDetails from './DiscussionDetails';
 import AdminStudentView from './StudentView';
 import NotificationDropdown from '../../Notifications/NotificationDropdown';
 import NotificationPage from '../../Notifications/NotificationPage';
@@ -44,9 +43,9 @@ import NotificationPage from '../../Notifications/NotificationPage';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: Briefcase, label: 'Career', path: '/admin/careers' },
-  { icon: MessageSquare, label: 'Forum', path: '/admin/forums' },
   { icon: Users, label: 'Mentor', path: '/admin/mentors' },
   { icon: UserSquare2, label: 'Counselor', path: '/admin/counselors' },
+  { icon: MessageSquare, label: 'Forum', path: '/admin/forum' },
   { icon: Calendar, label: 'Events', path: '/admin/events' },
   { icon: ShieldCheck, label: 'Admin Users', path: '/admin/users' },
   { icon: Scale, label: 'Interest Quiz', path: '/admin/quiz' },
@@ -222,14 +221,13 @@ export default function AdminDashboard() {
             <Route path="careers" element={<AdminCareers />} />
             <Route path="careers/create" element={<AdminCreateCareer />} />
             <Route path="careers/edit/:id" element={<AdminEditCareer />} />
-            <Route path="forums" element={<AdminForums />} />
-            <Route path="forums/:id" element={<AdminForumDetails />} />
-            <Route path="forums/:id/discussion/:discussionId" element={<AdminDiscussionDetails />} />
             <Route path="mentors" element={<AdminMentors />} />
             <Route path="mentors/create" element={<AdminCreateMentor />} />
             <Route path="mentors/:id" element={<AdminMentorDetails />} />
             <Route path="mentors/edit/:id" element={<AdminEditMentor />} />
             <Route path="counselors" element={<AdminCounselors />} />
+            <Route path="forum" element={<AdminForum />} />
+            <Route path="forum/:id" element={<AdminForumThread />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="events" element={<AdminEvents />} />
             <Route path="quiz" element={<AdminInterestQuiz />} />

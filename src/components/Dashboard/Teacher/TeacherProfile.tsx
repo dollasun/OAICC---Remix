@@ -31,6 +31,13 @@ export default function TeacherProfile() {
   const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImage, setProfileImage] = useState('https://picsum.photos/seed/teacher/200/200');
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [notifications, setNotifications] = useState({
+    email: true,
+    push: true,
+    classes: true,
+    system: true
+  });
 
   const [formData, setFormData] = useState({
     title: 'Mr.',
@@ -43,6 +50,16 @@ export default function TeacherProfile() {
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
+  };
+
+  const handleToggle2FA = () => {
+    setIs2FAEnabled(!is2FAEnabled);
+    showToast(`Two-Factor Authentication ${!is2FAEnabled ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleToggleNotification = (key: keyof typeof notifications) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    showToast('Notification preferences updated');
   };
 
   const handleImageClick = () => {
@@ -193,6 +210,19 @@ export default function TeacherProfile() {
                 <div className="p-8 space-y-6">
                   <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
                     <div>
+                      <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
+                      <p className="text-sm font-medium text-slate-500">Add an extra layer of security to your account</p>
+                    </div>
+                    <div 
+                      onClick={handleToggle2FA}
+                      className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
+                    <div>
                       <h4 className="font-bold text-slate-900">Account Password</h4>
                       <p className="text-sm font-medium text-slate-500">Last changed 3 months ago</p>
                     </div>
@@ -203,6 +233,58 @@ export default function TeacherProfile() {
                       Change Password
                     </button>
                   </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Notifications */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleAccordion('notifications')}
+            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+                <Bell className="w-6 h-6" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-lg font-bold text-slate-900">Notifications</h3>
+                <p className="text-sm font-medium text-slate-500">Control how you receive updates and alerts</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform ${activeAccordion === 'notifications' ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <AnimatePresence>
+            {activeAccordion === 'notifications' && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-t border-slate-50"
+              >
+                <div className="p-8 space-y-4">
+                  {[
+                    { id: 'email', label: 'Email Notifications', desc: 'Receive updates via email' },
+                    { id: 'push', label: 'Push Notifications', desc: 'Receive alerts on your device' },
+                    { id: 'classes', label: 'Class Alerts', desc: 'Notifications for upcoming classes' },
+                    { id: 'system', label: 'System Updates', desc: 'Stay informed about platform updates' }
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center justify-between py-2">
+                      <div>
+                        <h4 className="font-bold text-slate-900">{item.label}</h4>
+                        <p className="text-sm font-medium text-slate-500">{item.desc}</p>
+                      </div>
+                      <div 
+                        onClick={() => handleToggleNotification(item.id as keyof typeof notifications)}
+                        className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${notifications[item.id as keyof typeof notifications] ? 'bg-brand' : 'bg-slate-200'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${notifications[item.id as keyof typeof notifications] ? 'right-1' : 'left-1'}`}></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}

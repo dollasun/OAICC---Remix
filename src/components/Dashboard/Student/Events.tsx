@@ -21,7 +21,7 @@ import { useToast } from '../../../context/ToastContext';
 
 const initialEvents = [
   {
-    id: 1,
+    id: 101,
     title: 'Tech Career Fair 2026',
     date: '2026-03-15',
     displayDate: 'Mar 15, 2026',
@@ -33,7 +33,7 @@ const initialEvents = [
     description: 'Connect with top tech companies looking for interns and entry-level talent. Get a chance to network with recruiters and learn about open roles.'
   },
   {
-    id: 2,
+    id: 102,
     title: 'Introduction to Artificial Intelligence',
     date: '2026-03-18',
     displayDate: 'Mar 18, 2026',
@@ -45,7 +45,7 @@ const initialEvents = [
     description: 'A beginner-friendly workshop covering the basics of AI, machine learning, and how to start your journey in this exciting field.'
   },
   {
-    id: 3,
+    id: 103,
     title: 'Design Portfolio Review Session',
     date: '2026-01-10',
     displayDate: 'Jan 10, 2026',
@@ -57,7 +57,7 @@ const initialEvents = [
     description: 'Get your design portfolio reviewed by industry professionals from leading creative agencies and tech companies.'
   },
   {
-    id: 4,
+    id: 104,
     title: 'Future of Finance Summit',
     date: '2026-04-05',
     displayDate: 'Apr 05, 2026',
@@ -69,7 +69,7 @@ const initialEvents = [
     description: 'Explore the latest trends in fintech, banking, and investment at the biggest finance summit of the year.'
   },
   {
-    id: 5,
+    id: 105,
     title: 'Soft Skills for Engineers',
     date: '2026-03-25',
     displayDate: 'Mar 25, 2026',

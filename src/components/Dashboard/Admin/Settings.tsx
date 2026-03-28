@@ -20,9 +20,24 @@ export default function AdminSettings() {
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [activeAccordion, setActiveAccordion] = useState<string | null>('personal');
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [notifications, setNotifications] = useState({
+    'New Forum Posts': true,
+    'New Mentor Applications': true,
+    'Event Registrations': true,
+    'System Updates': true,
+    'Security Alerts': true
+  });
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
+  };
+
+  const handleToggleNotification = (notif: string) => {
+    setNotifications(prev => ({
+      ...prev,
+      [notif]: !prev[notif as keyof typeof notifications]
+    }));
   };
 
   return (
@@ -162,17 +177,25 @@ export default function AdminSettings() {
                       <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
                       <p className="text-sm font-medium text-slate-500 mt-1">Add an extra layer of security to your account</p>
                     </div>
-                    {(() => {
-                      const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-                      return (
-                        <div 
-                          onClick={() => setIs2FAEnabled(!is2FAEnabled)}
-                          className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200'}`}
-                        >
-                          <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
-                        </div>
-                      );
-                    })()}
+                    <div 
+                      onClick={() => setIs2FAEnabled(!is2FAEnabled)}
+                      className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
+                    <div>
+                      <h4 className="font-bold text-slate-900">Account Password</h4>
+                      <p className="text-sm font-medium text-slate-500">Last changed 3 months ago</p>
+                    </div>
+                    <button 
+                      onClick={() => setIsPasswordModalOpen(true)}
+                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-xl hover:border-brand hover:text-brand transition-all"
+                    >
+                      Change Password
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -214,12 +237,12 @@ export default function AdminSettings() {
                     'System Updates',
                     'Security Alerts'
                   ].map((notif) => {
-                    const [isEnabled, setIsEnabled] = useState(true);
+                    const isEnabled = notifications[notif as keyof typeof notifications];
                     return (
                       <div key={notif} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors">
                         <span className="font-bold text-slate-700">{notif}</span>
                         <div 
-                          onClick={() => setIsEnabled(!isEnabled)}
+                          onClick={() => handleToggleNotification(notif)}
                           className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${isEnabled ? 'bg-brand' : 'bg-slate-200'}`}
                         >
                           <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${isEnabled ? 'right-1' : 'left-1'}`}></div>

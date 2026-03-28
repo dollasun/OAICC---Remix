@@ -67,7 +67,7 @@ export default function Sessions() {
       status: 'Upcoming'
     };
 
-    const allSessions = counselingSessionsStorage.get([]);
+    const allSessions = counselingSessionsStorage.get();
     const updatedSessions = [...allSessions, newSession];
     counselingSessionsStorage.save(updatedSessions);
     setSessions(updatedSessions);

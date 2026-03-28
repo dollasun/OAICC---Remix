@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Bell,
   Search,
-  UserCircle
+  UserCircle,
+  ChevronDown
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../Logo';
@@ -30,6 +31,7 @@ import NotificationPage from '../Notifications/NotificationPage';
 export default function CounselorDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
@@ -194,17 +196,52 @@ export default function CounselorDashboard() {
                 />
               </div>
               <NotificationDropdown role="counselor" />
-              <Link to="/counselor/settings" className="flex items-center gap-3 pl-4 border-l border-slate-100">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900">Mr. Alfred Funmbi</p>
-                  <p className="text-[10px] font-bold text-brand uppercase tracking-widest">Counselor</p>
-                </div>
-                <img 
-                  src="https://picsum.photos/seed/counselor/100/100" 
-                  alt="Counselor" 
-                  className="w-10 h-10 rounded-xl object-cover border-2 border-slate-50 shadow-sm"
-                />
-              </Link>
+              
+              <div className="relative">
+                <button 
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center gap-3 pl-4 border-l border-slate-100 hover:bg-slate-50 p-2 rounded-2xl transition-all"
+                >
+                  <div className="text-right hidden sm:block">
+                    <p className="text-sm font-bold text-slate-900">Mr. Alfred Funmbi</p>
+                    <p className="text-[10px] font-bold text-brand uppercase tracking-widest">Counselor</p>
+                  </div>
+                  <img 
+                    src="https://picsum.photos/seed/counselor/100/100" 
+                    alt="Counselor" 
+                    className="w-10 h-10 rounded-xl object-cover border-2 border-slate-50 shadow-sm"
+                  />
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isProfileDropdownOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)} />
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                      >
+                        <button 
+                          onClick={() => { navigate('/counselor/settings'); setIsProfileDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                        >
+                          <UserCircle className="w-4 h-4" /> My profile
+                        </button>
+                        <div className="h-px bg-slate-100 my-1"></div>
+                        <button 
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50"
+                        >
+                          <LogOut className="w-4 h-4" /> Sign out
+                        </button>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </header>

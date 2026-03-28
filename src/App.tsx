@@ -40,17 +40,9 @@ export default function App() {
           <Route path="/onboarding/student" element={<StudentOnboarding />} />
           
           {/* Dashboard Routes */}
-          <Route path="/parent/dashboard/*" element={<ParentDashboard />} />
-          <Route path="/parent/settings" element={<ParentDashboard />} />
-          <Route path="/teacher/dashboard/*" element={<TeacherDashboard />} />
-          <Route path="/teacher/class/:id" element={<TeacherDashboard />} />
-          <Route path="/teacher/student/:id" element={<TeacherDashboard />} />
-          <Route path="/teacher/settings" element={<TeacherDashboard />} />
-          
-          {/* School Routes */}
+          <Route path="/parent/*" element={<ParentDashboard />} />
+          <Route path="/teacher/*" element={<TeacherDashboard />} />
           <Route path="/school/*" element={<SchoolDashboard />} />
-
-          {/* Student Routes */}
           <Route path="/student/*" element={<StudentDashboard />} />
 
           {/* Admin Routes */}

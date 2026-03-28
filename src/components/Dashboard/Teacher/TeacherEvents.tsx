@@ -19,7 +19,7 @@ const events = [
   {
     id: 1,
     title: 'Modern Pedagogy Workshop',
-    date: 'Oct 15, 2024',
+    date: 'Mar 15, 2026',
     time: '10:00 AM - 4:00 PM',
     type: 'Virtual',
     category: 'Workshop',
@@ -31,7 +31,7 @@ const events = [
   {
     id: 2,
     title: 'Career Guidance for Educators',
-    date: 'Oct 18, 2024',
+    date: 'Mar 18, 2026',
     time: '2:00 PM - 3:30 PM',
     type: 'Online Webinar',
     category: 'Webinar',
@@ -43,7 +43,7 @@ const events = [
   {
     id: 3,
     title: 'Teacher Networking Night',
-    date: 'Oct 22, 2024',
+    date: 'Mar 22, 2026',
     time: '5:00 PM - 7:00 PM',
     type: 'In-Person (Lagos)',
     category: 'Networking',
@@ -55,7 +55,7 @@ const events = [
   {
     id: 4,
     title: 'STEM Education Summit',
-    date: 'Nov 05, 2024',
+    date: 'Apr 05, 2026',
     time: '9:00 AM - 5:00 PM',
     type: 'In-Person (Abuja)',
     category: 'Summit',

@@ -32,6 +32,7 @@ export default function ParentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(true);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -183,9 +184,9 @@ export default function ParentDashboard() {
           <div className="flex items-center gap-4">
             <NotificationDropdown role="parent" />
             <div className="h-8 w-px bg-slate-200 mx-2"></div>
-            <div className="relative group">
+            <div className="relative">
               <button 
-                onClick={() => navigate('/parent/settings')}
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-2xl transition-all"
               >
                 <div className="text-right hidden sm:block">
@@ -197,23 +198,36 @@ export default function ParentDashboard() {
                   alt="Profile" 
                   className="w-10 h-10 rounded-full object-cover border-2 border-brand/20"
                 />
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
               
-              {/* Profile Dropdown */}
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                <button 
-                  onClick={() => navigate('/parent/settings')}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
-                >
-                  <User className="w-4 h-4" /> My profile
-                </button>
-                <button 
-                  onClick={() => navigate('/')}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50"
-                >
-                  <LogOut className="w-4 h-4" /> Sign out
-                </button>
-              </div>
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)} />
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                    >
+                      <button 
+                        onClick={() => { navigate('/parent/settings'); setIsProfileOpen(false); }}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                      >
+                        <User className="w-4 h-4" /> My profile
+                      </button>
+                      <div className="h-px bg-slate-100 my-1"></div>
+                      <button 
+                        onClick={() => navigate('/')}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50"
+                      >
+                        <LogOut className="w-4 h-4" /> Sign out
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
@@ -222,10 +236,11 @@ export default function ParentDashboard() {
         <div className="p-8 flex-1">
           <Routes>
             <Route path="/" element={<ChildrenList />} />
-            <Route path="/child/:id" element={<ChildDetails />} />
-            <Route path="/events" element={<ParentEvents />} />
-            <Route path="/settings" element={<ProfileSettings />} />
-            <Route path="/notifications" element={<NotificationPage />} />
+            <Route path="dashboard" element={<ChildrenList />} />
+            <Route path="child/:id" element={<ChildDetails />} />
+            <Route path="events" element={<ParentEvents />} />
+            <Route path="settings" element={<ProfileSettings />} />
+            <Route path="notifications" element={<NotificationPage />} />
           </Routes>
         </div>
       </main>

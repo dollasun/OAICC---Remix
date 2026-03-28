@@ -17,39 +17,40 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mentorsStorage, counselorsStorage, adminUsersStorage } from '../../../utils/storage';
-
-const initialRecentUsers = [
-  { id: 1, name: 'Dr. John Obi', email: 'johnobi@oaicc.com', role: 'Parent', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user1/100/100' },
-  { id: 2, name: 'Favour Aina', email: 'estheras@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user2/100/100' },
-  { id: 3, name: 'Daniel Abayomi', email: 'danielabayomi@oaicc.com', role: 'Parent', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user3/100/100' },
-  { id: 4, name: 'Demi Wilkinson', email: 'demiwilkinson@oaicc.com', role: 'Teacher', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user4/100/100' },
-  { id: 5, name: 'Mrs. Elizabeth Danilla', email: 'elizabethdanilla@oaicc.com', role: 'Parent', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user5/100/100' },
-  { id: 6, name: 'Williams Oghenemaro', email: 'williamsoghenemaro@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user6/100/100' },
-  { id: 7, name: 'Louisa Maeve', email: 'louisamaeve@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/user7/100/100' },
-];
+import { mentorsStorage, counselorsStorage, adminUsersStorage, studentsStorage } from '../../../utils/storage';
 
 export default function AdminOverview() {
   const navigate = useNavigate();
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [dynamicStats, setDynamicStats] = useState([
-    { label: 'Total Students', value: '388', icon: Users, color: 'bg-brand', trend: '+12%' },
+    { label: 'Total Students', value: '0', icon: Users, color: 'bg-brand', trend: '+12%' },
     { label: 'Total Schools', value: '50', icon: School, color: 'bg-indigo-500', trend: '+5%' },
     { label: 'Total Parents', value: '12', icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
-    { label: 'Total Mentors', value: '12', icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
+    { label: 'Total Mentors', value: '0', icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
   ]);
 
   useEffect(() => {
     const mentors = mentorsStorage.get([]);
     const counselors = counselorsStorage.get([]);
     const admins = adminUsersStorage.get([]);
+    const students = studentsStorage.get([]);
     
     setDynamicStats([
-      { label: 'Total Students', value: '388', icon: Users, color: 'bg-brand', trend: '+12%' },
+      { label: 'Total Students', value: students.length.toString(), icon: Users, color: 'bg-brand', trend: '+12%' },
       { label: 'Total Mentors', value: mentors.length.toString(), icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
       { label: 'Total Counselors', value: counselors.length.toString(), icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
       { label: 'Total Admins', value: admins.length.toString(), icon: School, color: 'bg-indigo-500', trend: '+5%' },
     ]);
+
+    // Combine some users for the "Recent Users" table
+    const combined = [
+      ...students.map(s => ({ ...s, role: 'Student', date: 'Oct 20, 2024' })),
+      ...mentors.map(m => ({ ...m, role: 'Mentor', date: 'Oct 15, 2024' })),
+      ...counselors.map(c => ({ ...c, role: 'Counselor', date: 'Oct 10, 2024' }))
+    ].sort(() => 0.5 - Math.random()).slice(0, 7);
+
+    setRecentUsers(combined);
   }, []);
 
   const handleUserClick = (user: any) => {
@@ -125,15 +126,15 @@ export default function AdminOverview() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {initialRecentUsers.map((user) => (
+              {recentUsers.map((user) => (
                 <tr 
-                  key={user.id} 
+                  key={`${user.role}-${user.id}`} 
                   onClick={() => handleUserClick(user)}
                   className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
                 >
                   <td className="px-8 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-xl object-cover" />
+                      <img src={user.avatar || user.image} alt={user.name} className="w-10 h-10 rounded-xl object-cover" />
                       <span className="font-bold text-slate-900">{user.name}</span>
                     </div>
                   </td>
@@ -142,6 +143,8 @@ export default function AdminOverview() {
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                       user.role === 'Student' ? 'bg-brand/10 text-brand' :
                       user.role === 'Parent' ? 'bg-indigo-50 text-indigo-500' :
+                      user.role === 'Mentor' ? 'bg-amber-50 text-amber-500' :
+                      user.role === 'Counselor' ? 'bg-emerald-50 text-emerald-500' :
                       'bg-slate-100 text-slate-500'
                     }`}>
                       {user.role}
@@ -189,7 +192,7 @@ export default function AdminOverview() {
                 </button>
 
                 <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
-                  <img src={selectedUser.avatar} className="w-24 h-24 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg" alt={selectedUser.name} />
+                  <img src={selectedUser.avatar || selectedUser.image} className="w-24 h-24 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg" alt={selectedUser.name} />
                   <div className="text-center sm:text-left">
                     <h2 className="text-2xl font-bold text-slate-900">{selectedUser.name}</h2>
                     <p className="text-slate-500 font-medium">{selectedUser.role}</p>
@@ -254,7 +257,7 @@ export default function AdminOverview() {
                 )}
 
                 <div className="mt-12 flex gap-4">
-                  <button className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Close</button>
+                  <button onClick={() => setSelectedUser(null)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Close</button>
                   <button className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
                     View Full Profile <ExternalLink className="w-5 h-5" />
                   </button>

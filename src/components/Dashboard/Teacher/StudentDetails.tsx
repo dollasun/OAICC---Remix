@@ -27,9 +27,28 @@ export default function StudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'profile' | 'interests' | 'tracker'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'interests' | 'tracker' | 'resources' | 'events' | 'sessions'>('profile');
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [comments, setComments] = useState([
+    { id: '1', author: 'Dr. Fadeyibi Aina', role: 'Parent', text: 'Needs to try using Quickchart.io', time: '3 mins ago', avatar: 'https://picsum.photos/seed/parent/100/100' }
+  ]);
+
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
+    const comment = {
+      id: Date.now().toString(),
+      author: 'Mr. Uzo Kelechi',
+      role: 'Teacher',
+      text: newComment,
+      time: 'Just now',
+      avatar: 'https://picsum.photos/seed/teacher/100/100'
+    };
+    setComments([comment, ...comments]);
+    setNewComment('');
+    showToast('Comment added successfully!');
+  };
 
   const student = {
     firstName: 'Rasaq',
@@ -56,16 +75,19 @@ export default function StudentDetails() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1 bg-slate-50 rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-2 p-1 bg-slate-50 rounded-2xl w-fit">
         {[
           { id: 'profile', label: 'Profile Information' },
           { id: 'interests', label: 'Career Interest' },
           { id: 'tracker', label: 'Tracker' },
+          { id: 'resources', label: 'Resources' },
+          { id: 'events', label: 'Events' },
+          { id: 'sessions', label: 'Sessions' },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-8 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
               activeTab === tab.id 
                 ? 'bg-white text-brand shadow-sm' 
                 : 'text-slate-500 hover:text-slate-700'
@@ -205,40 +227,186 @@ export default function StudentDetails() {
           )}
         </div>
 
+          {activeTab === 'resources' && (
+            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-bold text-slate-900">Recommended Resources</h2>
+                <button 
+                  onClick={() => setIsRecommendModalOpen(true)}
+                  className="btn-primary flex items-center gap-2 px-6 py-2.5 text-sm"
+                >
+                  Recommend Resource
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { title: 'Introduction to React', type: 'Video', duration: '15 mins', image: 'https://picsum.photos/seed/react/400/225' },
+                  { title: 'Modern CSS Layouts', type: 'Article', duration: '10 mins read', image: 'https://picsum.photos/seed/css/400/225' },
+                ].map((resource, i) => (
+                  <div key={i} className="group cursor-pointer">
+                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-4">
+                      <img src={resource.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={resource.title} />
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-brand rounded-lg text-[10px] font-bold uppercase tracking-widest">{resource.type}</span>
+                      </div>
+                    </div>
+                    <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{resource.title}</h4>
+                    <p className="text-xs text-slate-500 font-medium">{resource.duration}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'events' && (
+            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900 mb-8">Student Events</h2>
+              <div className="space-y-6">
+                {[
+                  { title: 'Tech Innovation Summit', date: 'Oct 25, 2024', time: '10:00 AM', status: 'Registered' },
+                  { title: 'Career Path Workshop', date: 'Nov 12, 2024', time: '2:00 PM', status: 'Upcoming' },
+                ].map((event, i) => (
+                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand shadow-sm">
+                        <Calendar className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900">{event.title}</h4>
+                        <p className="text-xs text-slate-500 font-medium">{event.date} • {event.time}</p>
+                      </div>
+                    </div>
+                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                      event.status === 'Registered' ? 'bg-emerald-50 text-emerald-600' : 'bg-brand/10 text-brand'
+                    }`}>
+                      {event.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'sessions' && (
+            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <h2 className="text-xl font-bold text-slate-900 mb-8">Counseling Sessions</h2>
+              <div className="space-y-6">
+                {[
+                  { title: 'Career Path Discussion', counselor: 'Sarah Ojo', date: 'Oct 15, 2024', status: 'Completed' },
+                  { title: 'Academic Progress Review', counselor: 'Sarah Ojo', date: 'Nov 05, 2024', status: 'Scheduled' },
+                ].map((session, i) => (
+                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm">
+                        <Target className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900">{session.title}</h4>
+                        <p className="text-xs text-slate-500 font-medium">with {session.counselor} • {session.date}</p>
+                      </div>
+                    </div>
+                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                      session.status === 'Completed' ? 'bg-slate-100 text-slate-500' : 'bg-blue-50 text-blue-600'
+                    }`}>
+                      {session.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Sidebar Widgets */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
-            <h3 className="font-bold text-slate-900 mb-4">Notes</h3>
+            <h3 className="font-bold text-slate-900 mb-4">Comments</h3>
             <textarea 
-              placeholder="Leave a note..." 
+              placeholder="Leave a comment..." 
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
               className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
             />
             <div className="mt-4 flex justify-end">
               <button 
-                onClick={() => showToast('Note saved successfully!')}
+                onClick={handleAddComment}
                 className="btn-primary text-xs px-4 py-2"
               >
-                Save Note
+                Post Comment
               </button>
             </div>
-            <div className="mt-4 space-y-4">
-              <div className="flex gap-3">
-                <img src="https://picsum.photos/seed/parent/100/100" className="w-8 h-8 rounded-full" />
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <p className="text-xs font-bold">Dr. Fadeyibi Aina</p>
-                    <div className="flex items-center gap-1">
-                      <button className="p-1 text-slate-400 hover:text-slate-600"><MoreVertical className="w-3 h-3" /></button>
+            <div className="mt-6 space-y-6">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3">
+                  <img src={comment.avatar} className="w-10 h-10 rounded-full object-cover" alt={comment.author} />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">{comment.author}</p>
+                        <p className="text-[10px] font-bold text-brand uppercase tracking-widest">{comment.role}</p>
+                      </div>
+                      <p className="text-[10px] text-slate-400">{comment.time}</p>
                     </div>
+                    <p className="text-xs text-slate-600 mt-2 leading-relaxed">{comment.text}</p>
                   </div>
-                  <p className="text-[10px] text-slate-400 mb-1">3 mins ago</p>
-                  <p className="text-xs text-slate-600">Needs to try using Quickchart.io</p>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
-      </div>
+
+      {/* Recommend Resource Modal */}
+      <AnimatePresence>
+        {isRecommendModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsRecommendModalOpen(false)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl overflow-hidden"
+            >
+              <div className="p-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-bold text-slate-900">Recommend Resource</h3>
+                  <button onClick={() => setIsRecommendModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Resource Title</label>
+                    <input type="text" placeholder="e.g. Advanced JavaScript Patterns" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Resource Link</label>
+                    <input type="url" placeholder="https://..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Why are you recommending this?</label>
+                    <textarea rows={4} placeholder="Add a brief explanation..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium resize-none" />
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setIsRecommendModalOpen(false);
+                      showToast('Resource recommended successfully!');
+                    }}
+                    className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                  >
+                    Send Recommendation
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Interest Detail Modal */}
       <AnimatePresence>

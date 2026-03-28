@@ -14,38 +14,38 @@ import {
   Video
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { savedCareersStorage, counselingSessionsStorage } from '../../../utils/storage';
+import { savedCareersStorage, counselingSessionsStorage, careersStorage, eventsStorage } from '../../../utils/storage';
 
 export default function StudentHome() {
   const navigate = useNavigate();
   const [savedIds, setSavedIds] = useState<number[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = savedCareersStorage.get([]);
-    setSavedIds(saved.map((c: any) => c.id));
+    setSavedIds(saved.map((c: any) => typeof c === 'number' ? c : c.id));
 
     const allSessions = counselingSessionsStorage.get([]);
     // Filter sessions for the current student (mocked as student ID 1)
     const studentSessions = allSessions.filter((s: any) => s.studentId === 1 || s.studentName === 'Osayuki Yuki');
     setUpcomingSessions(studentSessions.slice(0, 2));
+
+    const allCareers = careersStorage.get([]);
+    setRecommendations(allCareers.slice(0, 3).map((c: any) => ({
+      ...c,
+      match: '95%'
+    })));
+
+    const allEvents = eventsStorage.get([]);
+    setEvents(allEvents.slice(0, 2));
   }, []);
 
   const stats = [
     { label: 'Completed Tasks', value: '12', icon: TrendingUp, color: 'bg-emerald-500' },
     { label: 'Saved Careers', value: savedIds.length.toString(), icon: Bookmark, color: 'bg-brand' },
-    { label: 'Upcoming Events', value: '3', icon: Calendar, color: 'bg-indigo-500' },
-  ];
-
-  const recommendations = [
-    { id: 1, title: 'Software Engineer', category: 'Technology', match: '98%', image: 'https://picsum.photos/seed/tech/400/300' },
-    { id: 2, title: 'Graphic Designer', category: 'Creative', match: '85%', image: 'https://picsum.photos/seed/design/400/300' },
-    { id: 3, title: 'Data Scientist', category: 'Technology', match: '92%', image: 'https://picsum.photos/seed/data/400/300' },
-  ];
-
-  const events = [
-    { id: 1, title: 'Tech Career Fair 2024', date: 'Oct 15, 2024', time: '10:00 AM', type: 'Virtual' },
-    { id: 2, title: 'Introduction to AI', date: 'Oct 18, 2024', time: '2:00 PM', type: 'Workshop' },
+    { label: 'Upcoming Events', value: events.length.toString(), icon: Calendar, color: 'bg-indigo-500' },
   ];
 
   const handleSaveCareer = (career: any, e: React.MouseEvent) => {

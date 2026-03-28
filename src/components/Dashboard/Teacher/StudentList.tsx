@@ -1,30 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Download, MoreVertical, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-const students = [
-  { id: '1', name: 'Favour Aina', email: 'favouraina@oaicc.com', interest: 'Front-end Developer', mentor: 'Mason Biyi' },
-  { id: '2', name: 'Rasaq Desmond', email: 'rasaqtheking@oaicc.com', interest: 'Banking', mentor: 'Mason Biyi' },
-  { id: '3', name: 'Uzo Chuwuma', email: 'chuwuma@oaicc.com', interest: 'Economics & Accounting', mentor: 'Mason Biyi' },
-  { id: '4', name: 'Diane Edeatu', email: 'dianee@oaicc.com', interest: 'Software Enginner', mentor: 'Mason Biyi' },
-  { id: '5', name: 'Victoria Godswill', email: 'vgodswill@oaicc.com', interest: 'Product Design', mentor: 'Mason Biyi' },
-  { id: '6', name: 'Quadri Fatai', email: 'qf4real@oaicc.com', interest: 'Law', mentor: 'Mason Biyi' },
-  { id: '7', name: 'Udon Happiness', label: 'Student Name', email: 'happyudon@oaicc.com', interest: 'Chef & Nutritionist', mentor: 'Mason Biyi' },
-  { id: '8', name: 'Favour Queen', email: 'queenfavour@oaicc.com', interest: 'Nurse', mentor: 'Mason Biyi' },
-  { id: '9', name: 'Gbenga Aina', email: 'gbengathegreat@oaicc.com', interest: 'Teacher', mentor: 'Mason Biyi' },
-  { id: '10', name: 'Fridausi Mohammad', email: 'fridausim@oaicc.com', interest: 'Dentist', mentor: 'Mason Biyi' },
-];
+import { useNavigate, useParams } from 'react-router-dom';
+import { studentsStorage } from '../../../utils/storage';
 
 export default function StudentList() {
   const navigate = useNavigate();
+  const { id: classId } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
+  const [students, setStudents] = useState<any[]>([]);
+
+  useEffect(() => {
+    const allStudents = studentsStorage.get([]);
+    // Filter by class if classId is provided
+    if (classId) {
+      const filtered = allStudents.filter((s: any) => {
+        const className = getClassName(classId).toLowerCase();
+        return s.class?.toLowerCase() === className || s.class?.toLowerCase() === classId.toLowerCase();
+      });
+      setStudents(filtered.length > 0 ? filtered : allStudents);
+    } else {
+      setStudents(allStudents);
+    }
+  }, [classId]);
+
+  const getClassName = (id?: string) => {
+    switch(id) {
+      case 'sss2a': return 'SSS 2A';
+      case 'sss2b': return 'SSS 2B';
+      case 'sss1a': return 'SSS 1A';
+      case 'jss3a': return 'JSS 3A';
+      default: return 'SSS 2A';
+    }
+  };
+
+  const filteredStudents = students.filter(student => 
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.career?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Welcome, Mr. Uzo Kelechi</h1>
-          <p className="text-slate-500 font-medium">Assigned Teacher for SSS 2A • The Seaside School</p>
+          <p className="text-slate-500 font-medium">Assigned Teacher for {getClassName(classId)} • The Seaside School</p>
         </div>
         <button className="btn-primary flex items-center gap-2 px-6">
           <Download className="w-5 h-5" /> Download CSV
@@ -63,7 +83,7 @@ export default function StudentList() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {students.map((student) => (
+              {filteredStudents.map((student) => (
                 <tr 
                   key={student.id} 
                   className="hover:bg-slate-50/80 transition-all cursor-pointer group"
@@ -76,10 +96,10 @@ export default function StudentList() {
                     <p className="text-sm text-slate-500 font-medium">{student.email}</p>
                   </td>
                   <td className="px-8 py-5">
-                    <p className="text-sm text-slate-900 font-bold">{student.interest}</p>
+                    <p className="text-sm text-slate-900 font-bold">{student.career || student.interest}</p>
                   </td>
                   <td className="px-8 py-5">
-                    <p className="text-sm text-brand font-bold">{student.mentor}</p>
+                    <p className="text-sm text-brand font-bold">{student.mentor || 'Mason Biyi'}</p>
                   </td>
                   <td className="px-8 py-5 text-right">
                     <button className="p-2 text-slate-400 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-all">

@@ -17,7 +17,9 @@ import {
   Shield,
   Bell,
   Globe,
-  Trash2
+  Trash2,
+  Calendar,
+  Target
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -109,6 +111,90 @@ export default function StudentProfile() {
 
       {/* Settings Accordion */}
       <div className="space-y-4">
+        {/* Events & Sessions */}
+        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleAccordion('events')}
+            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500">
+                <Calendar className="w-6 h-6" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-lg font-bold text-slate-900">Events & Sessions</h3>
+                <p className="text-sm font-medium text-slate-500">View your upcoming events and counseling sessions</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform ${activeAccordion === 'events' ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <AnimatePresence>
+            {activeAccordion === 'events' && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-t border-slate-50"
+              >
+                <div className="p-8 space-y-8">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Upcoming Events</h4>
+                    <div className="space-y-4">
+                      {[
+                        { title: 'Tech Innovation Summit', date: 'Oct 25, 2024', time: '10:00 AM', status: 'Registered' },
+                        { title: 'Career Path Workshop', date: 'Nov 12, 2024', time: '2:00 PM', status: 'Upcoming' },
+                      ].map((event, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-brand shadow-sm">
+                              <Calendar className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 text-sm">{event.title}</p>
+                              <p className="text-[10px] text-slate-500 font-medium">{event.date} • {event.time}</p>
+                            </div>
+                          </div>
+                          <span className="px-3 py-1 bg-brand/10 text-brand rounded-full text-[10px] font-bold uppercase tracking-widest">
+                            {event.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Counseling Sessions</h4>
+                    <div className="space-y-4">
+                      {[
+                        { title: 'Career Path Discussion', counselor: 'Sarah Ojo', date: 'Oct 15, 2024', status: 'Completed' },
+                        { title: 'Academic Progress Review', counselor: 'Sarah Ojo', date: 'Nov 05, 2024', status: 'Scheduled' },
+                      ].map((session, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm">
+                              <Target className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 text-sm">{session.title}</p>
+                              <p className="text-[10px] text-slate-500 font-medium">with {session.counselor} • {session.date}</p>
+                            </div>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                            session.status === 'Completed' ? 'bg-slate-100 text-slate-500' : 'bg-blue-50 text-blue-600'
+                          }`}>
+                            {session.status}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Personal Information */}
         <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
           <button 

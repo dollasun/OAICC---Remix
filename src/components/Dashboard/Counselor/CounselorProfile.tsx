@@ -33,9 +33,26 @@ export default function CounselorProfile() {
   const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileImage, setProfileImage] = useState('https://picsum.photos/seed/counselor/200/200');
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [notifications, setNotifications] = useState({
+    email: true,
+    push: true,
+    sessions: true,
+    messages: true
+  });
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
+  };
+
+  const handleToggle2FA = () => {
+    setIs2FAEnabled(!is2FAEnabled);
+    showToast(`Two-Factor Authentication ${!is2FAEnabled ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleToggleNotification = (key: keyof typeof notifications) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    showToast('Notification preferences updated');
   };
 
   const handleImageClick = () => {
@@ -205,9 +222,12 @@ export default function CounselorProfile() {
                       <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
                       <p className="text-sm font-medium text-slate-500">Add an extra layer of security to your account</p>
                     </div>
-                    <div className="relative inline-block w-12 h-6 rounded-full bg-slate-200 transition-colors cursor-pointer">
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
-                    </div>
+                    <button 
+                      onClick={handleToggle2FA}
+                      className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200'}`}
+                    >
+                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
+                    </button>
                   </div>
                 </div>
               </motion.div>
@@ -243,18 +263,21 @@ export default function CounselorProfile() {
               >
                 <div className="p-8 space-y-4">
                   {[
-                    { label: 'Session Reminders', desc: 'Get notified before your scheduled sessions' },
-                    { label: 'New Student Assignments', desc: 'Get notified when a new student is assigned to you' },
-                    { label: 'Student Messages', desc: 'Get notified when a student sends you a message' },
-                    { label: 'System Updates', desc: 'Stay informed about new features and updates' }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between py-2">
+                    { id: 'email', label: 'Session Reminders', desc: 'Get notified before your scheduled sessions' },
+                    { id: 'push', label: 'New Student Assignments', desc: 'Get notified when a new student is assigned to you' },
+                    { id: 'sessions', label: 'Student Messages', desc: 'Get notified when a student sends you a message' },
+                    { id: 'messages', label: 'System Updates', desc: 'Stay informed about new features and updates' }
+                  ].map((item) => (
+                    <div key={item.id} className="flex items-center justify-between py-2">
                       <div>
                         <h4 className="font-bold text-slate-900">{item.label}</h4>
                         <p className="text-sm font-medium text-slate-500">{item.desc}</p>
                       </div>
-                      <div className="relative inline-block w-12 h-6 rounded-full bg-brand transition-colors cursor-pointer">
-                        <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition-transform"></div>
+                      <div 
+                        onClick={() => handleToggleNotification(item.id as keyof typeof notifications)}
+                        className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${notifications[item.id as keyof typeof notifications] ? 'bg-brand' : 'bg-slate-200'}`}
+                      >
+                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${notifications[item.id as keyof typeof notifications] ? 'right-1' : 'left-1'}`}></div>
                       </div>
                     </div>
                   ))}

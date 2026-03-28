@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, Eye, EyeOff, ChevronLeft } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ChevronLeft, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
 
@@ -205,7 +205,14 @@ export default function ForgotPassword() {
       />
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-white relative">
+        <button 
+          onClick={() => navigate('/')}
+          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-brand transition-colors font-bold group"
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+          Back to Home
+        </button>
         <AnimatePresence mode="wait">
           {renderContent()}
         </AnimatePresence>

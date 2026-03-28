@@ -31,9 +31,53 @@ export default function AdminCreateCareer() {
     about: '',
     skills: ['Software testing and quality assurance', 'Problem-solving skills'],
     subjects: ['Computer Science', 'Mathematics'],
-    salaryMin: '100,000',
-    salaryMax: '500,000'
+    salaries: [
+      { country: 'United States', currency: '$', min: '100,000', max: '500,000' }
+    ]
   });
+
+  const countries = [
+    { name: 'United States', currency: '$' },
+    { name: 'Nigeria', currency: '₦' },
+    { name: 'United Kingdom', currency: '£' },
+    { name: 'European Union', currency: '€' },
+    { name: 'Ghana', currency: 'GH₵' },
+    { name: 'Kenya', currency: 'KSh' },
+    { name: 'South Africa', currency: 'R' }
+  ];
+
+  const handleAddSalary = () => {
+    setFormData({
+      ...formData,
+      salaries: [...formData.salaries, { country: 'United States', currency: '$', min: '', max: '' }]
+    });
+  };
+
+  const handleRemoveSalary = (index: number) => {
+    if (formData.salaries.length > 1) {
+      setFormData({
+        ...formData,
+        salaries: formData.salaries.filter((_, i) => i !== index)
+      });
+    }
+  };
+
+  const handleSalaryChange = (index: number, field: string, value: string) => {
+    const newSalaries = [...formData.salaries];
+    if (field === 'country') {
+      const country = countries.find(c => c.name === value);
+      newSalaries[index] = { ...newSalaries[index], country: value, currency: country?.currency || '$' };
+    } else if (field === 'min' || field === 'max') {
+      // Remove everything except digits
+      const digits = value.replace(/\D/g, '');
+      // Format with commas
+      const formattedValue = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      newSalaries[index] = { ...newSalaries[index], [field]: formattedValue };
+    } else {
+      newSalaries[index] = { ...newSalaries[index], [field]: value };
+    }
+    setFormData({ ...formData, salaries: newSalaries });
+  };
 
   const [resources, setResources] = useState({
     videos: [
@@ -131,7 +175,10 @@ export default function AdminCreateCareer() {
       articles: resources.articles.length,
       resources: resources.links.length,
       image: bgImage || 'https://picsum.photos/seed/new/100/100',
-      description: formData.about
+      description: formData.about,
+      salaries: formData.salaries,
+      salaryMin: formData.salaries[0]?.min || '100,000',
+      salaryMax: formData.salaries[0]?.max || '500,000'
     };
 
     careersStorage.save([...currentCareers, newCareer]);
@@ -282,25 +329,65 @@ export default function AdminCreateCareer() {
                 </div>
               </div>
 
-              {/* Salary */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 ml-1">Average Salary (Min)</label>
-                  <input 
-                    type="text" 
-                    value={formData.salaryMin}
-                    onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
-                  />
+              {/* Salary Section */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-slate-900">Average Salary</h3>
+                  <button 
+                    onClick={handleAddSalary}
+                    className="flex items-center gap-2 text-brand font-bold hover:bg-brand/5 px-4 py-2 rounded-xl transition-all"
+                  >
+                    <Plus className="w-5 h-5" /> Add
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-700 ml-1">Average Salary (Max)</label>
-                  <input 
-                    type="text" 
-                    value={formData.salaryMax}
-                    onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
-                  />
+
+                <div className="space-y-4">
+                  {formData.salaries.map((salary, index) => (
+                    <div key={index} className="bg-slate-50 p-6 rounded-[32px] border border-slate-100 relative group">
+                      {formData.salaries.length > 1 && (
+                        <button 
+                          onClick={() => handleRemoveSalary(index)}
+                          className="absolute -top-2 -right-2 w-8 h-8 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Country</label>
+                          <select 
+                            value={salary.country}
+                            onChange={(e) => handleSalaryChange(index, 'country', e.target.value)}
+                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                          >
+                            {countries.map(c => (
+                              <option key={c.name} value={c.name}>{c.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Minimum ({salary.currency})</label>
+                          <input 
+                            type="text" 
+                            value={salary.min}
+                            onChange={(e) => handleSalaryChange(index, 'min', e.target.value)}
+                            placeholder="e.g. 100,000"
+                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Maximum ({salary.currency})</label>
+                          <input 
+                            type="text" 
+                            value={salary.max}
+                            onChange={(e) => handleSalaryChange(index, 'max', e.target.value)}
+                            placeholder="e.g. 500,000"
+                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -14,30 +14,45 @@ import {
   CheckCircle2,
   Users
 } from 'lucide-react';
-
-const initialUsers = [
-  { id: '1', name: 'John Obi', email: 'johnobi@oaicc.com', role: 'Teacher', date: 'Jan 6, 2022 4:26 PM', initials: 'JO', color: 'bg-blue-100 text-blue-600' },
-  { id: '2', name: 'Esther Rae', email: 'estherrae@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', initials: 'ER', color: 'bg-cyan-100 text-cyan-600' },
-  { id: '3', name: 'Daniel Abayomi', email: 'danielabayomi@oaicc.com', role: 'Parent', date: 'Jan 6, 2022 4:26 PM', initials: 'DA', color: 'bg-emerald-100 text-emerald-600' },
-  { id: '4', name: 'Demi Wilkinson', email: 'demiwilkinson@oaicc.com', role: 'Teacher', date: 'Jan 6, 2022 4:26 PM', initials: 'DW', color: 'bg-blue-100 text-blue-600' },
-  { id: '5', name: 'Elizabeth Daniella', email: 'elizabethdaniella@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', initials: 'ED', color: 'bg-cyan-100 text-cyan-600' },
-  { id: '6', name: 'Williams Oghenemaro', email: 'williamsoghenemaro@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', initials: 'WO', color: 'bg-cyan-100 text-cyan-600' },
-  { id: '7', name: 'Louisa Maeve', email: 'louisamaeve@oaicc.com', role: 'Student', date: 'Jan 6, 2022 4:26 PM', initials: 'LM', color: 'bg-cyan-100 text-cyan-600' },
-];
+import { studentsStorage, mentorsStorage, adminUsersStorage } from '../../../utils/storage';
 
 export default function SchoolOverview() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<any[]>([]);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [inviteData, setInviteData] = useState({ email: '', role: '', class: '', children: '' });
   const [isSortOpen, setIsSortOpen] = useState(false);
 
+  useEffect(() => {
+    const students = studentsStorage.get([]);
+    const mentors = mentorsStorage.get([]);
+    const admins = adminUsersStorage.get([]);
+    
+    const combined = [
+      ...students.map((s: any) => ({ 
+        ...s, 
+        role: 'Student', 
+        date: 'Jan 6, 2022 4:26 PM',
+        initials: s.name.split(' ').map((n: any) => n[0]).join(''),
+        color: 'bg-cyan-100 text-cyan-600'
+      })),
+      ...mentors.map((m: any) => ({
+        ...m,
+        role: 'Mentor',
+        date: 'Jan 6, 2022 4:26 PM',
+        initials: m.name.split(' ').map((n: any) => n[0]).join(''),
+        color: 'bg-amber-100 text-amber-600'
+      }))
+    ];
+    setUsers(combined);
+  }, []);
+
   const stats = [
-    { label: 'Total users', value: users.length > 0 ? '400' : '0' },
-    { label: 'Total teachers', value: users.length > 0 ? '12' : '0' },
-    { label: 'Total students', value: users.length > 0 ? '388' : '0' },
+    { label: 'Total users', value: users.length.toString() },
+    { label: 'Total teachers', value: '12' },
+    { label: 'Total students', value: users.filter(u => u.role === 'Student').length.toString() },
   ];
 
   const handleInvite = (e: React.FormEvent) => {

@@ -22,13 +22,94 @@ import { eventsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 
 const initialEvents = [
-  { id: 1, title: 'Why Medicine is for you', career: 'Medicine', mentor: 'Amanda Lance', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e1/800/400', registeredCount: 124, attendedCount: 89 },
-  { id: 2, title: 'Understanding Design fundamentals', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e2/800/400', registeredCount: 210, attendedCount: 145 },
-  { id: 3, title: 'Pattern and Colors', career: 'Product Design', mentor: 'Mason Elpi', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e3/800/400', registeredCount: 156, attendedCount: 112 },
-  { id: 4, title: 'Data Structure', career: 'Software Engineering', mentor: 'John Chidiebere', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e4/800/400', registeredCount: 320, attendedCount: 280 },
-  { id: 5, title: 'Architecture Fundamental', career: 'Architecture', mentor: 'Adeola Bisoye', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e5/800/400', registeredCount: 98, attendedCount: 72 },
-  { id: 6, title: 'Engineering Fundamental', career: 'Engineering', mentor: 'Bolu Ahmed', date: 'June 15, 2023', time: '3:00 PM', image: 'https://picsum.photos/seed/e6/800/400', registeredCount: 180, attendedCount: 150 },
-  { id: 7, title: 'Future of AI in Healthcare', career: 'Medicine', mentor: 'Amanda Lance', date: 'March 15, 2026', time: '4:00 PM', image: 'https://picsum.photos/seed/e7/800/400', registeredCount: 45, attendedCount: 0 },
+  {
+    id: 1,
+    title: 'Tech Career Fair 2026',
+    career: 'Software Engineering',
+    mentor: 'John Chidiebere',
+    date: '2026-03-15',
+    time: '10:00 AM',
+    image: 'https://picsum.photos/seed/e1/800/400',
+    registeredCount: 320,
+    attendedCount: 0
+  },
+  {
+    id: 2,
+    title: 'Medical Seminar: Future of Surgery',
+    career: 'Medicine',
+    mentor: 'Amanda Lance',
+    date: '2026-03-20',
+    time: '02:00 PM',
+    image: 'https://picsum.photos/seed/e2/800/400',
+    registeredCount: 150,
+    attendedCount: 0
+  },
+  {
+    id: 3,
+    title: 'Creative Arts & Design Workshop',
+    career: 'Product Design',
+    mentor: 'Mason Elpi',
+    date: '2026-03-25',
+    time: '11:00 AM',
+    image: 'https://picsum.photos/seed/e3/800/400',
+    registeredCount: 85,
+    attendedCount: 0
+  },
+  {
+    id: 4,
+    title: 'Engineering Innovation Summit',
+    career: 'Engineering',
+    mentor: 'Bolu Ahmed',
+    date: '2026-04-05',
+    time: '09:00 AM',
+    image: 'https://picsum.photos/seed/e4/800/400',
+    registeredCount: 200,
+    attendedCount: 0
+  },
+  {
+    id: 5,
+    title: 'Financial Literacy for Young Adults',
+    career: 'Finance',
+    mentor: 'Sarah Jenkins',
+    date: '2026-04-10',
+    time: '04:00 PM',
+    image: 'https://picsum.photos/seed/e5/800/400',
+    registeredCount: 120,
+    attendedCount: 0
+  },
+  {
+    id: 6,
+    title: 'Law School Admissions Talk',
+    career: 'Law',
+    mentor: 'Barrister Okoro',
+    date: '2026-04-15',
+    time: '01:00 PM',
+    image: 'https://picsum.photos/seed/e6/800/400',
+    registeredCount: 95,
+    attendedCount: 0
+  },
+  {
+    id: 7,
+    title: 'Architecture & Urban Planning',
+    career: 'Architecture',
+    mentor: 'Adeola Bisoye',
+    date: '2026-04-20',
+    time: '10:00 AM',
+    image: 'https://picsum.photos/seed/e7/800/400',
+    registeredCount: 75,
+    attendedCount: 0
+  },
+  {
+    id: 8,
+    title: 'Data Science & Analytics Workshop',
+    career: 'Software Engineering',
+    mentor: 'John Chidiebere',
+    date: '2026-04-25',
+    time: '03:00 PM',
+    image: 'https://picsum.photos/seed/e8/800/400',
+    registeredCount: 180,
+    attendedCount: 0
+  }
 ];
 
 export default function AdminEvents() {

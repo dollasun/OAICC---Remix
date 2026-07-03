@@ -132,7 +132,10 @@ export const mentorsStorage = {
       image: 'https://picsum.photos/seed/m1/100/100',
       students: 12,
       rating: 4.9,
-      bio: 'Passionate about mentoring the next generation of engineers.'
+      bio: 'Passionate about mentoring the next generation of engineers.',
+      linkedin: 'https://linkedin.com/in/masonbiyi',
+      twitter: 'https://twitter.com/masonbiyi',
+      website: 'https://masonbiyi.dev'
     },
     {
       id: 2,
@@ -142,7 +145,10 @@ export const mentorsStorage = {
       image: 'https://picsum.photos/seed/m2/100/100',
       students: 8,
       rating: 4.8,
-      bio: 'Helping medical students navigate their career paths.'
+      bio: 'Helping medical students navigate their career paths.',
+      linkedin: 'https://linkedin.com/in/drsarahalabi',
+      twitter: '',
+      website: 'https://drsarahalabi.com'
     }
   ]) => getStoredData(STORAGE_KEY_MENTORS, initialData),
   save: (data: any) => saveStoredData(STORAGE_KEY_MENTORS, data),

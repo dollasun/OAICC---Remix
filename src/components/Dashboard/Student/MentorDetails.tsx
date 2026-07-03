@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
+import { mentorsStorage } from '../../../utils/storage';
 import { 
   ArrowLeft, 
   Star, 
@@ -17,7 +18,8 @@ import {
   Award,
   Clock,
   ChevronRight,
-  Shield
+  Shield,
+  UserCircle
 } from 'lucide-react';
 
 export default function MentorDetails() {
@@ -25,37 +27,51 @@ export default function MentorDetails() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [isRequesting, setIsRequesting] = useState(false);
+  const [mentor, setMentor] = useState<any>(null);
+
+  useEffect(() => {
+    const allMentors = mentorsStorage.get();
+    const found = allMentors.find((m: any) => m.id === Number(id));
+    if (found) {
+      // Merge with some default structured data if the storage item is simple
+      setMentor({
+        ...found,
+        location: found.location || 'Remote',
+        rating: found.rating || 5.0,
+        reviews: found.reviews || 0,
+        isVerified: true,
+        expertise: found.expertise ? (Array.isArray(found.expertise) ? found.expertise : [found.expertise]) : ['Career Guidance'],
+        experience: found.currentRole ? [
+          { role: found.currentRole, company: found.company || 'Independent', period: 'Present' }
+        ] : [
+          { role: found.role || 'Professional', company: found.company || 'Independent', period: 'Present' }
+        ],
+        education: found.institution ? [
+          { degree: found.department || 'Degree', school: found.institution, year: '' }
+        ] : [],
+        availability: '2-3 hours per week'
+      });
+    }
+  }, [id]);
 
   const handleSendRequest = () => {
     setIsRequesting(false);
     showToast('Mentorship request sent successfully!');
   };
 
-  // Mock data for a single mentor
-  const mentor = {
-    id: 1,
-    name: 'Sarah Johnson',
-    role: 'Senior Software Engineer',
-    company: 'Google',
-    image: 'https://picsum.photos/seed/sarah/600/600',
-    location: 'San Francisco, CA',
-    rating: 4.9,
-    reviews: 124,
-    isVerified: true,
-    expertise: ['Software Engineering', 'AI/ML', 'Career Growth', 'System Design', 'Interview Prep'],
-    bio: 'I am a Senior Software Engineer at Google with over 10 years of experience in the tech industry. I specialize in building large-scale distributed systems and have a deep passion for Artificial Intelligence. Throughout my career, I have mentored dozens of junior engineers and students, helping them navigate technical challenges and career decisions.',
-    experience: [
-      { role: 'Senior Software Engineer', company: 'Google', period: '2018 - Present' },
-      { role: 'Software Engineer', company: 'Microsoft', period: '2014 - 2018' },
-      { role: 'Junior Developer', company: 'Tech Startup', period: '2012 - 2014' }
-    ],
-    education: [
-      { degree: 'M.S. in Computer Science', school: 'Stanford University', year: '2012' },
-      { degree: 'B.S. in Software Engineering', school: 'UC Berkeley', year: '2010' }
-    ],
-    languages: ['English', 'Spanish'],
-    availability: '2-3 hours per week'
-  };
+  if (!mentor) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <UserCircle className="w-10 h-10 text-slate-300" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">Mentor not found</h2>
+        <button onClick={() => navigate(-1)} className="mt-4 text-brand font-bold hover:underline">
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
@@ -75,7 +91,7 @@ export default function MentorDetails() {
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
                 <div className="relative">
                   <img 
-                    src={mentor.image} 
+                    src={mentor.avatar || mentor.image || `https://picsum.photos/seed/${mentor.id}/600/600`} 
                     alt={mentor.name} 
                     className="w-32 h-32 sm:w-40 sm:h-40 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg"
                   />
@@ -89,18 +105,24 @@ export default function MentorDetails() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <div>
                       <h1 className="text-3xl font-bold text-slate-900">{mentor.name}</h1>
-                      <p className="text-lg font-bold text-brand">{mentor.role} @ {mentor.company}</p>
+                      <p className="text-lg font-bold text-brand">{mentor.currentRole || mentor.role} {mentor.company ? `@ ${mentor.company}` : ''}</p>
                     </div>
                     <div className="flex items-center justify-center sm:justify-start gap-3">
-                      <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
-                        <Linkedin className="w-5 h-5" />
-                      </button>
-                      <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
-                        <Twitter className="w-5 h-5" />
-                      </button>
-                      <button className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
-                        <Globe className="w-5 h-5" />
-                      </button>
+                      {mentor.linkedin && (
+                        <a href={mentor.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                          <Linkedin className="w-5 h-5" />
+                        </a>
+                      )}
+                      {mentor.twitter && (
+                        <a href={mentor.twitter} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                          <Twitter className="w-5 h-5" />
+                        </a>
+                      )}
+                      {mentor.website && (
+                        <a href={mentor.website} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                          <Globe className="w-5 h-5" />
+                        </a>
+                      )}
                     </div>
                   </div>
                   
@@ -116,14 +138,14 @@ export default function MentorDetails() {
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 mb-4">About Me</h3>
                   <p className="text-slate-600 font-medium leading-relaxed text-lg">
-                    {mentor.bio}
+                    {mentor.bio || 'This mentor has not provided a biography yet.'}
                   </p>
                 </div>
 
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise</h3>
                   <div className="flex flex-wrap gap-3">
-                    {mentor.expertise.map((exp) => (
+                    {mentor.expertise.map((exp: string) => (
                       <span key={exp} className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700">
                         {exp}
                       </span>
@@ -136,37 +158,41 @@ export default function MentorDetails() {
 
           {/* Experience & Education */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-brand" /> Experience
-              </h3>
-              <div className="space-y-6">
-                {mentor.experience.map((exp, i) => (
-                  <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
-                    <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
-                    <h4 className="font-bold text-slate-900">{exp.role}</h4>
-                    <p className="text-sm font-bold text-slate-500">{exp.company}</p>
-                    <p className="text-xs font-bold text-slate-400 mt-1">{exp.period}</p>
-                  </div>
-                ))}
+            {mentor.experience && mentor.experience.length > 0 && (
+              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-brand" /> Experience
+                </h3>
+                <div className="space-y-6">
+                  {mentor.experience.map((exp: any, i: number) => (
+                    <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
+                      <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
+                      <h4 className="font-bold text-slate-900">{exp.role}</h4>
+                      <p className="text-sm font-bold text-slate-500">{exp.company}</p>
+                      <p className="text-xs font-bold text-slate-400 mt-1">{exp.period}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
-              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-brand" /> Education
-              </h3>
-              <div className="space-y-6">
-                {mentor.education.map((edu, i) => (
-                  <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
-                    <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
-                    <h4 className="font-bold text-slate-900">{edu.degree}</h4>
-                    <p className="text-sm font-bold text-slate-500">{edu.school}</p>
-                    <p className="text-xs font-bold text-slate-400 mt-1">{edu.year}</p>
-                  </div>
-                ))}
+            {mentor.education && mentor.education.length > 0 && (
+              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                  <GraduationCap className="w-5 h-5 text-brand" /> Education
+                </h3>
+                <div className="space-y-6">
+                  {mentor.education.map((edu: any, i: number) => (
+                    <div key={i} className="relative pl-8 before:absolute before:left-0 before:top-2 before:bottom-0 before:w-0.5 before:bg-slate-100 last:before:hidden">
+                      <div className="absolute left-[-4px] top-2 w-2 h-2 rounded-full bg-brand"></div>
+                      <h4 className="font-bold text-slate-900">{edu.degree}</h4>
+                      <p className="text-sm font-bold text-slate-500">{edu.school}</p>
+                      {edu.year && <p className="text-xs font-bold text-slate-400 mt-1">{edu.year}</p>}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -239,7 +265,7 @@ export default function MentorDetails() {
                   <label className="block text-sm font-bold text-slate-700 mb-2">Your Message</label>
                   <textarea 
                     rows={4}
-                    placeholder="Hi Sarah, I'm really interested in AI and saw your profile..."
+                    placeholder={`Hi ${mentor.name.split(' ')[0]}, I'm really interested in your work and saw your profile...`}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                   ></textarea>
                 </div>

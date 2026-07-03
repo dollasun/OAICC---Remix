@@ -35,7 +35,10 @@ export default function AdminCreateMentor() {
     currentRole: '',
     company: '',
     institution: '',
-    department: ''
+    department: '',
+    linkedin: '',
+    twitter: '',
+    website: ''
   });
 
   const handleCreateMentor = () => {
@@ -64,7 +67,10 @@ export default function AdminCreateMentor() {
       currentRole: newMentor.currentRole,
       company: newMentor.company,
       institution: newMentor.institution,
-      department: newMentor.department
+      department: newMentor.department,
+      linkedin: newMentor.linkedin,
+      twitter: newMentor.twitter,
+      website: newMentor.website
     };
 
     const updated = [...mentors, mentor];
@@ -84,22 +90,27 @@ export default function AdminCreateMentor() {
 
       <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 sm:p-12">
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex flex-wrap items-center gap-4 justify-between mb-10">
             <h2 className="text-2xl font-bold text-slate-900">Add New Mentor</h2>
-            <div className="flex items-center gap-8">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-8">
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step >= 1 ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>1</div>
-                <span className={`text-sm font-bold ${step >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>Personal Info</span>
+                <span className={`hidden sm:block text-sm font-bold ${step >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>Personal Info</span>
               </div>
-              <div className="w-12 h-px bg-slate-100"></div>
+              <div className="w-8 sm:w-12 h-px bg-slate-100"></div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step >= 2 ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>2</div>
-                <span className={`text-sm font-bold ${step >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>Professional Info</span>
+                <span className={`hidden sm:block text-sm font-bold ${step >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>Professional Info</span>
               </div>
-              <div className="w-12 h-px bg-slate-100"></div>
+              <div className="w-8 sm:w-12 h-px bg-slate-100"></div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step >= 3 ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>3</div>
-                <span className={`text-sm font-bold ${step >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>Alumni Info</span>
+                <span className={`hidden sm:block text-sm font-bold ${step >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>Alumni Info</span>
+              </div>
+              <div className="w-8 sm:w-12 h-px bg-slate-100"></div>
+              <div className="flex items-center gap-2">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${step >= 4 ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>4</div>
+                <span className={`hidden sm:block text-sm font-bold ${step >= 4 ? 'text-slate-900' : 'text-slate-400'}`}>Social Info</span>
               </div>
             </div>
           </div>
@@ -107,7 +118,7 @@ export default function AdminCreateMentor() {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-                <div className="flex items-center gap-8">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
                   <div 
                     className="relative group cursor-pointer"
                     onClick={() => {
@@ -136,7 +147,7 @@ export default function AdminCreateMentor() {
                     </div>
                     <p className="text-[10px] font-bold text-brand uppercase tracking-widest text-center mt-2">Upload Profile Photo</p>
                   </div>
-                  <div className="flex-1 space-y-4">
+                  <div className="flex-1 space-y-2 sm:space-y-4">
                     <h3 className="text-2xl font-bold text-slate-900">Personal Details</h3>
                     <p className="text-slate-500 font-medium">Provide basic information about the mentor.</p>
                   </div>
@@ -289,6 +300,48 @@ export default function AdminCreateMentor() {
                 </div>
                 <div className="flex justify-between pt-4">
                   <button onClick={() => setStep(2)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Back</button>
+                  <button onClick={() => setStep(4)} className="px-12 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">Next</button>
+                </div>
+              </motion.div>
+            )}
+
+            {step === 4 && (
+              <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                <h3 className="text-2xl font-bold text-slate-900">Social Info <span className="text-slate-400 text-sm font-medium">(Optional)</span></h3>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">LinkedIn Profile</label>
+                    <input 
+                      type="url" 
+                      value={newMentor.linkedin}
+                      onChange={(e) => setNewMentor({ ...newMentor, linkedin: e.target.value })}
+                      placeholder="https://linkedin.com/in/username" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Twitter Profile</label>
+                    <input 
+                      type="url" 
+                      value={newMentor.twitter}
+                      onChange={(e) => setNewMentor({ ...newMentor, twitter: e.target.value })}
+                      placeholder="https://twitter.com/username" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700 ml-1">Website URL</label>
+                    <input 
+                      type="url" 
+                      value={newMentor.website}
+                      onChange={(e) => setNewMentor({ ...newMentor, website: e.target.value })}
+                      placeholder="https://yourwebsite.com" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-between pt-4">
+                  <button onClick={() => setStep(3)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Back</button>
                   <button onClick={handleCreateMentor} className="px-12 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center gap-2">
                     Add Mentor <CheckCircle2 className="w-5 h-5" />
                   </button>

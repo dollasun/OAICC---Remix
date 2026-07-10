@@ -116,7 +116,7 @@ export default function Mentors() {
           <h1 className="text-3xl font-bold text-slate-900">Professional Mentors</h1>
           <p className="text-slate-500 font-medium mt-1">Connect with industry experts who can guide your career journey.</p>
         </div>
-        <button className="flex items-center gap-2 bg-brand/10 text-brand px-6 py-3 rounded-2xl font-bold hover:bg-brand hover:text-white transition-all">
+        <button className="flex items-center gap-2 bg-brand/10 text-brand px-6 py-3 rounded-xl font-bold hover:bg-brand hover:text-white transition-all">
           <Users className="w-5 h-5" /> My Mentors
         </button>
       </div>
@@ -130,7 +130,7 @@ export default function Mentors() {
             placeholder="Search by name, role, or company..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
@@ -138,9 +138,9 @@ export default function Mentors() {
             <button
               key={exp}
               onClick={() => setSelectedExpertise(exp)}
-              className={`px-6 py-3.5 rounded-2xl font-bold whitespace-nowrap transition-all ${
+              className={`px-6 py-3.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                 selectedExpertise === exp
-                  ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                  ? 'bg-brand text-white shadow-sm shadow-brand/5'
                   : 'bg-white text-slate-600 border border-slate-200 hover:border-brand hover:text-brand'
               }`}
             >
@@ -158,7 +158,7 @@ export default function Mentors() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
+            className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group flex flex-col"
           >
             <div className="p-8 flex-1">
               <div className="flex items-start justify-between mb-6">
@@ -166,7 +166,7 @@ export default function Mentors() {
                   <img 
                     src={mentor.image} 
                     alt={mentor.name} 
-                    className="w-20 h-20 rounded-2xl object-cover border-4 border-slate-50"
+                    className="w-20 h-20 rounded-xl object-cover border-4 border-slate-50"
                   />
                   {mentor.isVerified && (
                     <div className="absolute -bottom-2 -right-2 bg-brand text-white p-1 rounded-lg border-2 border-white">
@@ -192,12 +192,12 @@ export default function Mentors() {
 
               <div className="flex flex-wrap gap-2 mb-8">
                 {mentor.expertise.slice(0, 2).map((exp) => (
-                  <span key={exp} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                  <span key={exp} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                     {exp}
                   </span>
                 ))}
                 {mentor.expertise.length > 2 && (
-                  <span className="px-3 py-1.5 bg-slate-50 text-slate-400 rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                  <span className="px-3 py-1.5 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                     +{mentor.expertise.length - 2} more
                   </span>
                 )}
@@ -205,7 +205,7 @@ export default function Mentors() {
 
               <button 
                 onClick={() => navigate(`/student/mentors/${mentor.id}`)}
-                className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-2xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
               >
                 View Profile <ChevronRight className="w-4 h-4" />
               </button>

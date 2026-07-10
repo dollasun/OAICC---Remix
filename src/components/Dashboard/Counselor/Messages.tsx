@@ -58,7 +58,7 @@ export default function Messages() {
   return (
     <div className="h-[calc(100vh-12rem)] flex gap-8">
       {/* Chat List */}
-      <div className="w-96 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+      <div className="w-96 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
         <div className="p-6 border-b border-slate-50">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Messages</h2>
           <div className="relative">
@@ -66,7 +66,7 @@ export default function Messages() {
             <input 
               type="text" 
               placeholder="Search chats..." 
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
             />
           </div>
         </div>
@@ -76,12 +76,12 @@ export default function Messages() {
             <button 
               key={chat.id}
               onClick={() => selectChat(chat.id)}
-              className={`w-full flex items-center gap-4 p-4 rounded-3xl transition-all text-left group ${
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all text-left group ${
                 chat.id === selectedChatId ? 'bg-brand/5' : 'hover:bg-slate-50'
               }`}
             >
               <div className="relative">
-                <img src={chat.image} alt={chat.name} className="w-12 h-12 rounded-2xl object-cover" />
+                <img src={chat.image} alt={chat.name} className="w-12 h-12 rounded-xl object-cover" />
                 {chat.online && (
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full" />
                 )}
@@ -106,11 +106,11 @@ export default function Messages() {
       </div>
 
       {/* Chat Window */}
-      <div className="flex-1 bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
+      <div className="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col overflow-hidden">
         {/* Chat Header */}
         <div className="p-6 border-b border-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src={selectedChat.image} alt={selectedChat.name} className="w-12 h-12 rounded-2xl object-cover" />
+            <img src={selectedChat.image} alt={selectedChat.name} className="w-12 h-12 rounded-xl object-cover" />
             <div>
               <h3 className="font-bold text-slate-900">{selectedChat.name}</h3>
               <p className={`text-xs font-bold uppercase tracking-widest ${selectedChat.online ? 'text-emerald-500' : 'text-slate-400'}`}>
@@ -119,13 +119,13 @@ export default function Messages() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-3 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
+            <button className="p-3 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
               <Phone className="w-5 h-5" />
             </button>
-            <button className="p-3 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
+            <button className="p-3 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
               <Video className="w-5 h-5" />
             </button>
-            <button className="p-3 hover:bg-slate-50 rounded-xl text-slate-400 transition-colors">
+            <button className="p-3 hover:bg-slate-50 rounded-lg text-slate-400 transition-colors">
               <Info className="w-5 h-5" />
             </button>
           </div>
@@ -143,14 +143,14 @@ export default function Messages() {
               className={`flex items-start gap-4 ${msg.sender === 'counselor' ? 'flex-row-reverse' : ''}`}
             >
               {msg.sender === 'counselor' ? (
-                <div className="w-8 h-8 bg-brand rounded-xl flex items-center justify-center text-white text-[10px] font-bold mt-1 shrink-0">AF</div>
+                <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-white text-[10px] font-bold mt-1 shrink-0">AF</div>
               ) : (
-                <img src={selectedChat.image} alt={selectedChat.name} className="w-8 h-8 rounded-xl object-cover mt-1 shrink-0" />
+                <img src={selectedChat.image} alt={selectedChat.name} className="w-8 h-8 rounded-lg object-cover mt-1 shrink-0" />
               )}
               <div className="flex flex-col gap-1">
-                <div className={`max-w-md p-4 rounded-3xl text-sm font-medium ${
+                <div className={`max-w-md p-4 rounded-2xl text-sm font-medium ${
                   msg.sender === 'counselor' 
-                    ? 'bg-brand text-white rounded-tr-none shadow-lg shadow-brand/20' 
+                    ? 'bg-brand text-white rounded-tr-none shadow-sm shadow-brand/5' 
                     : 'bg-slate-50 text-slate-700 rounded-tl-none'
                 }`}>
                   {msg.text}
@@ -171,12 +171,12 @@ export default function Messages() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder={`Reply to ${selectedChat.name}...`} 
-              className="w-full pl-6 pr-16 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+              className="w-full pl-6 pr-16 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
             />
             <button 
               type="submit"
               disabled={!newMessage.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-brand text-white rounded-xl shadow-lg shadow-brand/20 hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-3 bg-brand text-white rounded-lg shadow-sm shadow-brand/5 hover:scale-110 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
             >
               <Send className="w-5 h-5" />
             </button>

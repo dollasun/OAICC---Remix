@@ -153,13 +153,13 @@ export default function CareerDetails() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsSaved(!isSaved)}
-            className={`p-3 rounded-2xl border transition-all ${
+            className={`p-3 rounded-xl border transition-all ${
               isSaved ? 'bg-brand/10 border-brand text-brand' : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
             }`}
           >
             <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-brand' : ''}`} />
           </button>
-          <button className="p-3 bg-white border border-slate-200 text-slate-400 rounded-2xl hover:text-slate-600 transition-all">
+          <button className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:text-slate-600 transition-all">
             <Share2 className="w-5 h-5" />
           </button>
         </div>
@@ -168,7 +168,7 @@ export default function CareerDetails() {
       {viewMode === 'main' ? (
         <>
           {/* Hero Section */}
-          <div className="relative h-[400px] rounded-[40px] overflow-hidden shadow-2xl">
+          <div className="relative h-[400px] rounded-2xl overflow-hidden shadow-sm">
             <img src={career.image} alt={career.title} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
             <div className="absolute bottom-10 left-10 right-10">
@@ -189,8 +189,8 @@ export default function CareerDetails() {
 
           {/* Stats Bar */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
                 <DollarSign className="w-6 h-6" />
               </div>
               <div>
@@ -198,8 +198,8 @@ export default function CareerDetails() {
                 <p className="text-xl font-bold text-slate-900">{career.salary.average}</p>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div>
@@ -207,8 +207,8 @@ export default function CareerDetails() {
                 <p className="text-xl font-bold text-slate-900">{career.growth}</p>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+            <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
                 <GraduationCap className="w-6 h-6" />
               </div>
               <div>
@@ -243,7 +243,7 @@ export default function CareerDetails() {
               </div>
 
               {/* Tab Content */}
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm min-h-[400px]">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm min-h-[400px]">
                 {activeTab === 'overview' && (
                   <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Videos Section */}
@@ -260,7 +260,7 @@ export default function CareerDetails() {
                             onClick={() => setSelectedVideo(video)}
                             className="min-w-[280px] group cursor-pointer"
                           >
-                            <div className="relative aspect-video rounded-2xl overflow-hidden mb-3">
+                            <div className="relative aspect-video rounded-xl overflow-hidden mb-3">
                               <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all flex items-center justify-center">
                                 <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center text-brand scale-90 group-hover:scale-100 transition-transform">
@@ -293,7 +293,7 @@ export default function CareerDetails() {
                     {/* Median Salary */}
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-6">Median salary</h3>
-                      <div className="inline-block px-8 py-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <div className="inline-block px-8 py-4 bg-slate-50 rounded-xl border border-slate-100">
                         <p className="text-2xl font-bold text-slate-900">{career.salary.median}</p>
                       </div>
                     </div>
@@ -321,9 +321,9 @@ export default function CareerDetails() {
                             key={article.id}
                             whileHover={{ y: -5 }}
                             onClick={() => setSelectedArticle(article)}
-                            className="group cursor-pointer flex gap-4 p-4 bg-slate-50 rounded-3xl border border-transparent hover:border-brand/20 transition-all"
+                            className="group cursor-pointer flex gap-4 p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-brand/20 transition-all"
                           >
-                            <img src={article.image} alt={article.title} className="w-24 h-24 rounded-2xl object-cover" />
+                            <img src={article.image} alt={article.title} className="w-24 h-24 rounded-xl object-cover" />
                             <div className="flex-1 py-1">
                               <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors mb-1">{article.title}</h4>
                               <p className="text-xs text-slate-500 font-medium mb-2">{article.author} • {article.category}</p>
@@ -343,7 +343,7 @@ export default function CareerDetails() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {career.resources.map((resource) => (
                           <div key={resource.id} className="group cursor-pointer">
-                            <div className="relative aspect-video rounded-3xl overflow-hidden mb-3">
+                            <div className="relative aspect-video rounded-2xl overflow-hidden mb-3">
                               <img src={resource.thumbnail} alt={resource.title} className="w-full h-full object-cover" />
                               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all flex items-center justify-center">
                                 <Download className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all" />
@@ -366,7 +366,7 @@ export default function CareerDetails() {
                       </h3>
                       <div className="flex flex-wrap gap-3">
                         {career.skills.map((skill) => (
-                          <span key={skill} className="px-6 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700">
+                          <span key={skill} className="px-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700">
                             {skill}
                           </span>
                         ))}
@@ -380,7 +380,7 @@ export default function CareerDetails() {
                     <div className="relative space-y-8 before:absolute before:left-6 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-100">
                       {career.pathway.map((step, i) => (
                         <div key={i} className="relative pl-16">
-                          <div className="absolute left-0 w-12 h-12 bg-white border-4 border-slate-50 rounded-2xl flex items-center justify-center text-brand font-bold shadow-sm">
+                          <div className="absolute left-0 w-12 h-12 bg-white border-4 border-slate-50 rounded-xl flex items-center justify-center text-brand font-bold shadow-sm">
                             {i + 1}
                           </div>
                           <h4 className="text-lg font-bold text-slate-900 mb-1">{step.step}</h4>
@@ -394,7 +394,7 @@ export default function CareerDetails() {
                 {activeTab === 'market' && (
                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-6 bg-emerald-50 rounded-3xl">
+                      <div className="p-6 bg-emerald-50 rounded-2xl">
                         <h4 className="text-emerald-900 font-bold mb-2">Salary Outlook</h4>
                         <div className="space-y-3 mt-4">
                           <div className="flex justify-between items-center">
@@ -420,12 +420,12 @@ export default function CareerDetails() {
                           </div>
                         </div>
                       </div>
-                      <div className="p-6 bg-blue-50 rounded-3xl">
+                      <div className="p-6 bg-blue-50 rounded-2xl">
                         <h4 className="text-blue-900 font-bold mb-2">Job Availability</h4>
                         <p className="text-blue-700 text-sm font-medium mt-4">
                           The demand for {career.title}s is expected to grow significantly over the next decade as more industries undergo digital transformation.
                         </p>
-                        <div className="mt-6 p-4 bg-white/50 rounded-2xl border border-blue-100">
+                        <div className="mt-6 p-4 bg-white/50 rounded-xl border border-blue-100">
                           <div className="flex items-center gap-3">
                             <TrendingUp className="w-8 h-8 text-blue-500" />
                             <div>
@@ -443,16 +443,16 @@ export default function CareerDetails() {
 
             {/* Sidebar Actions */}
             <div className="space-y-6">
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6">
                 <h3 className="text-xl font-bold text-slate-900">Take Action</h3>
-                <button className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                <button className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
                   <MessageSquare className="w-5 h-5" /> Ask a Mentor
                 </button>
-                <button className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-2xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
+                <button className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
                   <Users className="w-5 h-5" /> Find Counselors
                 </button>
                 <div className="h-px bg-slate-100"></div>
-                <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-2xl">
+                <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-xl">
                   <Star className="w-8 h-8 text-amber-500 fill-amber-500" />
                   <div>
                     <p className="text-sm font-bold text-amber-900">Top Match!</p>
@@ -461,12 +461,12 @@ export default function CareerDetails() {
                 </div>
               </div>
 
-              <div className="bg-slate-900 p-8 rounded-[32px] text-white space-y-4">
+              <div className="bg-slate-900 p-8 rounded-2xl text-white space-y-4">
                 <h3 className="text-lg font-bold">Recommended Mentors</h3>
                 <div className="space-y-4">
                   {['m1', 'm2'].map((mentorId, i) => (
-                    <div key={mentorId} className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl hover:bg-white/10 transition-all cursor-pointer group" onClick={() => navigate(`/student/mentors/${i + 1}`)}>
-                      <img src={`https://picsum.photos/seed/mentor${i + 1}/100/100`} className="w-12 h-12 rounded-xl object-cover" alt="Mentor" />
+                    <div key={mentorId} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all cursor-pointer group" onClick={() => navigate(`/student/mentors/${i + 1}`)}>
+                      <img src={`https://picsum.photos/seed/mentor${i + 1}/100/100`} className="w-12 h-12 rounded-lg object-cover" alt="Mentor" />
                       <div className="flex-1">
                         <p className="text-sm font-bold">Sarah Johnson</p>
                         <p className="text-[10px] text-white/50 font-bold uppercase">Senior Engineer at Google</p>
@@ -493,7 +493,7 @@ export default function CareerDetails() {
                 key={video.id}
                 whileHover={{ y: -5 }}
                 onClick={() => setSelectedVideo(video)}
-                className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group cursor-pointer"
+                className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group cursor-pointer"
               >
                 <div className="relative aspect-video overflow-hidden">
                   <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -502,7 +502,7 @@ export default function CareerDetails() {
                       <Play className="w-8 h-8 fill-brand" />
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-xl text-xs font-bold text-white">
+                  <div className="absolute bottom-4 right-4 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg text-xs font-bold text-white">
                     {video.duration}
                   </div>
                 </div>
@@ -525,9 +525,9 @@ export default function CareerDetails() {
                 key={article.id}
                 whileHover={{ y: -5 }}
                 onClick={() => setSelectedArticle(article)}
-                className="bg-white p-6 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl transition-all group cursor-pointer flex gap-6"
+                className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group cursor-pointer flex gap-6"
               >
-                <img src={article.image} alt={article.title} className="w-32 h-32 rounded-[32px] object-cover" />
+                <img src={article.image} alt={article.title} className="w-32 h-32 rounded-2xl object-cover" />
                 <div className="flex-1 py-2">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="px-3 py-1 bg-brand/10 text-brand text-[10px] font-bold uppercase tracking-wider rounded-full">
@@ -552,9 +552,9 @@ export default function CareerDetails() {
               <motion.div 
                 key={resource.id}
                 whileHover={{ y: -5 }}
-                className="bg-white p-6 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-xl transition-all group cursor-pointer"
+                className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group cursor-pointer"
               >
-                <div className="relative aspect-video rounded-[32px] overflow-hidden mb-4">
+                <div className="relative aspect-video rounded-2xl overflow-hidden mb-4">
                   <img src={resource.thumbnail} alt={resource.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-all flex items-center justify-center">
                     <Download className="w-10 h-10 text-white opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all" />
@@ -562,7 +562,7 @@ export default function CareerDetails() {
                 </div>
                 <h4 className="text-lg font-bold text-slate-900 group-hover:text-brand transition-colors mb-1">{resource.title}</h4>
                 <p className="text-sm text-slate-500 font-medium">{resource.author}</p>
-                <button className="w-full mt-6 py-3 bg-slate-50 text-slate-900 font-bold rounded-2xl hover:bg-brand hover:text-white transition-all flex items-center justify-center gap-2">
+                <button className="w-full mt-6 py-3 bg-slate-50 text-slate-900 font-bold rounded-xl hover:bg-brand hover:text-white transition-all flex items-center justify-center gap-2">
                   <Download className="w-4 h-4" /> Download Material
                 </button>
               </motion.div>
@@ -601,7 +601,7 @@ export default function CareerDetails() {
                 className="w-full h-full object-cover opacity-40 blur-2xl absolute inset-0" 
                 alt="Background"
               />
-              <div className="relative w-full max-w-6xl aspect-video bg-black shadow-2xl rounded-2xl overflow-hidden group/player">
+              <div className="relative w-full max-w-6xl aspect-video bg-black shadow-sm rounded-xl overflow-hidden group/player">
                 <video 
                   ref={videoRef}
                   src="https://www.w3schools.com/html/mov_bbb.mp4"
@@ -619,7 +619,7 @@ export default function CareerDetails() {
                       exit={{ opacity: 0, scale: 0.8 }}
                       className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none"
                     >
-                      <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center text-brand shadow-2xl">
+                      <div className="w-24 h-24 bg-white/90 rounded-full flex items-center justify-center text-brand shadow-sm">
                         <Play className="w-10 h-10 fill-brand ml-1" />
                       </div>
                     </motion.div>
@@ -658,12 +658,12 @@ export default function CareerDetails() {
               <header className="h-20 px-8 flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white z-10">
                 <button 
                   onClick={() => setSelectedArticle(null)}
-                  className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
+                  className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
                 >
                   <ArrowLeft className="w-6 h-6" />
                 </button>
                 <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-brand/10 text-brand font-bold rounded-xl">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-brand/10 text-brand font-bold rounded-lg">
                     <CheckCircle2 className="w-4 h-4" /> Saved
                   </button>
                   <button className="p-2 text-slate-400 hover:text-slate-900">
@@ -690,7 +690,7 @@ export default function CareerDetails() {
                   </div>
                 </div>
 
-                <img src={selectedArticle.image} className="w-full aspect-video rounded-[32px] object-cover shadow-lg" alt="Article" />
+                <img src={selectedArticle.image} className="w-full aspect-video rounded-2xl object-cover shadow-sm" alt="Article" />
 
                 <div className="prose prose-slate max-w-none">
                   <p className="text-lg text-slate-600 leading-relaxed font-medium">
@@ -725,7 +725,7 @@ export default function CareerDetails() {
                           <p className="text-[10px] text-slate-400 font-bold">{comment.time}</p>
                         </div>
                       </div>
-                      <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                      <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                         <p className="text-sm text-slate-600 leading-relaxed">{comment.text}</p>
                       </div>
                       <div className="flex items-center gap-4 px-2">
@@ -751,7 +751,7 @@ export default function CareerDetails() {
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Leave a comment..." 
-                    className="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none h-24"
+                    className="w-full p-4 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none h-24"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
@@ -762,7 +762,7 @@ export default function CareerDetails() {
                   <button 
                     onClick={handleAddComment}
                     disabled={!newComment.trim()}
-                    className="absolute bottom-3 right-3 p-2 bg-brand text-white rounded-xl shadow-lg shadow-brand/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+                    className="absolute bottom-3 right-3 p-2 bg-brand text-white rounded-lg shadow-sm shadow-brand/5 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
                   >
                     <Send className="w-4 h-4" />
                   </button>

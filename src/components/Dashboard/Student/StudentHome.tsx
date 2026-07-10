@@ -74,7 +74,7 @@ export default function StudentHome() {
         </div>
         <button 
           onClick={() => navigate('/student/careers')}
-          className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+          className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-xl font-bold shadow-sm shadow-brand/5 hover:scale-105 transition-all"
         >
           Explore Careers <ArrowRight className="w-5 h-5" />
         </button>
@@ -88,9 +88,9 @@ export default function StudentHome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group"
           >
-            <div className={`${stat.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
+            <div className={`${stat.color} w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
               <stat.icon className="w-6 h-6" />
             </div>
             <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
@@ -113,7 +113,7 @@ export default function StudentHome() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recommendations.map((item) => (
-              <div key={item.id} className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer relative">
+              <div key={item.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group cursor-pointer relative">
                 <div className="relative h-48">
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-brand flex items-center gap-1">
@@ -121,7 +121,7 @@ export default function StudentHome() {
                   </div>
                   <button 
                     onClick={(e) => handleSaveCareer(item, e)}
-                    className={`absolute top-4 right-4 p-2 rounded-xl backdrop-blur-sm transition-all ${
+                    className={`absolute top-4 right-4 p-2 rounded-lg backdrop-blur-sm transition-all ${
                       savedIds.includes(item.id) 
                         ? 'bg-brand text-white' 
                         : 'bg-white/90 text-slate-400 hover:text-brand'
@@ -135,7 +135,7 @@ export default function StudentHome() {
                   <h3 className="text-lg font-bold text-slate-900 mb-4">{item.title}</h3>
                   <button 
                     onClick={() => navigate('/student/careers')}
-                    className="w-full py-3 bg-slate-50 text-slate-600 font-bold rounded-xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-slate-50 text-slate-600 font-bold rounded-lg group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
                   >
                     View Details <ChevronRight className="w-4 h-4" />
                   </button>
@@ -148,7 +148,7 @@ export default function StudentHome() {
         {/* Sidebar Content */}
         <div className="space-y-8">
           {/* Counseling Sessions */}
-          <section className="bg-emerald-500 p-6 rounded-3xl text-white shadow-xl shadow-emerald-500/20">
+          <section className="bg-emerald-500 p-6 rounded-2xl text-white shadow-sm shadow-emerald-500/5">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Counseling Sessions</h2>
               <Video className="w-5 h-5 text-white/60" />
@@ -157,7 +157,7 @@ export default function StudentHome() {
               {upcomingSessions.map((session) => (
                 <div 
                   key={session.id} 
-                  className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all cursor-pointer group"
+                  className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-all cursor-pointer group"
                 >
                   <h3 className="font-bold text-white">{session.title}</h3>
                   <p className="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">with {session.counselorName}</p>
@@ -167,7 +167,7 @@ export default function StudentHome() {
                   </div>
                   <button 
                     onClick={() => window.open(session.link || 'https://zoom.us', '_blank')}
-                    className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all text-xs"
+                    className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-lg hover:bg-emerald-50 transition-all text-xs"
                   >
                     Join Meeting
                   </button>
@@ -178,7 +178,7 @@ export default function StudentHome() {
                   <p className="text-sm font-medium text-white/60 mb-4">No scheduled sessions</p>
                   <button 
                     onClick={() => navigate('/student/counselors')}
-                    className="w-full py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all text-sm"
+                    className="w-full py-3 bg-white/10 text-white font-bold rounded-lg hover:bg-white/20 transition-all text-sm"
                   >
                     Book a Session
                   </button>
@@ -187,7 +187,7 @@ export default function StudentHome() {
               {upcomingSessions.length > 0 && (
                 <button 
                   onClick={() => navigate('/student/counselors')}
-                  className="w-full py-3 text-white font-bold text-sm hover:bg-white/10 rounded-xl transition-all"
+                  className="w-full py-3 text-white font-bold text-sm hover:bg-white/10 rounded-lg transition-all"
                 >
                   View all sessions
                 </button>
@@ -196,7 +196,7 @@ export default function StudentHome() {
           </section>
 
           {/* Upcoming Events */}
-          <section className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+          <section className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold text-slate-900">Upcoming Events</h2>
               <Calendar className="w-5 h-5 text-slate-400" />
@@ -206,7 +206,7 @@ export default function StudentHome() {
                 <div 
                   key={event.id} 
                   onClick={() => navigate('/student/events')}
-                  className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
+                  className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all cursor-pointer group"
                 >
                   <h3 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{event.title}</h3>
                   <div className="flex items-center gap-4 mt-2 text-xs font-bold text-slate-400">
@@ -217,7 +217,7 @@ export default function StudentHome() {
               ))}
               <button 
                 onClick={() => navigate('/student/events')}
-                className="w-full py-3 text-brand font-bold text-sm hover:bg-brand/5 rounded-xl transition-all"
+                className="w-full py-3 text-brand font-bold text-sm hover:bg-brand/5 rounded-lg transition-all"
               >
                 Explore all events
               </button>
@@ -225,13 +225,13 @@ export default function StudentHome() {
           </section>
 
           {/* Mentor Suggestion */}
-          <section className="bg-brand rounded-3xl p-6 text-white relative overflow-hidden">
+          <section className="bg-brand rounded-2xl p-6 text-white relative overflow-hidden">
             <div className="relative z-10">
               <h2 className="text-lg font-bold mb-2">Need guidance?</h2>
               <p className="text-white/80 text-sm font-medium mb-6">Connect with professional mentors in your field of interest.</p>
               <button 
                 onClick={() => navigate('/student/mentors')}
-                className="bg-white text-brand px-6 py-3 rounded-xl font-bold text-sm hover:scale-105 transition-all"
+                className="bg-white text-brand px-6 py-3 rounded-lg font-bold text-sm hover:scale-105 transition-all"
               >
                 Find a Mentor
               </button>

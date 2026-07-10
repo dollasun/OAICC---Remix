@@ -162,7 +162,7 @@ export default function Forum() {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-2xl bg-white rounded-[48px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <form onSubmit={handleCreateTopic} className="p-8 sm:p-12">
                 <div className="flex items-center justify-between mb-10">
@@ -170,7 +170,7 @@ export default function Forum() {
                     <h2 className="text-3xl font-black text-slate-900">Start a Conversation</h2>
                     <p className="text-slate-500 font-bold mt-1">Share your thoughts with the community.</p>
                   </div>
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-3 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -184,7 +184,7 @@ export default function Forum() {
                       placeholder="What would you like to discuss?"
                       value={newTopic.title}
                       onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
-                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all" 
+                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all" 
                     />
                   </div>
 
@@ -194,7 +194,7 @@ export default function Forum() {
                       <select 
                         value={newTopic.category}
                         onChange={(e) => setNewTopic({...newTopic, category: e.target.value})}
-                        className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
+                        className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
                       >
                         {initialCategories.filter(c => c.id !== 'all').map(cat => (
                           <option key={cat.id} value={cat.label}>{cat.label}</option>
@@ -212,7 +212,7 @@ export default function Forum() {
                       placeholder="Tell us more about it..."
                       value={newTopic.content}
                       onChange={(e) => setNewTopic({...newTopic, content: e.target.value})}
-                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-3xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all resize-none"
+                      className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 placeholder:text-slate-300 transition-all resize-none"
                     />
                   </div>
 
@@ -220,13 +220,13 @@ export default function Forum() {
                     <button 
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-3xl hover:bg-slate-200 transition-all"
+                      className="flex-1 py-5 bg-slate-100 text-slate-500 font-black rounded-2xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
                     <button 
                       type="submit"
-                      className="flex-[2] py-5 bg-brand text-white font-black rounded-3xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      className="flex-[2] py-5 bg-brand text-white font-black rounded-2xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-95 transition-all"
                     >
                       Post Topic
                     </button>
@@ -239,7 +239,7 @@ export default function Forum() {
       </AnimatePresence>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-[48px] bg-gradient-to-br from-brand to-indigo-600 p-8 sm:p-12 text-white shadow-2xl shadow-brand/20">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-indigo-600 p-8 sm:p-12 text-white shadow-sm shadow-brand/5">
         <div className="relative z-10 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -254,7 +254,7 @@ export default function Forum() {
             </p>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="group flex items-center gap-3 bg-white text-brand px-8 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition-all active:scale-95"
+              className="group flex items-center gap-3 bg-white text-brand px-8 py-4 rounded-xl font-bold shadow-sm hover:scale-105 transition-all active:scale-95"
             >
               <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" /> 
               Start a Conversation
@@ -273,16 +273,16 @@ export default function Forum() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Sidebar - Desktop */}
         <div className="lg:col-span-3 space-y-8 hidden lg:block">
-          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm sticky top-8">
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm sticky top-8">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6">Explore Topics</h3>
             <div className="space-y-2">
               {initialCategories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`w-full flex items-center justify-between px-5 py-4 rounded-2xl font-bold text-sm transition-all group ${
+                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl font-bold text-sm transition-all group ${
                     activeCategory === cat.id 
-                      ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                      ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
@@ -318,9 +318,9 @@ export default function Forum() {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
+                className={`whitespace-nowrap px-6 py-3 rounded-xl font-bold text-sm transition-all ${
                   activeCategory === cat.id 
-                    ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                    ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                     : 'bg-white text-slate-500 border border-slate-100 shadow-sm'
                 }`}
               >
@@ -338,10 +338,10 @@ export default function Forum() {
                 placeholder="Search topics, questions, or keywords..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-6 py-4.5 bg-white border-2 border-transparent rounded-[24px] shadow-sm focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-bold text-slate-700"
+                className="w-full pl-14 pr-6 py-4.5 bg-white border-2 border-transparent rounded-xl shadow-sm focus:border-brand/20 focus:ring-4 focus:ring-brand/5 outline-none transition-all font-bold text-slate-700"
               />
             </div>
-            <button className="flex items-center justify-center gap-3 px-8 py-4.5 bg-white border border-slate-100 rounded-[24px] font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
+            <button className="flex items-center justify-center gap-3 px-8 py-4.5 bg-white border border-slate-100 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
               <Filter className="w-5 h-5" /> Filter
             </button>
           </div>
@@ -358,7 +358,7 @@ export default function Forum() {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   onClick={() => navigate(`/student/forum/${topic.id}`)}
-                  className="group bg-white p-6 sm:p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-brand/5 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
+                  className="group bg-white p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm hover:shadow-brand/5 hover:-translate-y-1 transition-all cursor-pointer relative overflow-hidden"
                 >
                   {/* Hover Accent */}
                   <div className="absolute top-0 left-0 w-2 h-full bg-brand opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -368,10 +368,10 @@ export default function Forum() {
                       <img 
                         src={topic.authorImage} 
                         alt={topic.author} 
-                        className="w-16 h-16 rounded-2xl object-cover border-4 border-slate-50 shadow-md group-hover:scale-110 transition-transform duration-500" 
+                        className="w-16 h-16 rounded-xl object-cover border-4 border-slate-50 shadow-sm group-hover:scale-110 transition-transform duration-500" 
                       />
                       {topic.isTrending && (
-                        <div className="absolute -top-2 -right-2 bg-amber-400 text-white p-1.5 rounded-lg shadow-lg">
+                        <div className="absolute -top-2 -right-2 bg-amber-400 text-white p-1.5 rounded-lg shadow-sm">
                           <TrendingUp className="w-3 h-3" />
                         </div>
                       )}
@@ -414,19 +414,19 @@ export default function Forum() {
 
                         <div className="flex items-center gap-6 text-slate-400">
                           <div className="flex items-center gap-2 group/stat">
-                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-brand/10 group-hover/stat:text-brand transition-colors">
+                            <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center group-hover/stat:bg-brand/10 group-hover/stat:text-brand transition-colors">
                               <MessageCircle className="w-4.5 h-4.5" />
                             </div>
                             <span className="text-sm font-black">{Array.isArray(topic.replies) ? topic.replies.length : topic.replies}</span>
                           </div>
                           <div className="flex items-center gap-2 group/stat">
-                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-red-50 group-hover/stat:text-red-500 transition-colors">
+                            <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center group-hover/stat:bg-red-50 group-hover/stat:text-red-500 transition-colors">
                               <ThumbsUp className="w-4.5 h-4.5" />
                             </div>
                             <span className="text-sm font-black">{topic.likes}</span>
                           </div>
                           <div className="flex items-center gap-2 group/stat">
-                            <div className="w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover/stat:bg-indigo-50 group-hover/stat:text-indigo-500 transition-colors">
+                            <div className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center group-hover/stat:bg-indigo-50 group-hover/stat:text-indigo-500 transition-colors">
                               <Eye className="w-4.5 h-4.5" />
                             </div>
                             <span className="text-sm font-black">{topic.views}</span>
@@ -443,7 +443,7 @@ export default function Forum() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-24 bg-white rounded-[48px] border-2 border-dashed border-slate-100"
+                className="text-center py-24 bg-white rounded-2xl border-2 border-dashed border-slate-100"
               >
                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8">
                   <MessageSquare className="w-12 h-12 text-slate-200" />

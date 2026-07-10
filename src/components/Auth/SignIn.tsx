@@ -115,7 +115,7 @@ export default function SignIn() {
               </div>
             </div>
 
-            <button type="button" className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all font-medium text-slate-700">
+            <button type="button" className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
               <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
               Sign in with Google
             </button>

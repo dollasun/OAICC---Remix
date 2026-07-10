@@ -51,7 +51,7 @@ export default function SchoolClassDetails() {
           </button>
           <h1 className="text-4xl font-bold text-slate-900 uppercase">{id}</h1>
           
-          <div className="flex items-center gap-4 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm w-fit">
+          <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm w-fit">
             <img 
               src="https://picsum.photos/seed/teacher/100/100" 
               alt="Teacher" 
@@ -65,14 +65,14 @@ export default function SchoolClassDetails() {
             <div className="flex items-center gap-2 ml-4">
               <button 
                 onClick={() => setIsTeacherProfileOpen(true)}
-                className="px-4 py-2 bg-brand/10 text-brand rounded-xl font-bold text-sm hover:bg-brand/20 transition-all"
+                className="px-4 py-2 bg-brand/10 text-brand rounded-lg font-bold text-sm hover:bg-brand/20 transition-all"
               >
                 View profile
               </button>
               <div className="relative">
                 <button 
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+                  className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all"
                 >
                   <MoreVertical className="w-5 h-5" />
                 </button>
@@ -84,7 +84,7 @@ export default function SchoolClassDetails() {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                        className="absolute left-0 mt-2 w-40 bg-white rounded-xl shadow-sm border border-slate-100 py-2 z-50 overflow-hidden"
                       >
                         <button className="w-full text-left px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Unassign teacher</button>
                         <button className="w-full text-left px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50">Remove user</button>
@@ -102,20 +102,20 @@ export default function SchoolClassDetails() {
       </div>
 
       {/* Student List */}
-      <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
               type="text" 
               placeholder="Search" 
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all text-sm"
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-lg focus:ring-4 focus:ring-brand/10 outline-none transition-all text-sm"
             />
           </div>
           <div className="relative">
             <button 
               onClick={() => setIsSortOpen(!isSortOpen)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 text-slate-600 rounded-xl font-bold text-sm hover:bg-slate-100 transition-all border border-slate-200"
+              className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 text-slate-600 rounded-lg font-bold text-sm hover:bg-slate-100 transition-all border border-slate-200"
             >
               <Filter className="w-4 h-4" /> Sort by
             </button>
@@ -128,7 +128,7 @@ export default function SchoolClassDetails() {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute right-0 mt-2 w-40 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                    className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-sm border border-slate-100 py-2 z-50 overflow-hidden"
                   >
                     <button className="w-full text-left px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Newest first</button>
                     <button className="w-full text-left px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Oldest first</button>
@@ -226,7 +226,7 @@ export default function SchoolClassDetails() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-8"
             >
               <h3 className="text-2xl font-bold text-slate-900 mb-6">Add new user</h3>
               <form onSubmit={handleInvite} className="space-y-6">
@@ -259,7 +259,7 @@ export default function SchoolClassDetails() {
                   <button 
                     type="button" 
                     onClick={() => setIsInviteModalOpen(false)}
-                    className="flex-1 px-6 py-3 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                    className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
                   >
                     Cancel
                   </button>
@@ -288,7 +288,7 @@ export default function SchoolClassDetails() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl p-10"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm p-10"
             >
               <button onClick={() => setIsTeacherProfileOpen(false)} className="absolute right-8 top-8 p-2 hover:bg-slate-50 rounded-full transition-all">
                 <X className="w-6 h-6 text-slate-400" />
@@ -372,7 +372,7 @@ export default function SchoolClassDetails() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl p-10"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm p-10"
             >
               <button onClick={() => setIsParentProfileOpen(false)} className="absolute right-8 top-8 p-2 hover:bg-slate-50 rounded-full transition-all">
                 <X className="w-6 h-6 text-slate-400" />

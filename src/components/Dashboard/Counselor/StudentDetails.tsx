@@ -154,16 +154,16 @@ export default function CounselorStudentDetails() {
         </button>
         <button 
           onClick={() => setIsScheduleModalOpen(true)}
-          className="px-6 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
         >
           <Calendar className="w-5 h-5" /> Schedule Session
         </button>
       </div>
 
       {/* Student Profile Card */}
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
         <div className="flex flex-col md:flex-row gap-8 items-start">
-          <img src={student.image} alt={student.name} className="w-32 h-32 rounded-[32px] object-cover border-4 border-slate-50 shadow-md" />
+          <img src={student.image} alt={student.name} className="w-32 h-32 rounded-2xl object-cover border-4 border-slate-50 shadow-sm" />
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-slate-900">{student.name}</h1>
@@ -181,10 +181,10 @@ export default function CounselorStudentDetails() {
               </div>
             </div>
             <div className="flex gap-4">
-              <button className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand hover:bg-brand/5 transition-all">
+              <button className="p-3 bg-slate-50 text-slate-400 rounded-lg hover:text-brand hover:bg-brand/5 transition-all">
                 <Mail className="w-5 h-5" />
               </button>
-              <button className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand hover:bg-brand/5 transition-all">
+              <button className="p-3 bg-slate-50 text-slate-400 rounded-lg hover:text-brand hover:bg-brand/5 transition-all">
                 <MessageSquare className="w-5 h-5" />
               </button>
             </div>
@@ -193,14 +193,14 @@ export default function CounselorStudentDetails() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm w-fit">
+      <div className="flex gap-2 p-1.5 bg-white rounded-xl border border-slate-100 shadow-sm w-fit">
         {(['profile', 'career', 'tracker'] as Tab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-8 py-3 rounded-xl font-bold text-sm transition-all ${
+            className={`px-8 py-3 rounded-lg font-bold text-sm transition-all ${
               activeTab === tab 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -220,19 +220,19 @@ export default function CounselorStudentDetails() {
             className="grid md:grid-cols-3 gap-8"
           >
             <div className="md:col-span-2 space-y-8">
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-4">About {student.name.split(' ')[0]}</h3>
                 <p className="text-slate-600 leading-relaxed font-medium">{student.bio}</p>
               </div>
 
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-6">Academic Background</h3>
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="p-6 bg-slate-50 rounded-2xl">
+                  <div className="p-6 bg-slate-50 rounded-xl">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Current Class</p>
                     <p className="text-lg font-bold text-slate-900">{student.class}</p>
                   </div>
-                  <div className="p-6 bg-slate-50 rounded-2xl">
+                  <div className="p-6 bg-slate-50 rounded-xl">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Top Subject</p>
                     <p className="text-lg font-bold text-slate-900">{student.topSubjects[0]}</p>
                   </div>
@@ -241,11 +241,11 @@ export default function CounselorStudentDetails() {
             </div>
 
             <div className="space-y-8">
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-6">Top Subjects</h3>
                 <div className="space-y-3">
                   {student.topSubjects.map((subject, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl font-bold text-slate-700">
+                    <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl font-bold text-slate-700">
                       <span>{subject}</span>
                       <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                     </div>
@@ -264,15 +264,15 @@ export default function CounselorStudentDetails() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-8"
           >
-            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-2xl font-bold text-slate-900">Career Interest</h3>
-                <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-bold">High Match</span>
+                <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold">High Match</span>
               </div>
 
               <div className="grid md:grid-cols-2 gap-12">
                 <div>
-                  <div className="relative rounded-[32px] overflow-hidden mb-6 aspect-video">
+                  <div className="relative rounded-2xl overflow-hidden mb-6 aspect-video">
                     <img 
                       src={getCareerImage(student.career)} 
                       alt={student.career} 
@@ -292,7 +292,7 @@ export default function CounselorStudentDetails() {
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Interest Tags</h4>
                     <div className="flex flex-wrap gap-3">
                       {student.interests.map((interest, i) => (
-                        <span key={i} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold">
+                        <span key={i} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold">
                           {interest}
                         </span>
                       ))}
@@ -302,8 +302,8 @@ export default function CounselorStudentDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Recommended Resources</h4>
                     <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl group cursor-pointer hover:bg-brand/5 transition-all">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand shadow-sm">
+                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group cursor-pointer hover:bg-brand/5 transition-all">
+                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-brand shadow-sm">
                           <Video className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
@@ -312,8 +312,8 @@ export default function CounselorStudentDetails() {
                         </div>
                         <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-brand" />
                       </div>
-                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl group cursor-pointer hover:bg-brand/5 transition-all">
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand shadow-sm">
+                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group cursor-pointer hover:bg-brand/5 transition-all">
+                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-brand shadow-sm">
                           <FileText className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
@@ -338,7 +338,7 @@ export default function CounselorStudentDetails() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-8"
           >
-            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <h3 className="text-2xl font-bold text-slate-900 mb-8">Activity Tree</h3>
               
               <div className="relative">
@@ -355,7 +355,7 @@ export default function CounselorStudentDetails() {
                         {activity.type === 'session' ? <Calendar className="w-4 h-4" /> : 
                          activity.type === 'quiz' ? <CheckCircle2 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                       </div>
-                      <div className="flex-1 bg-slate-50 p-6 rounded-3xl group hover:bg-white hover:shadow-xl hover:shadow-slate-200/50 transition-all border border-transparent hover:border-slate-100">
+                      <div className="flex-1 bg-slate-50 p-6 rounded-2xl group hover:bg-white hover:shadow-sm hover:shadow-slate-200/20 transition-all border border-transparent hover:border-slate-100">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{activity.date}</span>
                           <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
@@ -392,14 +392,14 @@ export default function CounselorStudentDetails() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <div>
                   <h3 className="text-2xl font-bold text-slate-900">Schedule Session</h3>
                   <p className="text-slate-500 font-medium">With {student.name}</p>
                 </div>
-                <button onClick={() => setIsScheduleModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                <button onClick={() => setIsScheduleModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
                   <X className="w-6 h-6 text-slate-400" />
                 </button>
               </div>
@@ -412,7 +412,7 @@ export default function CounselorStudentDetails() {
                     placeholder="e.g. Career Path Review"
                     value={newSession.title}
                     onChange={(e) => setNewSession({ ...newSession, title: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                   />
                 </div>
 
@@ -423,7 +423,7 @@ export default function CounselorStudentDetails() {
                       type="date" 
                       value={newSession.date}
                       onChange={(e) => setNewSession({ ...newSession, date: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                     />
                   </div>
                   <div className="space-y-2">
@@ -431,7 +431,7 @@ export default function CounselorStudentDetails() {
                     <select 
                       value={newSession.time}
                       onChange={(e) => setNewSession({ ...newSession, time: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
                     >
                       <option>09:00 AM</option>
                       <option>10:00 AM</option>
@@ -450,7 +450,7 @@ export default function CounselorStudentDetails() {
                   <select 
                     value={newSession.type}
                     onChange={(e) => setNewSession({ ...newSession, type: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
                   >
                     <option>Virtual</option>
                     <option>In-person Meeting</option>
@@ -465,7 +465,7 @@ export default function CounselorStudentDetails() {
                     placeholder="Add any specific topics to discuss..."
                     value={newSession.notes}
                     onChange={(e) => setNewSession({ ...newSession, notes: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
                   />
                 </div>
               </div>
@@ -473,13 +473,13 @@ export default function CounselorStudentDetails() {
               <div className="p-8 bg-slate-50 flex gap-4">
                 <button 
                   onClick={() => setIsScheduleModalOpen(false)}
-                  className="flex-1 py-4 bg-white text-slate-600 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all"
+                  className="flex-1 py-4 bg-white text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleScheduleSession}
-                  className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  className="flex-[2] py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   Confirm Schedule
                 </button>

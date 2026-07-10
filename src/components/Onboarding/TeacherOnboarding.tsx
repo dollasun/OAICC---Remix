@@ -71,7 +71,7 @@ export default function TeacherOnboarding() {
                 <img src={formData.avatar} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-brand-light" />
                 <button 
                   onClick={triggerFileInput}
-                  className="absolute bottom-0 right-0 bg-brand text-white p-2.5 rounded-full shadow-lg hover:scale-110 transition-transform"
+                  className="absolute bottom-0 right-0 bg-brand text-white p-2.5 rounded-full shadow-sm hover:scale-110 transition-transform"
                 >
                   <Camera className="w-5 h-5" />
                 </button>

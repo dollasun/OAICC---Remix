@@ -213,19 +213,19 @@ export default function AdminEditCareer() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white p-1.5 rounded-[24px] border border-slate-100 shadow-sm mb-10 w-fit mx-auto">
+      <div className="flex bg-white p-1.5 rounded-xl border border-slate-100 shadow-sm mb-10 w-fit mx-auto">
         <button 
           onClick={() => setActiveTab('basic')}
-          className={`px-12 py-3 rounded-2xl font-bold text-sm transition-all ${
-            activeTab === 'basic' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+          className={`px-12 py-3 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'basic' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           Basic Info
         </button>
         <button 
           onClick={() => setActiveTab('resources')}
-          className={`px-12 py-3 rounded-2xl font-bold text-sm transition-all ${
-            activeTab === 'resources' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+          className={`px-12 py-3 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'resources' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           Add Resources
@@ -242,24 +242,24 @@ export default function AdminEditCareer() {
             className="space-y-10"
           >
             {/* Background Image Upload */}
-            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <h3 className="text-lg font-bold text-slate-900 mb-6">Background Image</h3>
               <div 
                 onClick={handleImageClick}
-                className="relative h-64 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 hover:bg-slate-100/50 transition-all group overflow-hidden"
+                className="relative h-64 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 hover:bg-slate-100/50 transition-all group overflow-hidden"
               >
                 {bgImage ? (
                   <>
                     <img src={bgImage} alt="Background" className="absolute inset-0 w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl">
+                      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm">
                         <Camera className="w-8 h-8 text-brand" />
                       </div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-4 group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 mb-4 group-hover:scale-110 transition-transform">
                       <Camera className="w-8 h-8" />
                     </div>
                     <p className="text-slate-500 font-bold">Click to upload or drag and drop</p>
@@ -271,7 +271,7 @@ export default function AdminEditCareer() {
             </div>
 
             {/* Basic Details */}
-            <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm space-y-8">
+            <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm space-y-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">Career Title</label>
@@ -279,7 +279,7 @@ export default function AdminEditCareer() {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
                   />
                 </div>
                 <div className="space-y-2">
@@ -287,7 +287,7 @@ export default function AdminEditCareer() {
                   <select 
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                   >
                     <option value="Science">Science</option>
                     <option value="Arts">Arts</option>
@@ -305,7 +305,7 @@ export default function AdminEditCareer() {
                   rows={8}
                   value={formData.about}
                   onChange={(e) => setFormData({ ...formData, about: e.target.value })}
-                  className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                  className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                 />
               </div>
 
@@ -314,11 +314,11 @@ export default function AdminEditCareer() {
                 <label className="text-sm font-bold text-slate-700 ml-1">Top Skills</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.skills.map((skill, i) => (
-                    <div key={i} className="px-4 py-2 bg-slate-50 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
+                    <div key={i} className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
                       {skill} <X className="w-3 h-3 cursor-pointer hover:text-red-500" />
                     </div>
                   ))}
-                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-xl flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
+                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
                     <Plus className="w-3 h-3" /> Add Skill
                   </button>
                 </div>
@@ -329,11 +329,11 @@ export default function AdminEditCareer() {
                 <label className="text-sm font-bold text-slate-700 ml-1">Top Subject Required</label>
                 <div className="flex flex-wrap gap-2">
                   {formData.subjects.map((subject, i) => (
-                    <div key={i} className="px-4 py-2 bg-slate-50 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
+                    <div key={i} className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
                       {subject} <X className="w-3 h-3 cursor-pointer hover:text-red-500" />
                     </div>
                   ))}
-                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-xl flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
+                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
                     <Plus className="w-3 h-3" /> Add Subject
                   </button>
                 </div>
@@ -345,7 +345,7 @@ export default function AdminEditCareer() {
                   <h3 className="text-lg font-bold text-slate-900">Average Salary</h3>
                   <button 
                     onClick={handleAddSalary}
-                    className="flex items-center gap-2 text-brand font-bold hover:bg-brand/5 px-4 py-2 rounded-xl transition-all"
+                    className="flex items-center gap-2 text-brand font-bold hover:bg-brand/5 px-4 py-2 rounded-lg transition-all"
                   >
                     <Plus className="w-5 h-5" /> Add
                   </button>
@@ -353,11 +353,11 @@ export default function AdminEditCareer() {
 
                 <div className="space-y-4">
                   {formData.salaries.map((salary, index) => (
-                    <div key={index} className="bg-slate-50 p-6 rounded-[32px] border border-slate-100 relative group">
+                    <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative group">
                       {formData.salaries.length > 1 && (
                         <button 
                           onClick={() => handleRemoveSalary(index)}
-                          className="absolute -top-2 -right-2 w-8 h-8 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                          className="absolute -top-2 -right-2 w-8 h-8 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -368,7 +368,7 @@ export default function AdminEditCareer() {
                           <select 
                             value={salary.country}
                             onChange={(e) => handleSalaryChange(index, 'country', e.target.value)}
-                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                            className="w-full px-6 py-4 bg-white border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                           >
                             {countries.map(c => (
                               <option key={c.name} value={c.name}>{c.name}</option>
@@ -382,7 +382,7 @@ export default function AdminEditCareer() {
                             value={salary.min}
                             onChange={(e) => handleSalaryChange(index, 'min', e.target.value)}
                             placeholder="e.g. 100,000"
-                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                            className="w-full px-6 py-4 bg-white border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
                           />
                         </div>
                         <div className="space-y-2">
@@ -392,7 +392,7 @@ export default function AdminEditCareer() {
                             value={salary.max}
                             onChange={(e) => handleSalaryChange(index, 'max', e.target.value)}
                             placeholder="e.g. 500,000"
-                            className="w-full px-6 py-4 bg-white border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                            className="w-full px-6 py-4 bg-white border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
                           />
                         </div>
                       </div>
@@ -404,13 +404,13 @@ export default function AdminEditCareer() {
               <div className="flex justify-end gap-4 pt-8">
                 <button 
                   onClick={() => navigate('/admin/careers')}
-                  className="px-10 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                  className="px-10 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={() => setActiveTab('resources')}
-                  className="px-10 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-10 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all flex items-center gap-2"
                 >
                   Next <ChevronRight className="w-5 h-5" />
                 </button>
@@ -426,7 +426,7 @@ export default function AdminEditCareer() {
             className="space-y-8"
           >
             {/* Videos Section */}
-            <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -436,7 +436,7 @@ export default function AdminEditCareer() {
                 </div>
                 <button 
                   onClick={() => handleOpenModal('video')}
-                  className="p-3 bg-brand/10 text-brand rounded-2xl hover:bg-brand/20 transition-all"
+                  className="p-3 bg-brand/10 text-brand rounded-xl hover:bg-brand/20 transition-all"
                 >
                   <Plus className="w-6 h-6" />
                 </button>
@@ -444,7 +444,7 @@ export default function AdminEditCareer() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {resources.videos.map((video) => (
-                  <div key={video.id} className="group relative bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden">
+                  <div key={video.id} className="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
                     <img src={video.thumbnail} alt={video.title} className="w-full h-32 object-cover" />
                     <div className="p-4">
                       <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{video.title}</h4>
@@ -468,9 +468,9 @@ export default function AdminEditCareer() {
                 ))}
                 <div 
                   onClick={() => handleOpenModal('video')}
-                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                  className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
                   <p className="text-xs font-bold text-slate-500 text-center">Click to upload or drag and drop</p>
@@ -480,7 +480,7 @@ export default function AdminEditCareer() {
             </div>
 
             {/* Articles Section */}
-            <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -490,7 +490,7 @@ export default function AdminEditCareer() {
                 </div>
                 <button 
                   onClick={() => handleOpenModal('article')}
-                  className="p-3 bg-indigo-50 text-indigo-500 rounded-2xl hover:bg-indigo-100 transition-all"
+                  className="p-3 bg-indigo-50 text-indigo-500 rounded-xl hover:bg-indigo-100 transition-all"
                 >
                   <Plus className="w-6 h-6" />
                 </button>
@@ -498,7 +498,7 @@ export default function AdminEditCareer() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {resources.articles.map((article) => (
-                  <div key={article.id} className="group relative bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden">
+                  <div key={article.id} className="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
                     <img src={article.thumbnail} alt={article.title} className="w-full h-32 object-cover" />
                     <div className="p-4">
                       <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{article.title}</h4>
@@ -522,9 +522,9 @@ export default function AdminEditCareer() {
                 ))}
                 <div 
                   onClick={() => handleOpenModal('article')}
-                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                  className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Upload className="w-6 h-6" />
                   </div>
                   <p className="text-xs font-bold text-slate-500 text-center">Click to upload or drag and drop</p>
@@ -534,7 +534,7 @@ export default function AdminEditCareer() {
             </div>
 
             {/* Resources Section */}
-            <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -544,7 +544,7 @@ export default function AdminEditCareer() {
                 </div>
                 <button 
                   onClick={() => handleOpenModal('resource')}
-                  className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl hover:bg-emerald-100 transition-all"
+                  className="p-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-100 transition-all"
                 >
                   <Plus className="w-6 h-6" />
                 </button>
@@ -552,7 +552,7 @@ export default function AdminEditCareer() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {resources.links.map((link) => (
-                  <div key={link.id} className="group relative bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden">
+                  <div key={link.id} className="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
                     <img src={link.thumbnail} alt={link.title} className="w-full h-32 object-cover" />
                     <div className="p-4">
                       <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{link.title}</h4>
@@ -576,9 +576,9 @@ export default function AdminEditCareer() {
                 ))}
                 <div 
                   onClick={() => handleOpenModal('resource')}
-                  className="border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
+                  className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
                 >
-                  <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 mb-3 group-hover:scale-110 transition-transform">
                     <Plus className="w-6 h-6" />
                   </div>
                   <p className="text-xs font-bold text-slate-500 text-center">Add Resources</p>
@@ -590,13 +590,13 @@ export default function AdminEditCareer() {
             <div className="flex justify-end gap-4 pt-8">
               <button 
                 onClick={() => setActiveTab('basic')}
-                className="px-10 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                className="px-10 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
               >
                 Back
               </button>
               <button 
                 onClick={handleUpdate}
-                className="px-10 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2"
+                className="px-10 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all flex items-center gap-2"
               >
                 Update Career <CheckCircle2 className="w-5 h-5" />
               </button>
@@ -620,7 +620,7 @@ export default function AdminEditCareer() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
@@ -630,7 +630,7 @@ export default function AdminEditCareer() {
                     </h3>
                     <p className="text-slate-500 font-medium mt-1">Fill in the details</p>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
                     <X className="w-6 h-6 text-slate-400" />
                   </button>
                 </div>
@@ -642,7 +642,7 @@ export default function AdminEditCareer() {
                       <select 
                         value={modalData.type}
                         onChange={(e) => setModalData({ ...modalData, type: e.target.value })}
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                       >
                         <option value="Opportunity">Opportunity</option>
                         <option value="Course">Course</option>
@@ -658,7 +658,7 @@ export default function AdminEditCareer() {
                       value={modalData.title}
                       onChange={(e) => setModalData({ ...modalData, title: e.target.value })}
                       placeholder="Enter Title"
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
                     />
                   </div>
 
@@ -670,7 +670,7 @@ export default function AdminEditCareer() {
                         value={modalData.url}
                         onChange={(e) => setModalData({ ...modalData, url: e.target.value })}
                         placeholder="URL"
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
                       />
                     </div>
                   )}
@@ -683,7 +683,7 @@ export default function AdminEditCareer() {
                         value={modalData.about}
                         onChange={(e) => setModalData({ ...modalData, about: e.target.value })}
                         placeholder="Write a detailed summary about this article..."
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                       />
                     </div>
                   )}
@@ -696,7 +696,7 @@ export default function AdminEditCareer() {
                         value={modalData.url}
                         onChange={(e) => setModalData({ ...modalData, url: e.target.value })}
                         placeholder="Enter Website Link"
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
                       />
                     </div>
                   )}
@@ -705,7 +705,7 @@ export default function AdminEditCareer() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Upload a Thumbnail (JPG/GIF/PNG only)</label>
                     <div 
                       onClick={() => modalFileInputRef.current?.click()}
-                      className="relative h-40 bg-slate-50 rounded-[24px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 transition-all overflow-hidden group"
+                      className="relative h-40 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 transition-all overflow-hidden group"
                     >
                       {modalData.thumbnail ? (
                         <img src={modalData.thumbnail} className="absolute inset-0 w-full h-full object-cover" alt="Thumbnail" />
@@ -743,20 +743,20 @@ export default function AdminEditCareer() {
                         [modalType === 'video' ? 'ownedBy' : modalType === 'article' ? 'author' : 'from']: e.target.value 
                       })}
                       placeholder={modalType === 'video' ? 'Enter Owner Name' : modalType === 'article' ? 'Enter Author Name' : 'What Resources is from?'}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700"
                     />
                   </div>
 
                   <div className="flex gap-4 pt-4">
                     <button 
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
                     <button 
                       onClick={handleSaveResource}
-                      className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                      className="flex-1 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
                     >
                       Save
                     </button>

@@ -55,7 +55,7 @@ export default function CounselorOnboarding() {
           {steps.map((s, i) => (
             <div key={s.id} className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                step === s.id ? 'bg-brand text-white shadow-lg shadow-brand/20' : 
+                step === s.id ? 'bg-brand text-white shadow-sm shadow-brand/5' : 
                 steps.findIndex(x => x.id === step) > i ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-400'
               }`}>
                 {steps.findIndex(x => x.id === step) > i ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
@@ -78,7 +78,7 @@ export default function CounselorOnboarding() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="bg-white p-10 rounded-[40px] shadow-xl shadow-slate-200/50 border border-slate-100"
+                className="bg-white p-10 rounded-2xl shadow-sm shadow-slate-200/20 border border-slate-100"
               >
                 <div className="mb-10">
                   <h2 className="text-3xl font-bold text-slate-900 mb-2">About You</h2>
@@ -88,7 +88,7 @@ export default function CounselorOnboarding() {
                 <div className="space-y-8">
                   <div className="flex justify-center">
                     <div className="relative group">
-                      <div className="w-32 h-32 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 group-hover:border-brand/50 group-hover:bg-slate-100/50 transition-all cursor-pointer overflow-hidden">
+                      <div className="w-32 h-32 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 group-hover:border-brand/50 group-hover:bg-slate-100/50 transition-all cursor-pointer overflow-hidden">
                         <Camera className="w-8 h-8 mb-2" />
                         <span className="text-[10px] font-bold uppercase tracking-widest">Upload Photo</span>
                       </div>
@@ -100,7 +100,7 @@ export default function CounselorOnboarding() {
                       <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
                       <input 
                         type="text"
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                         placeholder="Enter your first name"
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
@@ -110,7 +110,7 @@ export default function CounselorOnboarding() {
                       <label className="text-sm font-bold text-slate-700 ml-1">Last Name</label>
                       <input 
                         type="text"
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                         placeholder="Enter your last name"
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
@@ -123,7 +123,7 @@ export default function CounselorOnboarding() {
                     <input 
                       type="email"
                       disabled
-                      className="w-full px-6 py-4 bg-slate-100 border-none rounded-2xl outline-none font-medium text-slate-500 cursor-not-allowed"
+                      className="w-full px-6 py-4 bg-slate-100 border-none rounded-xl outline-none font-medium text-slate-500 cursor-not-allowed"
                       value={formData.email}
                     />
                   </div>
@@ -132,7 +132,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
                     <input 
                       type="tel"
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                       placeholder="Enter your phone number"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -143,7 +143,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Short Bio</label>
                     <textarea 
                       rows={4}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
                       placeholder="Tell us a bit about yourself..."
                       value={formData.bio}
                       onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -152,7 +152,7 @@ export default function CounselorOnboarding() {
 
                   <button 
                     onClick={handleNext}
-                    className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
+                    className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-4"
                   >
                     Continue <ArrowRight className="w-5 h-5" />
                   </button>
@@ -166,7 +166,7 @@ export default function CounselorOnboarding() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="bg-white p-10 rounded-[40px] shadow-xl shadow-slate-200/50 border border-slate-100"
+                className="bg-white p-10 rounded-2xl shadow-sm shadow-slate-200/20 border border-slate-100"
               >
                 <div className="mb-10">
                   <h2 className="text-3xl font-bold text-slate-900 mb-2">Professional Info</h2>
@@ -177,7 +177,7 @@ export default function CounselorOnboarding() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Specialization</label>
                     <select 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all appearance-none"
                       value={formData.specialization}
                       onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
                     >
@@ -193,7 +193,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Years of Experience</label>
                     <input 
                       type="text"
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                       placeholder="e.g. 5+ years"
                       value={formData.experience}
                       onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
@@ -204,7 +204,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Education / Certifications</label>
                     <textarea 
                       rows={4}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
                       placeholder="List your relevant education and certifications..."
                       value={formData.education}
                       onChange={(e) => setFormData({ ...formData, education: e.target.value })}
@@ -214,13 +214,13 @@ export default function CounselorOnboarding() {
                   <div className="flex gap-4">
                     <button 
                       onClick={() => setStep('personal')}
-                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Back
                     </button>
                     <button 
                       onClick={handleNext}
-                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
                       Continue <ArrowRight className="w-5 h-5" />
                     </button>
@@ -235,10 +235,10 @@ export default function CounselorOnboarding() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="bg-white p-10 rounded-[40px] shadow-xl shadow-slate-200/50 border border-slate-100"
+                className="bg-white p-10 rounded-2xl shadow-sm shadow-slate-200/20 border border-slate-100"
               >
                 <div className="mb-10 text-center">
-                  <div className="w-20 h-20 bg-brand/10 rounded-[24px] flex items-center justify-center text-brand mx-auto mb-6">
+                  <div className="w-20 h-20 bg-brand/10 rounded-xl flex items-center justify-center text-brand mx-auto mb-6">
                     <Lock className="w-10 h-10" />
                   </div>
                   <h2 className="text-3xl font-bold text-slate-900 mb-2">Create your Password</h2>
@@ -250,7 +250,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Create Password</label>
                     <input 
                       type="password"
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                       placeholder="••••••••••••"
                       value={formData.password}
                       onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -261,7 +261,7 @@ export default function CounselorOnboarding() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Confirm Password</label>
                     <input 
                       type="password"
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                       placeholder="••••••••••••"
                       value={formData.confirmPassword}
                       onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -271,13 +271,13 @@ export default function CounselorOnboarding() {
                   <div className="flex gap-4">
                     <button 
                       onClick={() => setStep('professional')}
-                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Back
                     </button>
                     <button 
                       onClick={handleNext}
-                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      className="flex-[2] py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
                       Complete Setup <ArrowRight className="w-5 h-5" />
                     </button>
@@ -291,9 +291,9 @@ export default function CounselorOnboarding() {
                 key="success"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-white p-12 rounded-[40px] shadow-xl shadow-slate-200/50 border border-slate-100 text-center"
+                className="bg-white p-12 rounded-2xl shadow-sm shadow-slate-200/20 border border-slate-100 text-center"
               >
-                <div className="w-24 h-24 bg-emerald-500 rounded-[32px] flex items-center justify-center text-white mx-auto mb-8 shadow-lg shadow-emerald-500/20">
+                <div className="w-24 h-24 bg-emerald-500 rounded-2xl flex items-center justify-center text-white mx-auto mb-8 shadow-sm shadow-emerald-500/5">
                   <CheckCircle2 className="w-12 h-12" />
                 </div>
                 <h2 className="text-4xl font-bold text-slate-900 mb-4">Setup Complete!</h2>
@@ -306,7 +306,7 @@ export default function CounselorOnboarding() {
                     localStorage.setItem('user_role', 'counselor');
                     navigate('/counselor/dashboard');
                   }}
-                  className="w-full py-5 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                  className="w-full py-5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
                 >
                   Go to Dashboard <ChevronRight className="w-6 h-6" />
                 </button>

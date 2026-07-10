@@ -73,16 +73,16 @@ export default function CounselorProfile() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       {/* Profile Header */}
-      <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm">
+      <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
         <div className="flex flex-col sm:flex-row items-center gap-8">
           <div className="relative group cursor-pointer" onClick={handleImageClick}>
             <img 
               src={profileImage} 
               alt="Profile" 
-              className="w-32 h-32 sm:w-40 sm:h-40 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg group-hover:opacity-90 transition-all"
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-slate-50 shadow-sm group-hover:opacity-90 transition-all"
             />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="bg-black/40 backdrop-blur-sm p-3 rounded-2xl text-white">
+              <div className="bg-black/40 backdrop-blur-sm p-3 rounded-xl text-white">
                 <Camera className="w-6 h-6" />
               </div>
             </div>
@@ -98,10 +98,10 @@ export default function CounselorProfile() {
             <h1 className="text-3xl font-bold text-slate-900">Alfred Funmbi</h1>
             <p className="text-lg font-bold text-brand mb-4">Senior Career Counselor</p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-4">
-              <div className="px-4 py-2 bg-slate-50 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-500">
+              <div className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-sm font-bold text-slate-500">
                 <Mail className="w-4 h-4" /> alfred.funmbi@oaicc.com
               </div>
-              <div className="px-4 py-2 bg-slate-50 rounded-xl flex items-center gap-2 text-sm font-bold text-slate-500">
+              <div className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-sm font-bold text-slate-500">
                 <MapPin className="w-4 h-4" /> Lagos, Nigeria
               </div>
             </div>
@@ -112,13 +112,13 @@ export default function CounselorProfile() {
       {/* Settings Accordion */}
       <div className="space-y-4">
         {/* Personal Information */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('personal')}
             className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center text-brand">
+              <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
                 <User className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -141,19 +141,19 @@ export default function CounselorProfile() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
-                      <input type="text" defaultValue="Alfred" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" defaultValue="Alfred" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Last Name</label>
-                      <input type="text" defaultValue="Funmbi" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" defaultValue="Funmbi" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                      <input type="email" defaultValue="alfred.funmbi@oaicc.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="email" defaultValue="alfred.funmbi@oaicc.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-                      <input type="tel" defaultValue="+234 803 456 7890" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="tel" defaultValue="+234 803 456 7890" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -161,13 +161,13 @@ export default function CounselorProfile() {
                     <textarea 
                       rows={4} 
                       defaultValue="Experienced career counselor dedicated to helping students find their true potential and navigate their academic journey."
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                     />
                   </div>
                   <div className="flex justify-end pt-4">
                     <button 
                       onClick={() => showToast('Profile updated successfully!')}
-                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
                     >
                       Save Changes
                     </button>
@@ -179,13 +179,13 @@ export default function CounselorProfile() {
         </div>
 
         {/* Security & Password */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('security')}
             className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
                 <Shield className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -205,19 +205,19 @@ export default function CounselorProfile() {
                 className="border-t border-slate-50"
               >
                 <div className="p-8 space-y-6">
-                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-xl">
                     <div>
                       <h4 className="font-bold text-slate-900">Account Password</h4>
                       <p className="text-sm font-medium text-slate-500">Last changed 2 months ago</p>
                     </div>
                     <button 
                       onClick={() => setIsChangePasswordOpen(true)}
-                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-xl hover:border-brand hover:text-brand transition-all"
+                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-lg hover:border-brand hover:text-brand transition-all"
                     >
                       Change Password
                     </button>
                   </div>
-                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-xl">
                     <div>
                       <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
                       <p className="text-sm font-medium text-slate-500">Add an extra layer of security to your account</p>
@@ -236,13 +236,13 @@ export default function CounselorProfile() {
         </div>
 
         {/* Notifications */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('notifications')}
             className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
+              <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
                 <Bell className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -292,11 +292,11 @@ export default function CounselorProfile() {
       <div className="pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
         <button 
           onClick={() => setIsSignOutOpen(true)}
-          className="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-50 text-slate-600 font-bold rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"
+          className="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-50 text-slate-600 font-bold rounded-xl hover:bg-red-50 hover:text-red-500 transition-all"
         >
           <LogOut className="w-5 h-5" /> Sign Out
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-50 text-slate-400 font-bold rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">
+        <button className="flex-1 flex items-center justify-center gap-2 py-4 bg-slate-50 text-slate-400 font-bold rounded-xl hover:bg-red-50 hover:text-red-500 transition-all">
           <Trash2 className="w-5 h-5" /> Delete Account
         </button>
       </div>
@@ -316,12 +316,12 @@ export default function CounselorProfile() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-slate-900">Change Password</h2>
-                  <button onClick={() => setIsChangePasswordOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsChangePasswordOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -332,7 +332,7 @@ export default function CounselorProfile() {
                     <div className="relative">
                       <input 
                         type={showPassword ? 'text' : 'password'} 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                       <button 
                         type="button"
@@ -348,7 +348,7 @@ export default function CounselorProfile() {
                     <div className="relative">
                       <input 
                         type={showPassword ? 'text' : 'password'} 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function CounselorProfile() {
                     <div className="relative">
                       <input 
                         type={showPassword ? 'text' : 'password'} 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                   </div>
@@ -365,7 +365,7 @@ export default function CounselorProfile() {
                   <div className="grid grid-cols-2 gap-4 pt-4">
                     <button 
                       onClick={() => setIsChangePasswordOpen(false)}
-                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
@@ -374,7 +374,7 @@ export default function CounselorProfile() {
                         setIsChangePasswordOpen(false);
                         showToast('Password updated successfully!');
                       }}
-                      className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+                      className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
                     >
                       Update Password
                     </button>
@@ -401,7 +401,7 @@ export default function CounselorProfile() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-sm bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10 text-center">
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
@@ -413,13 +413,13 @@ export default function CounselorProfile() {
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     onClick={() => setIsSignOutOpen(false)}
-                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={() => window.location.href = '/'}
-                    className="py-4 bg-red-500 text-white font-bold rounded-2xl shadow-lg shadow-red-500/20 hover:scale-105 transition-all"
+                    className="py-4 bg-red-500 text-white font-bold rounded-xl shadow-sm shadow-red-500/5 hover:scale-105 transition-all"
                   >
                     Sign Out
                   </button>

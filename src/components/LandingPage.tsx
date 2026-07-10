@@ -95,9 +95,9 @@ export default function LandingPage() {
                 navigate(`/auth/signin?role=${role.id}`);
               }
             }}
-            className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all cursor-pointer border border-slate-100 group"
+            className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-sm transition-all cursor-pointer border border-slate-100 group"
           >
-            <div className={`${role.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform`}>
+            <div className={`${role.color} w-16 h-16 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform`}>
               {role.icon}
             </div>
             <h3 className="text-2xl font-bold text-slate-900 mb-2">{role.title}</h3>

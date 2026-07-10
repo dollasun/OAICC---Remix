@@ -48,15 +48,15 @@ export default function AdminSettings() {
       </div>
 
       {/* Profile Header */}
-      <div className="bg-white p-8 sm:p-10 rounded-[40px] border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center gap-8">
+      <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center gap-8">
         <div className="relative group cursor-pointer">
           <img 
             src="https://picsum.photos/seed/admin/200/200" 
             alt="Profile" 
-            className="w-32 h-32 rounded-[40px] object-cover border-4 border-slate-50 shadow-xl group-hover:opacity-80 transition-all"
+            className="w-32 h-32 rounded-2xl object-cover border-4 border-slate-50 shadow-sm group-hover:opacity-80 transition-all"
           />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <div className="bg-white/90 backdrop-blur-sm p-3 rounded-2xl shadow-xl">
+            <div className="bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-sm">
               <Camera className="w-6 h-6 text-brand" />
             </div>
           </div>
@@ -65,13 +65,13 @@ export default function AdminSettings() {
           <h2 className="text-3xl font-bold text-slate-900">Bolu Ahmed</h2>
           <p className="text-slate-500 font-medium mt-1">Super Admin • boluahmed@oaicc.com</p>
           <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-6">
-            <span className="px-4 py-1.5 bg-brand/10 text-brand rounded-xl text-xs font-bold uppercase tracking-widest">Full Access</span>
-            <span className="px-4 py-1.5 bg-slate-50 text-slate-500 rounded-xl text-xs font-bold uppercase tracking-widest border border-slate-100">Joined Jan 2022</span>
+            <span className="px-4 py-1.5 bg-brand/10 text-brand rounded-lg text-xs font-bold uppercase tracking-widest">Full Access</span>
+            <span className="px-4 py-1.5 bg-slate-50 text-slate-500 rounded-lg text-xs font-bold uppercase tracking-widest border border-slate-100">Joined Jan 2022</span>
           </div>
         </div>
         <button 
           onClick={() => setIsSignOutModalOpen(true)}
-          className="px-6 py-3 bg-red-50 text-red-500 font-bold rounded-2xl hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-red-50 text-red-500 font-bold rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
         >
           <LogOut className="w-5 h-5" /> Sign Out
         </button>
@@ -80,13 +80,13 @@ export default function AdminSettings() {
       {/* Settings Accordion */}
       <div className="space-y-4">
         {/* Personal Information */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('personal')}
             className="w-full p-8 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
           >
             <div className="flex items-center gap-6">
-              <div className="w-12 h-12 bg-brand/10 text-brand rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-brand/10 text-brand rounded-xl flex items-center justify-center">
                 <User className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -109,23 +109,23 @@ export default function AdminSettings() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
-                      <input type="text" defaultValue="Bolu" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" defaultValue="Bolu" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Last Name</label>
-                      <input type="text" defaultValue="Ahmed" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" defaultValue="Ahmed" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                      <input type="email" defaultValue="boluahmed@oaicc.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="email" defaultValue="boluahmed@oaicc.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-                      <input type="tel" defaultValue="+234 812 345 6789" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="tel" defaultValue="+234 812 345 6789" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <button className="px-10 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all">Save Changes</button>
+                    <button className="px-10 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all">Save Changes</button>
                   </div>
                 </div>
               </motion.div>
@@ -134,13 +134,13 @@ export default function AdminSettings() {
         </div>
 
         {/* Security */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('security')}
             className="w-full p-8 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
           >
             <div className="flex items-center gap-6">
-              <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center">
                 <Lock className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -160,19 +160,19 @@ export default function AdminSettings() {
                 className="border-t border-slate-50"
               >
                 <div className="p-8 space-y-6">
-                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl">
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
                     <div>
                       <h4 className="font-bold text-slate-900">Password</h4>
                       <p className="text-sm font-medium text-slate-500 mt-1">Last changed 3 months ago</p>
                     </div>
                     <button 
                       onClick={() => setIsPasswordModalOpen(true)}
-                      className="px-6 py-2.5 bg-white text-slate-900 font-bold rounded-xl border border-slate-200 hover:border-brand hover:text-brand transition-all shadow-sm"
+                      className="px-6 py-2.5 bg-white text-slate-900 font-bold rounded-lg border border-slate-200 hover:border-brand hover:text-brand transition-all shadow-sm"
                     >
                       Change Password
                     </button>
                   </div>
-                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl">
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
                     <div>
                       <h4 className="font-bold text-slate-900">Two-Factor Authentication</h4>
                       <p className="text-sm font-medium text-slate-500 mt-1">Add an extra layer of security to your account</p>
@@ -185,14 +185,14 @@ export default function AdminSettings() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[24px]">
+                  <div className="flex items-center justify-between p-6 bg-slate-50 rounded-xl">
                     <div>
                       <h4 className="font-bold text-slate-900">Account Password</h4>
                       <p className="text-sm font-medium text-slate-500">Last changed 3 months ago</p>
                     </div>
                     <button 
                       onClick={() => setIsPasswordModalOpen(true)}
-                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-xl hover:border-brand hover:text-brand transition-all"
+                      className="px-6 py-2.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-lg hover:border-brand hover:text-brand transition-all"
                     >
                       Change Password
                     </button>
@@ -204,13 +204,13 @@ export default function AdminSettings() {
         </div>
 
         {/* Notifications */}
-        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
             onClick={() => toggleAccordion('notifications')}
             className="w-full p-8 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
           >
             <div className="flex items-center gap-6">
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center">
                 <Bell className="w-6 h-6" />
               </div>
               <div className="text-left">
@@ -239,7 +239,7 @@ export default function AdminSettings() {
                   ].map((notif) => {
                     const isEnabled = notifications[notif as keyof typeof notifications];
                     return (
-                      <div key={notif} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors">
+                      <div key={notif} className="flex items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-colors">
                         <span className="font-bold text-slate-700">{notif}</span>
                         <div 
                           onClick={() => handleToggleNotification(notif)}
@@ -272,12 +272,12 @@ export default function AdminSettings() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-slate-900">Change Password</h2>
-                  <button onClick={() => setIsPasswordModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsPasswordModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -288,7 +288,7 @@ export default function AdminSettings() {
                     <div className="relative group">
                       <input 
                         type={showPassword ? 'text' : 'password'} 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                         placeholder="••••••••••••"
                       />
                       <button 
@@ -302,17 +302,17 @@ export default function AdminSettings() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">New Password</label>
-                    <input type={showPassword ? 'text' : 'password'} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" placeholder="••••••••••••" />
+                    <input type={showPassword ? 'text' : 'password'} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" placeholder="••••••••••••" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Confirm New Password</label>
-                    <input type={showPassword ? 'text' : 'password'} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" placeholder="••••••••••••" />
+                    <input type={showPassword ? 'text' : 'password'} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" placeholder="••••••••••••" />
                   </div>
                   
                   <div className="pt-4">
                     <button 
                       onClick={() => setIsPasswordModalOpen(false)}
-                      className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                     >
                       Update Password <CheckCircle2 className="w-5 h-5" />
                     </button>
@@ -339,10 +339,10 @@ export default function AdminSettings() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-10 text-center">
-                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <div className="w-20 h-20 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <LogOut className="w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Sign Out</h2>
@@ -351,13 +351,13 @@ export default function AdminSettings() {
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     onClick={() => setIsSignOutModalOpen(false)}
-                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={() => window.location.href = '/admin/signin'}
-                    className="py-4 bg-red-500 text-white font-bold rounded-2xl shadow-lg shadow-red-500/20 hover:scale-[1.02] transition-all"
+                    className="py-4 bg-red-500 text-white font-bold rounded-xl shadow-sm shadow-red-500/5 hover:scale-[1.02] transition-all"
                   >
                     Sign Out
                   </button>

@@ -38,25 +38,25 @@ export default function ChildDetails() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+      <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <img src={child.avatar} alt={child.firstName} className="w-24 h-24 rounded-3xl object-cover" />
+          <img src={child.avatar} alt={child.firstName} className="w-24 h-24 rounded-2xl object-cover" />
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-3xl font-bold text-slate-900">{child.firstName} {child.lastName}</h1>
             <p className="text-slate-500 font-medium">{child.class} • {child.school}</p>
           </div>
           <div className="flex gap-3">
-            <button className="p-3 bg-slate-50 text-slate-600 rounded-2xl hover:bg-slate-100 transition-all">
+            <button className="p-3 bg-slate-50 text-slate-600 rounded-xl hover:bg-slate-100 transition-all">
               <Edit2 className="w-5 h-5" />
             </button>
-            <button className="p-3 bg-red-50 text-red-500 rounded-2xl hover:bg-red-100 transition-all">
+            <button className="p-3 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all">
               <Trash2 className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mt-8 p-1 bg-slate-50 rounded-2xl w-fit">
+        <div className="flex gap-2 mt-8 p-1 bg-slate-50 rounded-xl w-fit">
           {[
             { id: 'profile', label: 'Profile Information', icon: <User className="w-4 h-4" /> },
             { id: 'interests', label: 'Career Interest', icon: <Target className="w-4 h-4" /> },
@@ -65,7 +65,7 @@ export default function ChildDetails() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
                 activeTab === tab.id 
                   ? 'bg-white text-brand shadow-sm' 
                   : 'text-slate-500 hover:text-slate-700'
@@ -82,14 +82,14 @@ export default function ChildDetails() {
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-6">
           {activeTab === 'tracker' && (
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-bold text-slate-900">Recent Activities By {child.firstName}</h2>
                 <div className="flex gap-3">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-sm font-semibold text-slate-600">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-semibold text-slate-600">
                     <Calendar className="w-4 h-4" /> January 2023
                   </div>
-                  <button className="p-2 bg-slate-50 text-slate-600 rounded-xl">
+                  <button className="p-2 bg-slate-50 text-slate-600 rounded-lg">
                     <Filter className="w-5 h-5" />
                   </button>
                 </div>
@@ -105,7 +105,7 @@ export default function ChildDetails() {
                     }`}>
                       <div className="w-2 h-2 bg-white rounded-full" />
                     </div>
-                    <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all">
+                    <div className="bg-slate-50/50 p-6 rounded-xl border border-slate-100 group hover:bg-white hover:shadow-sm transition-all">
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{activity.time}</p>
@@ -129,7 +129,7 @@ export default function ChildDetails() {
           )}
 
           {activeTab === 'profile' && (
-            <div className="bg-white p-10 rounded-[32px] shadow-sm border border-slate-100 space-y-12">
+            <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 space-y-12">
               <div className="space-y-6">
                 {[
                   { label: 'First Name', value: 'Favour' },
@@ -153,7 +153,7 @@ export default function ChildDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Counselor</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Counselor" />
+                      <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Counselor" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Sarah Ojo</p>
                         <p className="text-xs text-slate-500">Counselor at OAICC</p>
@@ -163,7 +163,7 @@ export default function ChildDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Mentor</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Mentor" />
+                      <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Mentor" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Mason Biyi</p>
                         <p className="text-xs text-slate-500">Full Stack Developer at Moniepoint</p>
@@ -173,7 +173,7 @@ export default function ChildDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Teacher</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Teacher" />
+                      <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Teacher" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Mr. Uzo Kelechi</p>
                         <p className="text-xs text-slate-500">Teacher at The Seaside School</p>
@@ -186,7 +186,7 @@ export default function ChildDetails() {
           )}
 
           {activeTab === 'interests' && (
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
               <h2 className="text-xl font-bold text-slate-900">Career Interests</h2>
               <div className="space-y-4">
                 {[
@@ -194,7 +194,7 @@ export default function ChildDetails() {
                   { title: 'Full Stack Engineer', skills: ['Node.js', 'Python', 'SQL'], color: 'bg-emerald-500' },
                   { title: 'User Experience Engineer', skills: ['Figma', 'Research', 'Prototyping'], color: 'bg-violet-500' },
                 ].map((interest, idx) => (
-                  <div key={idx} className="p-6 rounded-2xl border border-slate-100 hover:border-brand transition-all group">
+                  <div key={idx} className="p-6 rounded-xl border border-slate-100 hover:border-brand transition-all group">
                     <div className="flex justify-between items-center mb-4">
                       <h3 className="text-lg font-bold text-slate-900">{interest.title}</h3>
                       <button className="text-brand font-bold text-sm flex items-center gap-1">
@@ -215,11 +215,11 @@ export default function ChildDetails() {
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-slate-900 mb-4">Notes</h3>
             <textarea 
               placeholder="Leave a note..." 
-              className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
+              className="w-full h-32 p-4 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
             />
             <div className="mt-4 space-y-4">
               <div className="flex gap-3">
@@ -235,7 +235,7 @@ export default function ChildDetails() {
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-slate-900 mb-4">Assigned Team</h3>
             <div className="space-y-4">
               {[
@@ -244,7 +244,7 @@ export default function ChildDetails() {
                 { role: 'Teacher', name: 'Mr. Uzo Kelechi', school: 'The Seaside School' },
               ].map((member, idx) => (
                 <div key={idx} className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                  <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
                     <User className="w-5 h-5" />
                   </div>
                   <div>

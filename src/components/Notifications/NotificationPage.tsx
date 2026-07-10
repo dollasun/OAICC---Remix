@@ -81,13 +81,13 @@ export default function NotificationPage() {
         </div>
         <button 
           onClick={handleMarkAllAsRead}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-2xl hover:border-brand hover:text-brand transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:border-brand hover:text-brand transition-all"
         >
           <CheckCircle2 className="w-5 h-5" /> Mark all as read
         </button>
       </div>
 
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -96,11 +96,11 @@ export default function NotificationPage() {
               placeholder="Search notifications..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
             />
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand transition-colors">
+            <button className="p-3 bg-slate-50 text-slate-400 rounded-lg hover:text-brand transition-colors">
               <Filter className="w-5 h-5" />
             </button>
           </div>
@@ -119,7 +119,7 @@ export default function NotificationPage() {
                 {!notification.read && (
                   <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand"></div>
                 )}
-                <div className={`w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center ${!notification.read ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>
+                <div className={`w-14 h-14 shrink-0 rounded-xl flex items-center justify-center ${!notification.read ? 'bg-brand text-white' : 'bg-slate-100 text-slate-400'}`}>
                   <Bell className="w-6 h-6" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -131,7 +131,7 @@ export default function NotificationPage() {
                       {!notification.read && (
                         <button 
                           onClick={() => handleMarkAsRead(notification.id)}
-                          className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                           title="Mark as read"
                         >
                           <CheckCircle2 className="w-5 h-5" />
@@ -139,7 +139,7 @@ export default function NotificationPage() {
                       )}
                       <button 
                         onClick={() => handleDelete(notification.id)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         title="Delete"
                       >
                         <Trash2 className="w-5 h-5" />

@@ -54,7 +54,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               className="pointer-events-auto"
             >
               <div className={`
-                flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border min-w-[320px] max-w-md
+                flex items-center gap-3 px-6 py-4 rounded-xl shadow-sm border min-w-[320px] max-w-md
                 ${toast.type === 'success' ? 'bg-white border-emerald-100 text-emerald-900' : 
                   toast.type === 'error' ? 'bg-white border-red-100 text-red-900' : 
                   'bg-white border-blue-100 text-blue-900'}

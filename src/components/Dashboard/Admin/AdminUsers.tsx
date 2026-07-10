@@ -40,7 +40,7 @@ const PermissionToggle: React.FC<{ action: string }> = ({ action }) => {
   return (
     <div 
       onClick={() => setIsActive(!isActive)}
-      className="flex items-center justify-between p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors"
+      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
     >
       <span className="text-xs font-bold text-slate-500">Can {action}</span>
       <div className={`relative inline-block w-10 h-5 rounded-full transition-colors ${isActive ? 'bg-brand' : 'bg-slate-200'}`}>
@@ -126,16 +126,16 @@ export default function AdminUsers() {
         <div className="flex gap-4">
           <button 
             onClick={() => setActiveTab('users')}
-            className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
-              activeTab === 'users' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-white text-slate-400 border border-slate-100'
+            className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+              activeTab === 'users' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'bg-white text-slate-400 border border-slate-100'
             }`}
           >
             Admin Users
           </button>
           <button 
             onClick={() => setActiveTab('roles')}
-            className={`px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
-              activeTab === 'roles' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'bg-white text-slate-400 border border-slate-100'
+            className={`px-6 py-3 rounded-xl font-bold text-sm transition-all ${
+              activeTab === 'roles' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'bg-white text-slate-400 border border-slate-100'
             }`}
           >
             Admin Roles
@@ -149,8 +149,8 @@ export default function AdminUsers() {
           { label: 'Total Admin Users', value: '10', icon: ShieldCheck, color: 'text-brand', bg: 'bg-brand/10' },
           { label: 'Total Roles', value: '5', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-50' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-6">
-            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+          <div key={stat.label} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6">
+            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon className="w-7 h-7" />
             </div>
             <div>
@@ -162,19 +162,19 @@ export default function AdminUsers() {
       </div>
 
       {activeTab === 'users' ? (
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input 
                 type="text" 
                 placeholder="Search admin users..." 
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
               />
             </div>
             <button 
               onClick={() => setIsAddUserModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
             >
               <UserPlus className="w-5 h-5" /> Add Admin User
             </button>
@@ -196,7 +196,7 @@ export default function AdminUsers() {
                   <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                     <td className="px-8 py-4">
                       <div className="flex items-center gap-3">
-                        <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-xl object-cover" />
+                        <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
                         <span className="font-bold text-slate-900">{user.name}</span>
                       </div>
                     </td>
@@ -216,12 +216,12 @@ export default function AdminUsers() {
                     <td className="px-8 py-4 text-sm font-medium text-slate-500">{user.date}</td>
                     <td className="px-8 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all">
+                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
                           <Edit2 className="w-5 h-5" />
                         </button>
                         <button 
                           onClick={() => handleDeleteUser(user.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -234,12 +234,12 @@ export default function AdminUsers() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-900">Admin Roles</h2>
             <button 
               onClick={() => setIsAddRoleModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
             >
               <Plus className="w-5 h-5" /> Add New Role
             </button>
@@ -273,12 +273,12 @@ export default function AdminUsers() {
                     <td className="px-8 py-6 text-sm font-medium text-slate-500">{role.date}</td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all">
+                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
                           <Settings2 className="w-5 h-5" />
                         </button>
                         <button 
                           onClick={() => handleDeleteRole(role.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                         >
                           <Trash2 className="w-5 h-5" />
                         </button>
@@ -307,12 +307,12 @@ export default function AdminUsers() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-slate-900">Add Admin User</h2>
-                  <button onClick={() => setIsAddUserModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsAddUserModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -325,7 +325,7 @@ export default function AdminUsers() {
                       value={newUser.name}
                       onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                       placeholder="Mason Elpi" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -335,7 +335,7 @@ export default function AdminUsers() {
                       value={newUser.email}
                       onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                       placeholder="admin@oaicc.com" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -343,7 +343,7 @@ export default function AdminUsers() {
                     <select 
                       value={newUser.role}
                       onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                     >
                       <option value="Admin">Admin</option>
                       <option value="Super Admin">Super Admin</option>
@@ -352,8 +352,8 @@ export default function AdminUsers() {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 pt-4">
-                    <button onClick={() => setIsAddUserModalOpen(false)} className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
-                    <button onClick={handleAddUser} className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">Add User</button>
+                    <button onClick={() => setIsAddUserModalOpen(false)} className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                    <button onClick={handleAddUser} className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all">Add User</button>
                   </div>
                 </div>
               </div>
@@ -377,14 +377,14 @@ export default function AdminUsers() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-4xl bg-white rounded-2xl shadow-sm overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               <div className="p-8 sm:p-12">
                 <div className="flex items-center justify-between mb-10">
                   <h2 className="text-3xl font-bold text-slate-900">Add new role</h2>
                   <div className="flex gap-4">
-                    <button onClick={() => setIsAddRoleModalOpen(false)} className="px-8 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
-                    <button onClick={handleAddRole} className="px-8 py-3 bg-brand text-white font-bold rounded-xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">Save</button>
+                    <button onClick={() => setIsAddRoleModalOpen(false)} className="px-8 py-3 bg-slate-100 text-slate-600 font-bold rounded-lg hover:bg-slate-200 transition-all">Cancel</button>
+                    <button onClick={handleAddRole} className="px-8 py-3 bg-brand text-white font-bold rounded-lg shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all">Save</button>
                   </div>
                 </div>
                 
@@ -397,12 +397,12 @@ export default function AdminUsers() {
                         value={newRole.name}
                         onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
                         placeholder="e.g. IT specialist" 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Description <span className="text-slate-400 text-xs font-medium">(Optional)</span></label>
-                      <textarea rows={4} placeholder="Please enter a description" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" />
+                      <textarea rows={4} placeholder="Please enter a description" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" />
                     </div>
                   </div>
 

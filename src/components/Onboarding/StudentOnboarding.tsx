@@ -136,9 +136,9 @@ export default function StudentOnboarding() {
                 <button
                   key={option}
                   onClick={() => handleOptionSelect(currentQuestion.id, option)}
-                  className={`w-full p-5 rounded-2xl border-2 text-left font-bold transition-all ${
+                  className={`w-full p-5 rounded-xl border-2 text-left font-bold transition-all ${
                     answers[currentQuestion.id] === option
-                      ? 'border-brand bg-brand/5 text-brand shadow-lg shadow-brand/10'
+                      ? 'border-brand bg-brand/5 text-brand shadow-sm shadow-brand/5'
                       : 'border-slate-100 text-slate-500 hover:border-slate-200 hover:bg-slate-50'
                   }`}
                 >
@@ -168,20 +168,20 @@ export default function StudentOnboarding() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[40px] shadow-2xl border border-slate-100 p-8 md:p-16 max-w-5xl w-full text-center"
+        className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 md:p-16 max-w-5xl w-full text-center"
       >
         <Logo size="md" className="mx-auto mb-10" />
         
         <div className="relative inline-block mb-8">
           <div className="w-32 h-32 bg-brand/10 rounded-full flex items-center justify-center">
-            <div className="w-24 h-24 bg-brand rounded-3xl flex items-center justify-center shadow-xl shadow-brand/30 rotate-12">
+            <div className="w-24 h-24 bg-brand rounded-2xl flex items-center justify-center shadow-sm shadow-brand/5 rotate-12">
               <CheckCircle2 className="w-12 h-12 text-white -rotate-12" />
             </div>
           </div>
           <motion.div 
             animate={{ scale: [1, 1.2, 1] }}
             transition={{ repeat: Infinity, duration: 2 }}
-            className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg"
+            className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-sm"
           >
             👍
           </motion.div>
@@ -198,7 +198,7 @@ export default function StudentOnboarding() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {careerMatches.map((career, idx) => (
-              <div key={idx} className="relative group rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer">
+              <div key={idx} className="relative group rounded-xl overflow-hidden aspect-[4/3] cursor-pointer">
                 <img 
                   src={career.image} 
                   alt={career.name} 

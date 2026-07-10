@@ -86,17 +86,17 @@ export default function MentorDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Info */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 sm:p-10">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
                 <div className="relative">
                   <img 
                     src={mentor.avatar || mentor.image || `https://picsum.photos/seed/${mentor.id}/600/600`} 
                     alt={mentor.name} 
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg"
+                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-slate-50 shadow-sm"
                   />
                   {mentor.isVerified && (
-                    <div className="absolute -bottom-2 -right-2 bg-brand text-white p-2 rounded-xl border-4 border-white shadow-lg">
+                    <div className="absolute -bottom-2 -right-2 bg-brand text-white p-2 rounded-lg border-4 border-white shadow-sm">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
                   )}
@@ -109,17 +109,17 @@ export default function MentorDetails() {
                     </div>
                     <div className="flex items-center justify-center sm:justify-start gap-3">
                       {mentor.linkedin && (
-                        <a href={mentor.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                        <a href={mentor.linkedin} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand hover:bg-brand/5 transition-all">
                           <Linkedin className="w-5 h-5" />
                         </a>
                       )}
                       {mentor.twitter && (
-                        <a href={mentor.twitter} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                        <a href={mentor.twitter} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand hover:bg-brand/5 transition-all">
                           <Twitter className="w-5 h-5" />
                         </a>
                       )}
                       {mentor.website && (
-                        <a href={mentor.website} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-brand hover:bg-brand/5 transition-all">
+                        <a href={mentor.website} target="_blank" rel="noopener noreferrer" className="p-3 bg-slate-50 text-slate-400 rounded-xl hover:text-brand hover:bg-brand/5 transition-all">
                           <Globe className="w-5 h-5" />
                         </a>
                       )}
@@ -146,7 +146,7 @@ export default function MentorDetails() {
                   <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise</h3>
                   <div className="flex flex-wrap gap-3">
                     {mentor.expertise.map((exp: string) => (
-                      <span key={exp} className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-2xl text-sm font-bold text-slate-700">
+                      <span key={exp} className="px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700">
                         {exp}
                       </span>
                     ))}
@@ -159,7 +159,7 @@ export default function MentorDetails() {
           {/* Experience & Education */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {mentor.experience && mentor.experience.length > 0 && (
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-brand" /> Experience
                 </h3>
@@ -177,7 +177,7 @@ export default function MentorDetails() {
             )}
 
             {mentor.education && mentor.education.length > 0 && (
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <GraduationCap className="w-5 h-5 text-brand" /> Education
                 </h3>
@@ -198,28 +198,28 @@ export default function MentorDetails() {
 
         {/* Sidebar Actions */}
         <div className="space-y-6">
-          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6 sticky top-28">
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6 sticky top-28">
             <div className="text-center pb-6 border-b border-slate-50">
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Mentorship</p>
               <h3 className="text-2xl font-bold text-slate-900">Request Guidance</h3>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                 <MessageSquare className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">1-on-1 Chat</p>
                   <p className="text-xs font-medium text-slate-500">Direct messaging for quick questions and advice.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                 <Calendar className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Video Calls</p>
                   <p className="text-xs font-medium text-slate-500">Schedule 30-min sessions for deep career discussions.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                 <Award className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Project Review</p>
@@ -230,7 +230,7 @@ export default function MentorDetails() {
 
             <button 
               onClick={() => setIsRequesting(true)}
-              className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
             >
               Request Mentorship
             </button>
@@ -254,7 +254,7 @@ export default function MentorDetails() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+            className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
           >
             <div className="p-8 sm:p-10">
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Request Mentorship</h2>
@@ -266,20 +266,20 @@ export default function MentorDetails() {
                   <textarea 
                     rows={4}
                     placeholder={`Hi ${mentor.name.split(' ')[0]}, I'm really interested in your work and saw your profile...`}
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                   ></textarea>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <button 
                     onClick={() => setIsRequesting(false)}
-                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                    className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={handleSendRequest}
-                    className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                    className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
                   >
                     Send Request
                   </button>

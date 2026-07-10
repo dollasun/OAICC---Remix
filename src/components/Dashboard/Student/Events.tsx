@@ -164,19 +164,19 @@ export default function Events() {
             <h1 className="text-3xl font-bold text-slate-900">Events & Workshops</h1>
             <p className="text-slate-500 font-medium mt-1">Join live sessions, workshops, and career fairs to boost your growth.</p>
           </div>
-          <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex bg-white p-1 rounded-xl border border-slate-100 shadow-sm">
             <button 
               onClick={() => setActiveTab('upcoming')}
-              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                activeTab === 'upcoming' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                activeTab === 'upcoming' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               Upcoming
             </button>
             <button 
               onClick={() => setActiveTab('past')}
-              className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-                activeTab === 'past' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+              className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                activeTab === 'past' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               Past Events
@@ -193,7 +193,7 @@ export default function Events() {
               placeholder="Search events by title, category, or keyword..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
             />
           </div>
           <div className="relative min-w-[200px]">
@@ -201,7 +201,7 @@ export default function Events() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-bold text-slate-600 appearance-none"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-bold text-slate-600 appearance-none"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
@@ -222,7 +222,7 @@ export default function Events() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`bg-white rounded-[40px] border overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col sm:flex-row ${
+                className={`bg-white rounded-2xl border overflow-hidden shadow-sm hover:shadow-sm transition-all group flex flex-col sm:flex-row ${
                   isRegistered ? 'border-brand/30 bg-brand/[0.02]' : 'border-slate-100'
                 }`}
               >
@@ -300,7 +300,7 @@ export default function Events() {
 
       {/* Sidebar - Upcoming Events Progress */}
       <div className="lg:w-80 space-y-8">
-        <div className="bg-white rounded-[32px] p-6 border border-slate-100 shadow-sm sticky top-24">
+        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm sticky top-24">
           <h2 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
             <Trophy className="w-5 h-5 text-brand" /> Upcoming Schedule
           </h2>
@@ -339,7 +339,7 @@ export default function Events() {
             })}
           </div>
 
-          <div className="mt-8 p-4 bg-brand/5 rounded-2xl border border-brand/10">
+          <div className="mt-8 p-4 bg-brand/5 rounded-xl border border-brand/10">
             <p className="text-xs font-bold text-brand mb-1">Pro Tip</p>
             <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
               Register early to receive pre-event materials and exclusive networking links.
@@ -363,7 +363,7 @@ export default function Events() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="relative h-48">
                 <img src={selectedEvent.image} className="w-full h-full object-cover" alt="" />
@@ -384,14 +384,14 @@ export default function Events() {
 
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Date</p>
                     <div className="flex items-center gap-2 text-slate-900 font-bold">
                       <Calendar className="w-4 h-4 text-brand" />
                       {selectedEvent.displayDate || selectedEvent.date}
                     </div>
                   </div>
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Time</p>
                     <div className="flex items-center gap-2 text-slate-900 font-bold">
                       <Clock className="w-4 h-4 text-brand" />
@@ -410,13 +410,13 @@ export default function Events() {
                 <div className="pt-4 flex gap-4">
                   <button 
                     onClick={() => setIsModalOpen(false)}
-                    className="flex-1 px-6 py-4 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                    className="flex-1 px-6 py-4 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={confirmRegistration}
-                    className="flex-1 px-6 py-4 bg-brand text-white rounded-2xl font-bold shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    className="flex-1 px-6 py-4 bg-brand text-white rounded-xl font-bold shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     Confirm Registration
                   </button>

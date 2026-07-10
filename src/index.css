@@ -17,15 +17,15 @@
 }
 
 .glass-card {
-  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
 }
 
 .btn-primary {
-  @apply bg-brand hover:bg-brand-hover text-white font-bold py-3.5 px-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-brand/20 active:scale-[0.98];
+  @apply bg-brand hover:bg-brand-hover text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 shadow-sm shadow-brand/5 active:scale-[0.98];
 }
 
 .input-field {
-  @apply w-full px-5 py-4 rounded-2xl border border-slate-200 bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 placeholder:text-slate-400 font-medium;
+  @apply w-full px-5 py-4 rounded-xl border border-slate-200 bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 placeholder:text-slate-400 font-medium;
 }
 
 /* Ensure icons in inputs have proper separation */
@@ -39,4 +39,11 @@
 
 .input-with-icon input {
   @apply pl-16;
+}
+@theme {
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.02);
+  --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.03), 0 1px 2px -1px rgb(0 0 0 / 0.02);
+  --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.03), 0 2px 4px -2px rgb(0 0 0 / 0.02);
+  --shadow-xl: 0 10px 15px -3px rgb(0 0 0 / 0.03), 0 4px 6px -4px rgb(0 0 0 / 0.02);
+  --shadow-2xl: 0 20px 25px -5px rgb(0 0 0 / 0.03), 0 8px 10px -6px rgb(0 0 0 / 0.02);
 }

@@ -47,13 +47,13 @@ export default function AdminCheckEmail() {
           </div>
 
           <div className="space-y-6">
-            <div className="w-20 h-20 bg-brand/10 rounded-3xl flex items-center justify-center text-brand mb-8">
+            <div className="w-20 h-20 bg-brand/10 rounded-2xl flex items-center justify-center text-brand mb-8">
               <Mail className="w-10 h-10" />
             </div>
 
             <button 
               onClick={() => navigate('/admin/set-password')}
-              className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               Resend email <RefreshCw className="w-5 h-5" />
             </button>

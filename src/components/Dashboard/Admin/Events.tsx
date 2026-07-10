@@ -203,7 +203,7 @@ export default function AdminEvents() {
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" /> Create Event
         </button>
@@ -218,25 +218,25 @@ export default function AdminEvents() {
             placeholder="Search events..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
           />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white p-1.5 rounded-[24px] border border-slate-100 shadow-sm w-fit">
+      <div className="flex bg-white p-1.5 rounded-xl border border-slate-100 shadow-sm w-fit">
         <button 
           onClick={() => setActiveTab('upcoming')}
-          className={`px-12 py-3 rounded-2xl font-bold text-sm transition-all ${
-            activeTab === 'upcoming' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+          className={`px-12 py-3 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'upcoming' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           Upcoming Events
         </button>
         <button 
           onClick={() => setActiveTab('past')}
-          className={`px-12 py-3 rounded-2xl font-bold text-sm transition-all ${
-            activeTab === 'past' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+          className={`px-12 py-3 rounded-xl font-bold text-sm transition-all ${
+            activeTab === 'past' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           Past Events
@@ -249,7 +249,7 @@ export default function AdminEvents() {
             key={event.id}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[40px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group"
+            className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group"
           >
             <div className="relative h-48 overflow-hidden">
               <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -323,7 +323,7 @@ export default function AdminEvents() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               <div className="p-8 sm:p-10">
                   <div className="flex items-center justify-between mb-8">
@@ -331,7 +331,7 @@ export default function AdminEvents() {
                       <h2 className="text-2xl font-bold text-slate-900">{selectedEvent ? 'Edit Event' : 'Create an Event'}</h2>
                       <p className="text-sm font-medium text-slate-500 mt-1">Fill in the details.</p>
                     </div>
-                    <button onClick={() => { setIsAddModalOpen(false); setSelectedEvent(null); setNewEvent({ title: '', career: '', mentor: '', date: '', time: '' }); setBgImage(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                    <button onClick={() => { setIsAddModalOpen(false); setSelectedEvent(null); setNewEvent({ title: '', career: '', mentor: '', date: '', time: '' }); setBgImage(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                       <X className="w-6 h-6" />
                     </button>
                   </div>
@@ -344,7 +344,7 @@ export default function AdminEvents() {
                       value={newEvent.title}
                       onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                       placeholder="Why Medicine is for you" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
 
@@ -354,7 +354,7 @@ export default function AdminEvents() {
                       <select 
                         value={newEvent.career}
                         onChange={(e) => setNewEvent({ ...newEvent, career: e.target.value })}
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                       >
                         <option value="">Select the Event Career</option>
                         <option value="Medicine">Medicine</option>
@@ -367,7 +367,7 @@ export default function AdminEvents() {
                       <select 
                         value={newEvent.mentor}
                         onChange={(e) => setNewEvent({ ...newEvent, mentor: e.target.value })}
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                       >
                         <option value="">Select the mentor</option>
                         <option value="Amanda Lance">Amanda Lance</option>
@@ -380,7 +380,7 @@ export default function AdminEvents() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Background Image</label>
                     <div 
-                      className="relative h-40 bg-slate-50 rounded-[24px] border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 transition-all group overflow-hidden"
+                      className="relative h-40 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 transition-all group overflow-hidden"
                       onClick={() => {
                         const input = document.createElement('input');
                         input.type = 'file';
@@ -419,7 +419,7 @@ export default function AdminEvents() {
                           value={newEvent.date}
                           onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
                           placeholder="Select a Preferred Date" 
-                          className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                          className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                         />
                       </div>
                     </div>
@@ -432,7 +432,7 @@ export default function AdminEvents() {
                           value={newEvent.time}
                           onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
                           placeholder="Select a Preferred Time" 
-                          className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                          className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                         />
                       </div>
                     </div>
@@ -442,13 +442,13 @@ export default function AdminEvents() {
                     <label className="text-sm font-bold text-slate-700 ml-1">Meeting Link</label>
                     <div className="relative">
                       <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="text" placeholder="Add a Meeting Link" className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" placeholder="Add a Meeting Link" className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 pt-4">
-                    <button onClick={() => { setIsAddModalOpen(false); setSelectedEvent(null); setNewEvent({ title: '', career: '', mentor: '', date: '', time: '' }); setBgImage(null); }} className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
-                    <button onClick={handleAddEvent} className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">
+                    <button onClick={() => { setIsAddModalOpen(false); setSelectedEvent(null); setNewEvent({ title: '', career: '', mentor: '', date: '', time: '' }); setBgImage(null); }} className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                    <button onClick={handleAddEvent} className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all">
                       {selectedEvent ? 'Update' : 'Create'}
                     </button>
                   </div>
@@ -474,20 +474,20 @@ export default function AdminEvents() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="relative h-64">
                 <img src={selectedEvent.image} className="w-full h-full object-cover" alt={selectedEvent.title} />
                 <button 
                   onClick={() => setIsViewModalOpen(false)}
-                  className="absolute top-6 right-6 p-2 bg-white/20 backdrop-blur-md text-white rounded-xl hover:bg-white/40 transition-all"
+                  className="absolute top-6 right-6 p-2 bg-white/20 backdrop-blur-md text-white rounded-lg hover:bg-white/40 transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
               <div className="p-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="px-4 py-1.5 bg-brand/10 text-brand rounded-xl text-xs font-bold uppercase tracking-widest">
+                  <span className="px-4 py-1.5 bg-brand/10 text-brand rounded-lg text-xs font-bold uppercase tracking-widest">
                     {selectedEvent.career}
                   </span>
                   <span className="text-slate-400 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
@@ -498,32 +498,32 @@ export default function AdminEvents() {
                 
                 {isPastEvent(selectedEvent.date) && (
                   <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div className="p-6 bg-slate-50 rounded-[32px] text-center">
+                    <div className="p-6 bg-slate-50 rounded-2xl text-center">
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Registered</p>
                       <p className="text-2xl font-black text-slate-900">{selectedEvent.registeredCount || 0}</p>
                     </div>
-                    <div className="p-6 bg-slate-50 rounded-[32px] text-center">
+                    <div className="p-6 bg-slate-50 rounded-2xl text-center">
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Attended</p>
                       <p className="text-2xl font-black text-slate-900">{selectedEvent.attendedCount || 0}</p>
                     </div>
                   </div>
                 )}
 
-                <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-[32px] mb-8">
-                  <img src={`https://picsum.photos/seed/${selectedEvent.mentor}/100/100`} className="w-14 h-14 rounded-2xl object-cover" alt={selectedEvent.mentor} />
+                <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl mb-8">
+                  <img src={`https://picsum.photos/seed/${selectedEvent.mentor}/100/100`} className="w-14 h-14 rounded-xl object-cover" alt={selectedEvent.mentor} />
                   <div>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Guest Mentor</p>
                     <p className="text-lg font-bold text-slate-900">{selectedEvent.mentor}</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
-                  <button onClick={() => setIsViewModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Close</button>
+                  <button onClick={() => setIsViewModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Close</button>
                   <button 
                     disabled={isPastEvent(selectedEvent.date)}
-                    className={`flex-1 py-4 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 ${
+                    className={`flex-1 py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
                       isPastEvent(selectedEvent.date) 
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
-                        : 'bg-brand text-white shadow-lg shadow-brand/20 hover:scale-[1.02]'
+                        : 'bg-brand text-white shadow-sm shadow-brand/5 hover:scale-[1.02]'
                     }`}
                   >
                     Join Event <Video className="w-5 h-5" />

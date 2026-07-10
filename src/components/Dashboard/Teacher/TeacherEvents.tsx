@@ -89,19 +89,19 @@ export default function TeacherEvents() {
           <h1 className="text-3xl font-bold text-slate-900">Events & Workshops</h1>
           <p className="text-slate-500 font-medium mt-1">Professional development sessions and networking events for educators.</p>
         </div>
-        <div className="flex bg-white p-1 rounded-2xl border border-slate-100 shadow-sm">
+        <div className="flex bg-white p-1 rounded-xl border border-slate-100 shadow-sm">
           <button 
             onClick={() => setActiveTab('upcoming')}
-            className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              activeTab === 'upcoming' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+            className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${
+              activeTab === 'upcoming' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             Upcoming
           </button>
           <button 
             onClick={() => setActiveTab('past')}
-            className={`px-6 py-2.5 rounded-xl font-bold text-sm transition-all ${
-              activeTab === 'past' ? 'bg-brand text-white shadow-lg shadow-brand/20' : 'text-slate-400 hover:text-slate-600'
+            className={`px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${
+              activeTab === 'past' ? 'bg-brand text-white shadow-sm shadow-brand/5' : 'text-slate-400 hover:text-slate-600'
             }`}
           >
             Past Events
@@ -118,10 +118,10 @@ export default function TeacherEvents() {
             placeholder="Search events by title, category, or keyword..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
           />
         </div>
-        <button className="flex items-center gap-2 px-6 py-3.5 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all">
+        <button className="flex items-center gap-2 px-6 py-3.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all">
           <Filter className="w-5 h-5" /> Filter
         </button>
       </div>
@@ -134,7 +134,7 @@ export default function TeacherEvents() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="bg-white rounded-[40px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col sm:flex-row"
+            className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group flex flex-col sm:flex-row"
           >
             <div className="relative w-full sm:w-48 h-48 sm:h-auto overflow-hidden shrink-0">
               <img 
@@ -193,7 +193,7 @@ export default function TeacherEvents() {
       </div>
 
       {/* Featured Event / Banner */}
-      <div className="bg-slate-900 rounded-[40px] p-8 sm:p-12 text-white relative overflow-hidden">
+      <div className="bg-slate-900 rounded-2xl p-8 sm:p-12 text-white relative overflow-hidden">
         <div className="relative z-10 max-w-2xl">
           <div className="flex items-center gap-2 text-brand font-bold text-sm uppercase tracking-widest mb-4">
             <Star className="w-5 h-5 fill-brand" /> Featured Workshop
@@ -204,7 +204,7 @@ export default function TeacherEvents() {
           </p>
           <div className="flex flex-wrap gap-6 mb-10">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
                 <Calendar className="w-6 h-6" />
               </div>
               <div>
@@ -213,7 +213,7 @@ export default function TeacherEvents() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
                 <Video className="w-6 h-6" />
               </div>
               <div>
@@ -224,7 +224,7 @@ export default function TeacherEvents() {
           </div>
           <button 
             onClick={() => handleRegister('Empowering the Next Generation')}
-            className="bg-brand text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2"
+            className="bg-brand text-white px-10 py-4 rounded-xl font-bold shadow-sm shadow-brand/5 hover:scale-105 transition-all flex items-center gap-2"
           >
             Register for Free <ExternalLink className="w-5 h-5" />
           </button>

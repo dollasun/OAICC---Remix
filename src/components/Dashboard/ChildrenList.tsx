@@ -35,9 +35,9 @@ export default function ChildrenList() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={`bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:${kpi.shadow} hover:shadow-xl transition-all`}
+            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:${kpi.shadow} hover:shadow-sm transition-all`}
           >
-            <div className={`${kpi.color} w-12 h-12 rounded-2xl flex items-center justify-center text-white mb-4`}>
+            <div className={`${kpi.color} w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4`}>
               {kpi.icon}
             </div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{kpi.label}</p>
@@ -61,7 +61,7 @@ export default function ChildrenList() {
       </div>
 
       {children.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 text-center border border-dashed border-slate-300">
+        <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-300">
           <div className="w-20 h-20 bg-brand-light text-brand rounded-full flex items-center justify-center mx-auto mb-6">
             <UserPlus className="w-10 h-10" />
           </div>
@@ -76,13 +76,13 @@ export default function ChildrenList() {
               key={child.id}
               whileHover={{ y: -5 }}
               onClick={() => navigate(`/parent/dashboard/child/${child.id}`)}
-              className="bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl transition-all cursor-pointer border border-slate-100 group"
+              className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-sm transition-all cursor-pointer border border-slate-100 group"
             >
               <div className="flex items-center gap-4 mb-6">
                 <img 
                   src={child.avatar} 
                   alt={child.firstName} 
-                  className="w-16 h-16 rounded-2xl object-cover"
+                  className="w-16 h-16 rounded-xl object-cover"
                 />
                 <div>
                   <h3 className="text-xl font-bold text-slate-900">{child.firstName} {child.lastName}</h3>
@@ -129,7 +129,7 @@ export default function ChildrenList() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-8">
@@ -145,14 +145,14 @@ export default function ChildrenList() {
                     <div className="space-y-3">
                       <button 
                         onClick={() => setAddStep(2)}
-                        className="w-full p-4 rounded-2xl border-2 border-slate-100 hover:border-brand hover:bg-brand-light/20 text-left transition-all group"
+                        className="w-full p-4 rounded-xl border-2 border-slate-100 hover:border-brand hover:bg-brand-light/20 text-left transition-all group"
                       >
                         <p className="font-bold text-slate-900 group-hover:text-brand">Yes, they have an account</p>
                         <p className="text-sm text-slate-500">We'll send them a connection request.</p>
                       </button>
                       <button 
                         onClick={() => setAddStep(3)}
-                        className="w-full p-4 rounded-2xl border-2 border-slate-100 hover:border-brand hover:bg-brand-light/20 text-left transition-all group"
+                        className="w-full p-4 rounded-xl border-2 border-slate-100 hover:border-brand hover:bg-brand-light/20 text-left transition-all group"
                       >
                         <p className="font-bold text-slate-900 group-hover:text-brand">No, I need to create one</p>
                         <p className="text-sm text-slate-500">Create a new account for your child.</p>
@@ -178,7 +178,7 @@ export default function ChildrenList() {
                       </div>
                     </div>
                     <div className="flex gap-4 pt-4">
-                      <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">Back</button>
+                      <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-600 hover:bg-slate-50">Back</button>
                       <button onClick={() => setIsAddModalOpen(false)} className="flex-[2] btn-primary">Send Invite</button>
                     </div>
                   </div>
@@ -203,7 +203,7 @@ export default function ChildrenList() {
                       <input type="password" placeholder="••••••••" className="input-field" />
                     </div>
                     <div className="flex gap-4 pt-6">
-                      <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">Back</button>
+                      <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-600 hover:bg-slate-50">Back</button>
                       <button onClick={() => setIsAddModalOpen(false)} className="flex-[2] btn-primary">Create Account</button>
                     </div>
                   </div>

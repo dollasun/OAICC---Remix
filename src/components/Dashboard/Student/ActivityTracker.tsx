@@ -62,8 +62,8 @@ export default function ActivityTracker() {
           <h1 className="text-3xl font-bold text-slate-900">Activity Tracker</h1>
           <p className="text-slate-500 font-medium mt-1">Keep track of your progress, achievements, and recent interactions.</p>
         </div>
-        <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-          <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+        <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+          <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center text-brand">
             <TrendingUp className="w-6 h-6" />
           </div>
           <div>
@@ -76,7 +76,7 @@ export default function ActivityTracker() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Activity Timeline */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900 mb-8 flex items-center gap-2">
               <Clock className="w-6 h-6 text-brand" /> Recent Activity
             </h2>
@@ -90,7 +90,7 @@ export default function ActivityTracker() {
                   transition={{ delay: index * 0.1 }}
                   className="relative pl-16 group"
                 >
-                  <div className={`absolute left-0 w-12 h-12 ${activity.color} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform z-10`}>
+                  <div className={`absolute left-0 w-12 h-12 ${activity.color} rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform z-10`}>
                     <activity.icon className="w-6 h-6" />
                   </div>
                   
@@ -99,7 +99,7 @@ export default function ActivityTracker() {
                     <span className="text-xs font-bold text-slate-400">{activity.date}</span>
                   </div>
                   
-                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group-hover:border-brand/20 transition-all">
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 group-hover:border-brand/20 transition-all">
                     <div className="flex items-center gap-2 mb-2">
                       <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-wider ${
                         activity.status === 'Completed' ? 'bg-emerald-50 text-emerald-500' :
@@ -124,14 +124,14 @@ export default function ActivityTracker() {
 
         {/* Sidebar Achievements */}
         <div className="space-y-8">
-          <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
             <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
               <Award className="w-6 h-6 text-brand" /> Milestones
             </h2>
             <div className="space-y-4">
               {milestones.map((milestone) => (
-                <div key={milestone.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+                <div key={milestone.id} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center text-brand">
                     <milestone.icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -166,12 +166,12 @@ export default function ActivityTracker() {
                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                  className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+                  className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
                 >
                   <div className="p-8 sm:p-10">
                     <div className="flex items-center justify-between mb-8">
                       <h2 className="text-2xl font-bold text-slate-900">All Achievements</h2>
-                      <button onClick={() => setIsAchievementsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                      <button onClick={() => setIsAchievementsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                         <ChevronRight className="w-6 h-6 rotate-90" />
                       </button>
                     </div>
@@ -183,8 +183,8 @@ export default function ActivityTracker() {
                         { id: 6, title: 'Career Path Saved', date: 'Oct 20, 2024', icon: BookOpen },
                         { id: 8, title: 'Weekly Streak', date: 'Oct 25, 2024', icon: Activity }
                       ].map((milestone) => (
-                        <div key={milestone.id} className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-100">
-                          <div className="w-12 h-12 bg-brand/10 rounded-2xl flex items-center justify-center text-brand">
+                        <div key={milestone.id} className="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                          <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
                             <milestone.icon className="w-6 h-6" />
                           </div>
                           <div>
@@ -203,7 +203,7 @@ export default function ActivityTracker() {
             )}
           </AnimatePresence>
 
-          <div className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden">
+          <div className="bg-slate-900 rounded-2xl p-8 text-white relative overflow-hidden">
             <div className="relative z-10">
               <h3 className="text-lg font-bold mb-2">Next Goal</h3>
               <p className="text-white/60 text-sm font-medium mb-6">Complete your first mentorship session to earn the "Guided" badge.</p>
@@ -218,7 +218,7 @@ export default function ActivityTracker() {
                 </div>
               </div>
 
-              <button className="w-full py-3 bg-brand text-white font-bold rounded-xl hover:scale-105 transition-all">
+              <button className="w-full py-3 bg-brand text-white font-bold rounded-lg hover:scale-105 transition-all">
                 Continue Journey
               </button>
             </div>

@@ -56,7 +56,7 @@ export default function SchoolClasses() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, idx) => (
-          <div key={idx} className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+          <div key={idx} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
             <p className="text-sm font-bold text-slate-400 mb-4">{stat.label}</p>
             <p className="text-5xl font-bold text-slate-900 font-display">{stat.value}</p>
           </div>
@@ -64,7 +64,7 @@ export default function SchoolClasses() {
       </div>
 
       {classes.length === 0 ? (
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 p-20 flex flex-col items-center justify-center text-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-20 flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
             <Users className="w-10 h-10 text-slate-200" />
           </div>
@@ -78,7 +78,7 @@ export default function SchoolClasses() {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -180,7 +180,7 @@ export default function SchoolClasses() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-8"
             >
               <h3 className="text-2xl font-bold text-slate-900 mb-6">{isAddModalOpen ? 'Add new class' : 'Edit class'}</h3>
               <form className="space-y-6">
@@ -216,7 +216,7 @@ export default function SchoolClasses() {
                   <button 
                     type="button" 
                     onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
-                    className="flex-1 px-6 py-3 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                    className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
                   >
                     Cancel
                   </button>

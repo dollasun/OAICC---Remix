@@ -96,9 +96,9 @@ export default function CounselorOverview() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             onClick={() => navigate(stat.path)}
-            className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-6 cursor-pointer hover:border-brand/20 hover:shadow-md transition-all group"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6 cursor-pointer hover:border-brand/20 hover:shadow-sm transition-all group"
           >
-            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
               <stat.icon className="w-7 h-7" />
             </div>
             <div className="flex-1">
@@ -115,7 +115,7 @@ export default function CounselorOverview() {
       <div className={`grid gap-8 ${isDashboard ? 'lg:grid-cols-3' : 'grid-cols-1'}`}>
         {/* Student List */}
         <div className={`${isDashboard ? 'lg:col-span-2' : ''} space-y-6`}>
-          <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 border-b border-slate-50 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">Student List</h2>
               <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export default function CounselorOverview() {
                   <input 
                     type="text" 
                     placeholder="Search..." 
-                    className="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand/20 w-48"
+                    className="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand/20 w-48"
                   />
                 </div>
               </div>
@@ -148,7 +148,7 @@ export default function CounselorOverview() {
                     >
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-3">
-                          <img src={student.avatar} alt={student.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <img src={student.avatar} alt={student.name} className="w-10 h-10 rounded-lg object-cover" />
                           <span className="font-bold text-slate-900 text-sm">{student.name}</span>
                         </div>
                       </td>
@@ -179,7 +179,7 @@ export default function CounselorOverview() {
         {/* Upcoming Sessions - Only on Dashboard */}
         {isDashboard && (
           <div className="space-y-6">
-            <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                 <Calendar className="w-6 h-6 text-brand" /> Upcoming Sessions
               </h2>
@@ -188,10 +188,10 @@ export default function CounselorOverview() {
                   <div 
                     key={session.id}
                     onClick={() => navigate('/counselor/sessions')}
-                    className="p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-brand/20 hover:bg-white hover:shadow-lg hover:shadow-slate-200/50 transition-all cursor-pointer group"
+                    className="p-4 bg-slate-50 rounded-xl border border-transparent hover:border-brand/20 hover:bg-white hover:shadow-sm hover:shadow-slate-200/20 transition-all cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 mb-3">
-                      <img src={session.studentImage || `https://picsum.photos/seed/${session.id}/100/100`} alt={session.studentName} className="w-10 h-10 rounded-xl object-cover" />
+                      <img src={session.studentImage || `https://picsum.photos/seed/${session.id}/100/100`} alt={session.studentName} className="w-10 h-10 rounded-lg object-cover" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">{session.title}</p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{session.studentName}</p>
@@ -236,18 +236,18 @@ export default function CounselorOverview() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="text-2xl font-bold text-slate-900">Session Details</h3>
-                <button onClick={() => setSelectedSession(null)} className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
+                <button onClick={() => setSelectedSession(null)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
                   <X className="w-6 h-6 text-slate-400" />
                 </button>
               </div>
 
               <div className="p-8 space-y-6">
-                <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-3xl">
-                  <img src={selectedSession.image} alt={selectedSession.student} className="w-16 h-16 rounded-2xl object-cover shadow-sm" />
+                <div className="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl">
+                  <img src={selectedSession.image} alt={selectedSession.student} className="w-16 h-16 rounded-xl object-cover shadow-sm" />
                   <div>
                     <h4 className="text-xl font-bold text-slate-900">{selectedSession.student}</h4>
                     <p className="text-sm font-bold text-brand uppercase tracking-widest">Student</p>
@@ -276,7 +276,7 @@ export default function CounselorOverview() {
                     </p>
                   </div>
                   {selectedSession.type === 'Virtual' ? (
-                    <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                    <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                       <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2">Meeting Link</p>
                       <a 
                         href={selectedSession.link} 
@@ -289,7 +289,7 @@ export default function CounselorOverview() {
                       </a>
                     </div>
                   ) : (
-                    <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                    <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
                       <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Location</p>
                       <p className="text-sm font-bold text-blue-700">{selectedSession.location}</p>
                     </div>
@@ -300,7 +300,7 @@ export default function CounselorOverview() {
               <div className="p-8 bg-slate-50 flex gap-4">
                 <button 
                   onClick={() => setSelectedSession(null)}
-                  className="flex-1 py-4 bg-white text-slate-600 font-bold rounded-2xl border border-slate-200 hover:bg-slate-50 transition-all"
+                  className="flex-1 py-4 bg-white text-slate-600 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
                 >
                   Close
                 </button>
@@ -309,7 +309,7 @@ export default function CounselorOverview() {
                     href={selectedSession.link}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex-[2] py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                    className="flex-[2] py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                   >
                     <Video className="w-5 h-5" /> Join Meeting
                   </a>

@@ -120,7 +120,7 @@ export default function AdminCareers() {
         </div>
         <button 
           onClick={() => navigate('/admin/careers/create')}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" /> Create Career
         </button>
@@ -134,8 +134,8 @@ export default function AdminCareers() {
           { label: 'Total Articles', value: careers.reduce((acc, c) => acc + (c.articles || 0), 0).toString(), icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-50' },
           { label: 'Total Resources', value: careers.reduce((acc, c) => acc + (c.resources || 0), 0).toString(), icon: LinkIcon, color: 'text-amber-500', bg: 'bg-amber-50' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
-            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+          <div key={stat.label} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+            <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
@@ -155,7 +155,7 @@ export default function AdminCareers() {
             placeholder="Search careers by name or category..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
           />
         </div>
         <div className="relative">
@@ -163,7 +163,7 @@ export default function AdminCareers() {
           <select 
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="pl-12 pr-10 py-3.5 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 outline-none focus:ring-4 focus:ring-brand/10 appearance-none cursor-pointer"
+            className="pl-12 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none focus:ring-4 focus:ring-brand/10 appearance-none cursor-pointer"
           >
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -173,7 +173,7 @@ export default function AdminCareers() {
       </div>
 
       {/* Careers Table */}
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -190,7 +190,7 @@ export default function AdminCareers() {
                 <tr key={career.id} className="hover:bg-slate-50/50 transition-colors group">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
-                      <img src={career.image} alt={career.name} className="w-12 h-12 rounded-2xl object-cover shadow-sm" />
+                      <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
                       <div>
                         <p className="font-bold text-slate-900">{career.name}</p>
                         <div className="flex items-center gap-3 mt-1">
@@ -215,13 +215,13 @@ export default function AdminCareers() {
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => navigate(`/admin/careers/edit/${career.id}`)}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                       >
                         <Edit2 className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={() => handleDelete(career.id)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>

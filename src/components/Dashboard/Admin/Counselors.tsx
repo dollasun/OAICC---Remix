@@ -161,7 +161,7 @@ export default function AdminCounselors() {
         </div>
         <button 
           onClick={() => setIsInviteModalOpen(true)}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" /> Invite Counselor
         </button>
@@ -174,8 +174,8 @@ export default function AdminCounselors() {
           { label: 'Total Students', value: students.length.toString(), icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-50' },
           { label: 'Pending Requests', value: requests.length.toString(), icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-6">
-            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+          <div key={stat.label} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6">
+            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon className="w-7 h-7" />
             </div>
             <div>
@@ -189,7 +189,7 @@ export default function AdminCounselors() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Counselors Table */}
         <div className={`${requests.length > 0 ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-6`}>
-          <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 border-b border-slate-50 flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">Counselors</h2>
               <div className="flex items-center gap-4">
@@ -200,7 +200,7 @@ export default function AdminCounselors() {
                     placeholder="Search..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-xs"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-xs"
                   />
                 </div>
                 <select 
@@ -233,7 +233,7 @@ export default function AdminCounselors() {
                     >
                       <td className="px-8 py-4">
                         <div className="flex items-center gap-3">
-                          <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-lg object-cover" />
                           <span className="font-bold text-slate-900">{counselor.name}</span>
                         </div>
                       </td>
@@ -258,13 +258,13 @@ export default function AdminCounselors() {
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={(e) => handleEditCounselor(counselor, e)}
-                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button 
                             onClick={(e) => { e.stopPropagation(); handleDeleteCounselor(counselor.id); }}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -281,7 +281,7 @@ export default function AdminCounselors() {
         {/* Counselor Requests */}
         {requests.length > 0 && (
           <div className="space-y-6">
-            <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <div className="p-8 border-b border-slate-50">
                 <h2 className="text-xl font-bold text-slate-900">Counselor Requests</h2>
                 <p className="text-xs font-medium text-slate-500 mt-1">Students waiting for assignment</p>
@@ -290,11 +290,11 @@ export default function AdminCounselors() {
                 {requests.map((request) => (
                   <div 
                     key={request.id}
-                    className="p-4 bg-slate-50 rounded-3xl border border-slate-100 hover:border-brand/20 transition-all group"
+                    className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand/20 transition-all group"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-3">
-                        <img src={request.avatar} alt={request.studentName} className="w-10 h-10 rounded-xl object-cover" />
+                        <img src={request.avatar} alt={request.studentName} className="w-10 h-10 rounded-lg object-cover" />
                         <div>
                           <p className="font-bold text-slate-900 text-sm">{request.studentName}</p>
                           <p className="text-[10px] font-medium text-slate-500">{request.studentEmail}</p>
@@ -314,7 +314,7 @@ export default function AdminCounselors() {
                           setSelectedStudents([request.studentId]);
                           setIsAssignModalOpen(true);
                         }}
-                        className="p-2 bg-white text-brand border border-slate-100 rounded-xl hover:bg-brand hover:text-white hover:border-brand transition-all shadow-sm"
+                        className="p-2 bg-white text-brand border border-slate-100 rounded-lg hover:bg-brand hover:text-white hover:border-brand transition-all shadow-sm"
                       >
                         <UserPlus className="w-4 h-4" />
                       </button>
@@ -342,7 +342,7 @@ export default function AdminCounselors() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
@@ -352,7 +352,7 @@ export default function AdminCounselors() {
                       {selectedCounselor ? `Assigning to ${selectedCounselor.name}` : 'Select a counselor and students'}
                     </p>
                   </div>
-                  <button onClick={() => { setIsAssignModalOpen(false); setSelectedStudents([]); setSelectedCounselor(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => { setIsAssignModalOpen(false); setSelectedStudents([]); setSelectedCounselor(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -366,7 +366,7 @@ export default function AdminCounselors() {
                           <button
                             key={c.id}
                             onClick={() => setSelectedCounselor(c)}
-                            className={`p-4 rounded-2xl border text-left transition-all flex items-center gap-3 ${
+                            className={`p-4 rounded-xl border text-left transition-all flex items-center gap-3 ${
                               selectedCounselor?.id === c.id ? 'border-brand bg-brand/5 shadow-sm' : 'border-slate-100 hover:border-brand/20'
                             }`}
                           >
@@ -391,7 +391,7 @@ export default function AdminCounselors() {
                         <div 
                           key={student.id}
                           onClick={() => toggleStudentSelection(student.id)}
-                          className={`p-4 rounded-2xl border transition-all flex items-center justify-between cursor-pointer ${
+                          className={`p-4 rounded-xl border transition-all flex items-center justify-between cursor-pointer ${
                             selectedStudents.includes(student.id) ? 'border-brand bg-brand/5 shadow-sm' : 'border-slate-100 hover:border-brand/20'
                           }`}
                         >
@@ -401,7 +401,7 @@ export default function AdminCounselors() {
                             }`}>
                               {selectedStudents.includes(student.id) && <Check className="w-4 h-4 text-white" />}
                             </div>
-                            <img src={student.avatar} className="w-10 h-10 rounded-xl object-cover" alt={student.name} />
+                            <img src={student.avatar} className="w-10 h-10 rounded-lg object-cover" alt={student.name} />
                             <div>
                               <p className="text-sm font-bold text-slate-900">{student.name}</p>
                               <p className="text-[10px] font-medium text-slate-500">{student.email}</p>
@@ -421,7 +421,7 @@ export default function AdminCounselors() {
                     <button 
                       onClick={handleAssignStudents}
                       disabled={!selectedCounselor || selectedStudents.length === 0}
-                      className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                      className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
                     >
                       Assign Student(s) <UserPlus className="w-5 h-5" />
                     </button>
@@ -448,12 +448,12 @@ export default function AdminCounselors() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-bold text-slate-900">{selectedCounselor ? 'Edit Counselor' : 'Invite Counselor'}</h2>
-                  <button onClick={() => { setIsInviteModalOpen(false); setSelectedCounselor(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => { setIsInviteModalOpen(false); setSelectedCounselor(null); }} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -462,7 +462,7 @@ export default function AdminCounselors() {
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
                     <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
                         <Mail className="w-5 h-5" />
                       </div>
                       <input 
@@ -470,7 +470,7 @@ export default function AdminCounselors() {
                         value={inviteEmail}
                         onChange={(e) => setInviteEmail(e.target.value)}
                         placeholder="Enter counselor's email" 
-                        className="w-full pl-16 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full pl-16 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                   </div>
@@ -478,7 +478,7 @@ export default function AdminCounselors() {
                   <div className="pt-4">
                     <button 
                       onClick={handleInvite}
-                      className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                     >
                       {selectedCounselor ? 'Update Counselor' : 'Send Invite'} <Send className="w-5 h-5" />
                     </button>
@@ -505,18 +505,18 @@ export default function AdminCounselors() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-12">
                 <button 
                   onClick={() => setSelectedCounselor(null)}
-                  className="absolute top-8 right-8 p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+                  className="absolute top-8 right-8 p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all"
                 >
                   <X className="w-6 h-6" />
                 </button>
 
                 <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
-                  <img src={selectedCounselor.avatar} className="w-24 h-24 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg" alt={selectedCounselor.name} />
+                  <img src={selectedCounselor.avatar} className="w-24 h-24 rounded-2xl object-cover border-4 border-slate-50 shadow-sm" alt={selectedCounselor.name} />
                   <div className="text-center sm:text-left">
                     <h2 className="text-2xl font-bold text-slate-900">{selectedCounselor.name}</h2>
                     <p className="text-slate-500 font-medium">{selectedCounselor.role}</p>
@@ -554,9 +554,9 @@ export default function AdminCounselors() {
                   <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
                     {getCounselorSessions(selectedCounselor.id).length > 0 ? (
                       getCounselorSessions(selectedCounselor.id).map((session: any) => (
-                        <div key={session.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+                        <div key={session.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <img src={session.studentImage} className="w-10 h-10 rounded-xl object-cover" alt={session.studentName} />
+                            <img src={session.studentImage} className="w-10 h-10 rounded-lg object-cover" alt={session.studentName} />
                             <div>
                               <p className="text-sm font-bold text-slate-900">{session.title}</p>
                               <p className="text-[10px] font-medium text-slate-500">with {session.studentName}</p>
@@ -569,7 +569,7 @@ export default function AdminCounselors() {
                         </div>
                       ))
                     ) : (
-                      <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                      <div className="p-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
                         <p className="text-sm font-medium text-slate-400">No scheduled sessions</p>
                       </div>
                     )}
@@ -581,11 +581,11 @@ export default function AdminCounselors() {
                     onClick={() => {
                       setIsAssignModalOpen(true);
                     }}
-                    className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                    className="flex-1 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                   >
                     Assign Students <UserPlus className="w-5 h-5" />
                   </button>
-                  <button className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                  <button className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
                     Message Counselor <Send className="w-5 h-5" />
                   </button>
                 </div>

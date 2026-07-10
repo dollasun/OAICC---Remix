@@ -96,7 +96,7 @@ export default function AdminMentors() {
         </div>
         <button 
           onClick={() => navigate('/admin/mentors/create')}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" /> Add Mentor
         </button>
@@ -108,8 +108,8 @@ export default function AdminMentors() {
           { label: 'Total Mentors', value: mentors.length.toString(), icon: Users, color: 'text-brand', bg: 'bg-brand/10' },
           { label: 'Total Students', value: '388', icon: Users, color: 'text-indigo-500', bg: 'bg-indigo-50' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-6">
-            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center`}>
+          <div key={stat.label} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6">
+            <div className={`w-14 h-14 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center`}>
               <stat.icon className="w-7 h-7" />
             </div>
             <div>
@@ -121,7 +121,7 @@ export default function AdminMentors() {
       </div>
 
       {/* Mentors Table */}
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-50 flex items-center justify-between">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -130,7 +130,7 @@ export default function AdminMentors() {
               placeholder="Search mentors..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
             />
           </div>
           <select 
@@ -162,7 +162,7 @@ export default function AdminMentors() {
                 >
                   <td className="px-8 py-4">
                     <div className="flex items-center gap-3">
-                      <img src={mentor.avatar} alt={mentor.name} className="w-10 h-10 rounded-xl object-cover" />
+                      <img src={mentor.avatar} alt={mentor.name} className="w-10 h-10 rounded-lg object-cover" />
                       <span className="font-bold text-slate-900">{mentor.name}</span>
                     </div>
                   </td>
@@ -177,13 +177,13 @@ export default function AdminMentors() {
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={(e) => { e.stopPropagation(); navigate(`/admin/mentors/edit/${mentor.id}`); }}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                       >
                         <Edit2 className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={(e) => handleDeleteMentor(mentor.id, e)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>

@@ -225,7 +225,7 @@ export default function ForumThread() {
         onClick={() => navigate(-1)}
         className="group flex items-center gap-3 text-slate-400 font-black hover:text-brand transition-all"
       >
-        <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all shadow-sm">
+        <div className="w-10 h-10 rounded-lg bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all shadow-sm">
           <ArrowLeft className="w-5 h-5" />
         </div>
         Back to Community
@@ -235,13 +235,13 @@ export default function ForumThread() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[48px] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden"
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-200/20 overflow-hidden"
       >
         <div className="p-8 sm:p-12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
             <div className="flex items-center gap-5">
               <div className="relative">
-                <img src={thread.authorImage} alt={thread.author} className="w-16 h-16 rounded-[24px] object-cover border-4 border-slate-50 shadow-lg" />
+                <img src={thread.authorImage} alt={thread.author} className="w-16 h-16 rounded-xl object-cover border-4 border-slate-50 shadow-sm" />
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full" />
               </div>
               <div>
@@ -254,10 +254,10 @@ export default function ForumThread() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
+              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
                 <Share2 className="w-5 h-5" />
               </button>
-              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-2xl transition-all">
+              <button className="p-3 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
                 <MoreVertical className="w-5 h-5" />
               </button>
             </div>
@@ -278,11 +278,11 @@ export default function ForumThread() {
           </div>
 
           <div className="flex flex-wrap items-center gap-6 mt-12 pt-10 border-t border-slate-50">
-            <div className="flex items-center bg-slate-50 p-1.5 rounded-2xl gap-1">
+            <div className="flex items-center bg-slate-50 p-1.5 rounded-xl gap-1">
               <button 
                 onClick={handleLikePost}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all ${
-                  isLiked ? 'bg-white text-brand shadow-md' : 'text-slate-400 hover:text-slate-600'
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-black text-sm transition-all ${
+                  isLiked ? 'bg-white text-brand shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 <ThumbsUp className={`w-5 h-5 ${isLiked ? 'fill-brand' : ''}`} /> {thread.likes}
@@ -290,19 +290,19 @@ export default function ForumThread() {
               <div className="w-px h-6 bg-slate-200 mx-1" />
               <button 
                 onClick={handleDislikePost}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black text-sm transition-all ${
-                  isDisliked ? 'bg-white text-red-500 shadow-md' : 'text-slate-400 hover:text-slate-600'
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-black text-sm transition-all ${
+                  isDisliked ? 'bg-white text-red-500 shadow-sm' : 'text-slate-400 hover:text-slate-600'
                 }`}
               >
                 <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-red-500' : ''}`} /> {thread.dislikes || 0}
               </button>
             </div>
             
-            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-2xl text-slate-500 font-black text-sm">
+            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-xl text-slate-500 font-black text-sm">
               <MessageCircle className="w-5 h-5 text-brand" /> {thread.replies.length} Replies
             </div>
             
-            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-2xl text-slate-500 font-black text-sm ml-auto">
+            <div className="flex items-center gap-2 px-5 py-3.5 bg-slate-50 rounded-xl text-slate-500 font-black text-sm ml-auto">
               <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Verified Discussion
             </div>
           </div>
@@ -323,10 +323,10 @@ export default function ForumThread() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm hover:shadow-md transition-all"
+                className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all"
               >
                 <div className="flex items-start gap-5">
-                  <img src={reply.authorImage} alt={reply.author} className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-50 shadow-sm" />
+                  <img src={reply.authorImage} alt={reply.author} className="w-14 h-14 rounded-xl object-cover border-2 border-slate-50 shadow-sm" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-3">
                       <div>
@@ -347,13 +347,13 @@ export default function ForumThread() {
                       <div className="flex items-center gap-1">
                         <button 
                           onClick={() => handleLikeReply(reply.id)}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs text-slate-400 hover:text-brand hover:bg-brand/5 transition-all"
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-black text-xs text-slate-400 hover:text-brand hover:bg-brand/5 transition-all"
                         >
                           <ThumbsUp className="w-4 h-4" /> {reply.likes}
                         </button>
                         <button 
                           onClick={() => handleDislikeReply(reply.id)}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-xl font-black text-xs text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg font-black text-xs text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
                         >
                           <ThumbsDown className="w-4 h-4" /> {reply.dislikes || 0}
                         </button>
@@ -363,7 +363,7 @@ export default function ForumThread() {
                           setReplyingTo(reply);
                           window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 rounded-xl font-black text-xs hover:bg-brand hover:text-white transition-all"
+                        className="flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 rounded-lg font-black text-xs hover:bg-brand hover:text-white transition-all"
                       >
                         <Reply className="w-4 h-4" /> Reply
                       </button>
@@ -380,10 +380,10 @@ export default function ForumThread() {
                       key={nested.id}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="bg-slate-50/50 p-6 rounded-[32px] border border-slate-100"
+                      className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100"
                     >
                       <div className="flex items-start gap-4">
-                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-xl object-cover shadow-sm" />
+                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-lg object-cover shadow-sm" />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -430,7 +430,7 @@ export default function ForumThread() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="bg-brand text-white px-8 py-3 rounded-t-[32px] flex items-center justify-between mb-[-1px] relative z-0 shadow-lg"
+              className="bg-brand text-white px-8 py-3 rounded-t-2xl flex items-center justify-between mb-[-1px] relative z-0 shadow-sm"
             >
               <p className="text-xs font-black uppercase tracking-widest">Replying to {replyingTo.author}</p>
               <button onClick={() => setReplyingTo(null)} className="hover:scale-110 transition-transform">
@@ -441,20 +441,20 @@ export default function ForumThread() {
         </AnimatePresence>
         <form 
           onSubmit={handleReply}
-          className="bg-white p-4 rounded-[40px] border-2 border-slate-100 shadow-2xl flex items-center gap-4 relative z-10"
+          className="bg-white p-4 rounded-2xl border-2 border-slate-100 shadow-sm flex items-center gap-4 relative z-10"
         >
-          <img src="https://picsum.photos/seed/bolu/100/100" alt="Me" className="w-12 h-12 rounded-2xl object-cover hidden sm:block border-2 border-slate-50" />
+          <img src="https://picsum.photos/seed/bolu/100/100" alt="Me" className="w-12 h-12 rounded-xl object-cover hidden sm:block border-2 border-slate-50" />
           <input 
             type="text" 
             placeholder={replyingTo ? `Write your reply to ${replyingTo.author}...` : "Share your thoughts..."}
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            className="flex-1 bg-slate-50 border-none rounded-[24px] px-8 py-4 outline-none focus:ring-4 focus:ring-brand/10 font-bold text-slate-700 placeholder:text-slate-300"
+            className="flex-1 bg-slate-50 border-none rounded-xl px-8 py-4 outline-none focus:ring-4 focus:ring-brand/10 font-bold text-slate-700 placeholder:text-slate-300"
           />
           <button 
             type="submit"
             disabled={!replyText.trim()}
-            className="p-4 bg-brand text-white rounded-[24px] shadow-xl shadow-brand/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
+            className="p-4 bg-brand text-white rounded-xl shadow-sm shadow-brand/5 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100 disabled:shadow-none"
           >
             <Send className="w-6 h-6" />
           </button>

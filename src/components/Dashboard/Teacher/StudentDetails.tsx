@@ -62,7 +62,7 @@ export default function StudentDetails() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
-        <img src={student.avatar} alt={student.firstName} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" />
+        <img src={student.avatar} alt={student.firstName} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-sm" />
         <div className="flex-1 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
             <span className="text-slate-400 text-sm font-medium">{student.class}</span>
@@ -75,7 +75,7 @@ export default function StudentDetails() {
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 p-1 bg-slate-50 rounded-2xl w-fit">
+      <div className="flex flex-wrap gap-2 p-1 bg-slate-50 rounded-xl w-fit">
         {[
           { id: 'profile', label: 'Profile Information' },
           { id: 'interests', label: 'Career Interest' },
@@ -87,7 +87,7 @@ export default function StudentDetails() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
               activeTab === tab.id 
                 ? 'bg-white text-brand shadow-sm' 
                 : 'text-slate-500 hover:text-slate-700'
@@ -101,7 +101,7 @@ export default function StudentDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           {activeTab === 'profile' && (
-            <div className="bg-white p-10 rounded-[32px] shadow-sm border border-slate-100 space-y-12">
+            <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 space-y-12">
               <div className="space-y-6">
                 {[
                   { label: 'First Name', value: 'Favour' },
@@ -124,7 +124,7 @@ export default function StudentDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Counselor</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Counselor" />
+                      <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Counselor" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Sarah Ojo</p>
                         <p className="text-xs text-slate-500">Counselor at OAICC</p>
@@ -134,7 +134,7 @@ export default function StudentDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Mentor</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Mentor" />
+                      <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Mentor" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Mason Biyi</p>
                         <p className="text-xs text-slate-500">Full Stack Developer at Moniepoint</p>
@@ -144,7 +144,7 @@ export default function StudentDetails() {
                   <div>
                     <h4 className="text-lg font-bold text-slate-900 mb-4">Teacher</h4>
                     <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-xl object-cover" alt="Teacher" />
+                      <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Teacher" />
                       <div>
                         <p className="text-sm font-bold text-slate-900">Mr. Uzo Kelechi</p>
                         <p className="text-xs text-slate-500">Teacher at The Seaside School</p>
@@ -158,9 +158,9 @@ export default function StudentDetails() {
 
           {activeTab === 'interests' && (
             <div className="space-y-6">
-              <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <h2 className="text-xl font-bold text-slate-900 mb-6">Front-end Developer</h2>
-                <div className="relative rounded-2xl overflow-hidden mb-8 aspect-video">
+                <div className="relative rounded-xl overflow-hidden mb-8 aspect-video">
                   <img src="https://picsum.photos/seed/coding/800/450" className="w-full h-full object-cover" alt="Coding" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
                     <button onClick={() => setIsInterestModalOpen(true)} className="btn-primary px-8">View details</button>
@@ -185,14 +185,14 @@ export default function StudentDetails() {
           )}
 
           {activeTab === 'tracker' && (
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-bold text-slate-900">Recent Activities By {student.firstName}</h2>
                 <div className="flex gap-3">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-sm font-bold text-slate-600">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-bold text-slate-600">
                     <Calendar className="w-4 h-4" /> January 2023
                   </div>
-                  <button className="p-2 bg-slate-50 text-slate-600 rounded-xl">
+                  <button className="p-2 bg-slate-50 text-slate-600 rounded-lg">
                     <Filter className="w-5 h-5" />
                   </button>
                 </div>
@@ -208,7 +208,7 @@ export default function StudentDetails() {
                     }`}>
                       <div className="w-2 h-2 bg-white rounded-full" />
                     </div>
-                    <div className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all">
+                    <div className="bg-slate-50/50 p-6 rounded-xl border border-slate-100 group hover:bg-white hover:shadow-sm transition-all">
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{activity.time}</p>
@@ -228,7 +228,7 @@ export default function StudentDetails() {
         </div>
 
           {activeTab === 'resources' && (
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center justify-between mb-8">
                 <h2 className="text-xl font-bold text-slate-900">Recommended Resources</h2>
                 <button 
@@ -244,7 +244,7 @@ export default function StudentDetails() {
                   { title: 'Modern CSS Layouts', type: 'Article', duration: '10 mins read', image: 'https://picsum.photos/seed/css/400/225' },
                 ].map((resource, i) => (
                   <div key={i} className="group cursor-pointer">
-                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-4">
+                    <div className="relative aspect-video rounded-xl overflow-hidden mb-4">
                       <img src={resource.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={resource.title} />
                       <div className="absolute top-4 left-4">
                         <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-brand rounded-lg text-[10px] font-bold uppercase tracking-widest">{resource.type}</span>
@@ -259,16 +259,16 @@ export default function StudentDetails() {
           )}
 
           {activeTab === 'events' && (
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <h2 className="text-xl font-bold text-slate-900 mb-8">Student Events</h2>
               <div className="space-y-6">
                 {[
                   { title: 'Tech Innovation Summit', date: 'Oct 25, 2024', time: '10:00 AM', status: 'Registered' },
                   { title: 'Career Path Workshop', date: 'Nov 12, 2024', time: '2:00 PM', status: 'Upcoming' },
                 ].map((event, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand shadow-sm">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-brand shadow-sm">
                         <Calendar className="w-6 h-6" />
                       </div>
                       <div>
@@ -288,16 +288,16 @@ export default function StudentDetails() {
           )}
 
           {activeTab === 'sessions' && (
-            <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <h2 className="text-xl font-bold text-slate-900 mb-8">Counseling Sessions</h2>
               <div className="space-y-6">
                 {[
                   { title: 'Career Path Discussion', counselor: 'Sarah Ojo', date: 'Oct 15, 2024', status: 'Completed' },
                   { title: 'Academic Progress Review', counselor: 'Sarah Ojo', date: 'Nov 05, 2024', status: 'Scheduled' },
                 ].map((session, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-500 shadow-sm">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-blue-500 shadow-sm">
                         <Target className="w-6 h-6" />
                       </div>
                       <div>
@@ -319,13 +319,13 @@ export default function StudentDetails() {
 
         {/* Sidebar Widgets */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="font-bold text-slate-900 mb-4">Comments</h3>
             <textarea 
               placeholder="Leave a comment..." 
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
+              className="w-full h-32 p-4 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
             />
             <div className="mt-4 flex justify-end">
               <button 
@@ -370,7 +370,7 @@ export default function StudentDetails() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[32px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -382,22 +382,22 @@ export default function StudentDetails() {
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Resource Title</label>
-                    <input type="text" placeholder="e.g. Advanced JavaScript Patterns" className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
+                    <input type="text" placeholder="e.g. Advanced JavaScript Patterns" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Resource Link</label>
-                    <input type="url" placeholder="https://..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
+                    <input type="url" placeholder="https://..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 ml-1">Why are you recommending this?</label>
-                    <textarea rows={4} placeholder="Add a brief explanation..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium resize-none" />
+                    <textarea rows={4} placeholder="Add a brief explanation..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium resize-none" />
                   </div>
                   <button 
                     onClick={() => {
                       setIsRecommendModalOpen(false);
                       showToast('Resource recommended successfully!');
                     }}
-                    className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                    className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
                   >
                     Send Recommendation
                   </button>
@@ -423,7 +423,7 @@ export default function StudentDetails() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-[32px] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden max-h-[90vh] overflow-y-auto"
             >
               <div className="p-8">
                 <div className="flex justify-between items-center mb-6">
@@ -434,13 +434,13 @@ export default function StudentDetails() {
                 </div>
 
                 <div className="space-y-8">
-                  <img src="https://picsum.photos/seed/coding/800/450" className="w-full rounded-2xl aspect-video object-cover" alt="Coding" />
+                  <img src="https://picsum.photos/seed/coding/800/450" className="w-full rounded-xl aspect-video object-cover" alt="Coding" />
                   
                   <div className="space-y-4">
                     <h4 className="font-bold text-slate-900">Topic of Interest</h4>
                     <div className="flex flex-wrap gap-2">
                       {['HTML', 'CSS', 'Coding', 'Front-end', 'Developer'].map(tag => (
-                        <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-bold">{tag}</span>
+                        <span key={tag} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold">{tag}</span>
                       ))}
                     </div>
                   </div>
@@ -449,7 +449,7 @@ export default function StudentDetails() {
                     <h4 className="font-bold text-slate-900">Top skills</h4>
                     <div className="grid grid-cols-2 gap-2">
                       {['Physical fitness', 'leadership', 'communication', 'first aid'].map(skill => (
-                        <span key={skill} className="px-4 py-2 border border-slate-100 text-slate-600 rounded-xl text-xs font-bold text-center">{skill}</span>
+                        <span key={skill} className="px-4 py-2 border border-slate-100 text-slate-600 rounded-lg text-xs font-bold text-center">{skill}</span>
                       ))}
                     </div>
                   </div>

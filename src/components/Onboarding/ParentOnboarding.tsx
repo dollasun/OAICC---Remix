@@ -96,7 +96,7 @@ export default function ParentOnboarding() {
                 <img src={formData.avatar} alt="Avatar" className="w-32 h-32 rounded-full object-cover border-4 border-brand-light" />
                 <button 
                   onClick={triggerFileInput}
-                  className="absolute bottom-0 right-0 bg-brand text-white p-2.5 rounded-full shadow-lg hover:scale-110 transition-transform"
+                  className="absolute bottom-0 right-0 bg-brand text-white p-2.5 rounded-full shadow-sm hover:scale-110 transition-transform"
                 >
                   <Camera className="w-5 h-5" />
                 </button>
@@ -161,7 +161,7 @@ export default function ParentOnboarding() {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <button onClick={prevStep} className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50">
+              <button onClick={prevStep} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50">
                 Back
               </button>
               <button onClick={nextStep} className="flex-[2] btn-primary">

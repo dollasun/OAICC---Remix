@@ -133,7 +133,7 @@ export default function AdminInterestQuiz() {
             { label: 'Total Interest Questions', value: interestQuestions.length.toString() },
             { label: 'Total Questions', value: (strengthQuestions.length + interestQuestions.length).toString() },
           ].map((stat) => (
-            <div key={stat.label} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+            <div key={stat.label} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">{stat.label}</p>
               <p className="text-4xl font-bold text-slate-900">{stat.value}</p>
             </div>
@@ -144,10 +144,10 @@ export default function AdminInterestQuiz() {
         <div className="space-y-4">
           <button 
             onClick={() => setView('interests')}
-            className="w-full bg-[#00BCD4] p-8 rounded-3xl flex items-center justify-between group hover:scale-[1.01] transition-all"
+            className="w-full bg-[#00BCD4] p-8 rounded-2xl flex items-center justify-between group hover:scale-[1.01] transition-all"
           >
             <div className="flex items-center gap-6 text-white text-left">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
                 <Briefcase className="w-8 h-8" />
               </div>
               <div>
@@ -160,10 +160,10 @@ export default function AdminInterestQuiz() {
 
           <button 
             onClick={() => setView('strengths')}
-            className="w-full bg-[#00BCD4] p-8 rounded-3xl flex items-center justify-between group hover:scale-[1.01] transition-all"
+            className="w-full bg-[#00BCD4] p-8 rounded-2xl flex items-center justify-between group hover:scale-[1.01] transition-all"
           >
             <div className="flex items-center gap-6 text-white text-left">
-              <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
                 <Scale className="w-8 h-8" />
               </div>
               <div>
@@ -186,7 +186,7 @@ export default function AdminInterestQuiz() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setView('dashboard')}
-            className="p-3 bg-white rounded-2xl border border-slate-100 text-slate-400 hover:text-brand transition-colors shadow-sm"
+            className="p-3 bg-white rounded-xl border border-slate-100 text-slate-400 hover:text-brand transition-colors shadow-sm"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -199,13 +199,13 @@ export default function AdminInterestQuiz() {
         </div>
         <button 
           onClick={() => { setEditingQuestion(null); setFormData({ question: '', industries: '', category: '' }); setIsModalOpen(true); }}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
         >
           <Plus className="w-5 h-5" /> Add Question
         </button>
       </div>
 
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -242,13 +242,13 @@ export default function AdminInterestQuiz() {
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button 
                         onClick={() => openEditModal(q)}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                       >
                         <Edit2 className="w-5 h-5" />
                       </button>
                       <button 
                         onClick={() => handleDeleteQuestion(q.id)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -276,7 +276,7 @@ export default function AdminInterestQuiz() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
@@ -288,7 +288,7 @@ export default function AdminInterestQuiz() {
                       {view === 'interests' ? 'Interests and Industry' : 'Strengths Assessment'}
                     </p>
                   </div>
-                  <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -301,7 +301,7 @@ export default function AdminInterestQuiz() {
                       value={formData.question}
                       onChange={(e) => setFormData({ ...formData, question: e.target.value })}
                       placeholder="Enter the question..." 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" 
                     />
                   </div>
 
@@ -313,7 +313,7 @@ export default function AdminInterestQuiz() {
                         value={formData.industries}
                         onChange={(e) => setFormData({ ...formData, industries: e.target.value })}
                         placeholder="e.g. Accountancy, Finance" 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                   ) : (
@@ -324,14 +324,14 @@ export default function AdminInterestQuiz() {
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                         placeholder="e.g. Communication" 
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                   )}
 
                   <div className="flex gap-4 pt-4">
-                    <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Cancel</button>
-                    <button onClick={handleSaveQuestion} className="flex-1 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
+                    <button onClick={() => setIsModalOpen(false)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                    <button onClick={handleSaveQuestion} className="flex-1 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
                       {editingQuestion ? 'Update' : 'Add'} <CheckCircle2 className="w-5 h-5" />
                     </button>
                   </div>

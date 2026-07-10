@@ -188,7 +188,7 @@ export default function SchoolSignUp() {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700">School type</label>
-                <div className="flex flex-wrap gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200 min-h-[50px]">
+                <div className="flex flex-wrap gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 min-h-[50px]">
                   {formData.schoolTypes.map(type => (
                     <span key={type} className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
                       {type}

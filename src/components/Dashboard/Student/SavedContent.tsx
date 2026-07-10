@@ -46,7 +46,7 @@ export default function SavedContent() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex flex-wrap gap-2 p-1 bg-white rounded-[24px] border border-slate-100 shadow-sm w-fit">
+      <div className="flex flex-wrap gap-2 p-1 bg-white rounded-xl border border-slate-100 shadow-sm w-fit">
         {[
           { id: 'careers', label: 'Careers', icon: Briefcase },
           { id: 'mentors', label: 'Mentors', icon: Users }
@@ -54,9 +54,9 @@ export default function SavedContent() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm transition-all ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all ${
               activeTab === tab.id 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-400 hover:text-slate-600'
             }`}
           >
@@ -75,13 +75,13 @@ export default function SavedContent() {
                 key={career.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group"
+                className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group"
               >
                 <div className="relative h-48">
                   <img src={career.image} alt={career.title} className="w-full h-full object-cover" />
                   <button 
                     onClick={() => handleRemoveCareer(career.id)}
-                    className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-xl text-brand hover:bg-white transition-colors"
+                    className="absolute top-4 right-4 p-2 bg-white/90 backdrop-blur-sm rounded-lg text-brand hover:bg-white transition-colors"
                   >
                     <Bookmark className="w-5 h-5 fill-brand" />
                   </button>
@@ -113,10 +113,10 @@ export default function SavedContent() {
                 key={mentor.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-md transition-all group"
+                className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group"
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <img src={mentor.image} alt={mentor.name} className="w-16 h-16 rounded-2xl object-cover" />
+                  <img src={mentor.image} alt={mentor.name} className="w-16 h-16 rounded-xl object-cover" />
                   <div>
                     <h3 className="font-bold text-slate-900">{mentor.name}</h3>
                     <p className="text-xs font-bold text-brand">{mentor.role}</p>
@@ -142,7 +142,7 @@ export default function SavedContent() {
         {/* Empty State */}
         {((activeTab === 'careers' && savedCareers.length === 0) ||
           (activeTab === 'mentors' && savedMentors.length === 0)) && (
-          <div className="text-center py-20 bg-white rounded-[40px] border border-slate-100">
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
             <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
               <Bookmark className="w-10 h-10 text-slate-200" />
             </div>
@@ -150,7 +150,7 @@ export default function SavedContent() {
             <p className="text-slate-500 font-medium mt-2">Start exploring and bookmarking content you find interesting!</p>
             <button 
               onClick={() => navigate(`/student/${activeTab}`)}
-              className="mt-6 px-8 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-105 transition-all"
+              className="mt-6 px-8 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
             >
               Explore {activeTab}
             </button>

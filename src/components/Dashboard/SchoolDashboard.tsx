@@ -59,9 +59,9 @@ export default function SchoolDashboard() {
         <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
           <Link
             to="/school/dashboard"
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/school/dashboard') 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
@@ -71,9 +71,9 @@ export default function SchoolDashboard() {
 
           <Link
             to="/school/classes"
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/school/classes') 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
@@ -83,9 +83,9 @@ export default function SchoolDashboard() {
 
           <Link
             to="/school/events"
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/school/events') 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
@@ -95,9 +95,9 @@ export default function SchoolDashboard() {
 
           <Link
             to="/school/settings"
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/school/settings') 
-                ? 'bg-brand text-white shadow-lg shadow-brand/20' 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
@@ -109,7 +109,7 @@ export default function SchoolDashboard() {
         <div className="p-4 border-t border-slate-100 mt-auto">
           <button 
             onClick={() => navigate('/')}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-all"
           >
             <LogOut className="w-5 h-5" />
             Sign Out
@@ -126,7 +126,7 @@ export default function SchoolDashboard() {
             <input 
               type="text" 
               placeholder="Search anything..." 
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all"
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-lg focus:ring-4 focus:ring-brand/10 outline-none transition-all"
             />
           </div>
           
@@ -138,7 +138,7 @@ export default function SchoolDashboard() {
             <div className="relative">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-2xl transition-all"
+                className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-bold text-slate-900">Caleb schools</p>
@@ -157,7 +157,7 @@ export default function SchoolDashboard() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 overflow-hidden"
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-sm border border-slate-100 py-2 z-50 overflow-hidden"
                     >
                       <button 
                         onClick={() => { navigate('/school/settings'); setIsProfileOpen(false); }}

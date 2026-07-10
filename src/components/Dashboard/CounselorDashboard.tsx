@@ -75,7 +75,7 @@ export default function CounselorDashboard() {
           <Logo size={isSidebarOpen ? 'md' : 'sm'} hideText={!isSidebarOpen} />
           <button 
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"
+            className="p-2 hover:bg-slate-50 rounded-lg transition-colors text-slate-400"
           >
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -89,9 +89,9 @@ export default function CounselorDashboard() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold transition-all group ${
+              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-bold transition-all group ${
                 location.pathname.startsWith(item.path)
-                  ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                  ? 'bg-brand text-white shadow-sm shadow-brand/5'
                   : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
               }`}
             >
@@ -114,7 +114,7 @@ export default function CounselorDashboard() {
         <div className="absolute bottom-8 left-0 right-0 px-4">
           <button 
             onClick={handleLogout}
-            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all group ${!isSidebarOpen && 'justify-center'}`}
+            className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl font-bold text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all group ${!isSidebarOpen && 'justify-center'}`}
           >
             <LogOut className="w-6 h-6 shrink-0 group-hover:text-red-500" />
             {isSidebarOpen && <span>Sign Out</span>}
@@ -137,11 +137,11 @@ export default function CounselorDashboard() {
               initial={{ x: -300 }}
               animate={{ x: 0 }}
               exit={{ x: -300 }}
-              className="fixed top-0 left-0 h-full w-72 bg-white z-[70] lg:hidden shadow-2xl"
+              className="fixed top-0 left-0 h-full w-72 bg-white z-[70] lg:hidden shadow-sm"
             >
               <div className="p-8 flex items-center justify-between">
                 <Logo size="md" />
-                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-xl">
+                <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg">
                   <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
@@ -151,9 +151,9 @@ export default function CounselorDashboard() {
                     key={item.path}
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl font-bold transition-all ${
+                    className={`flex items-center gap-4 px-4 py-3.5 rounded-xl font-bold transition-all ${
                       location.pathname.startsWith(item.path)
-                        ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                        ? 'bg-brand text-white shadow-sm shadow-brand/5'
                         : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
                     }`}
                   >
@@ -175,7 +175,7 @@ export default function CounselorDashboard() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="p-2 hover:bg-slate-50 rounded-xl lg:hidden text-slate-400"
+                className="p-2 hover:bg-slate-50 rounded-lg lg:hidden text-slate-400"
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -192,7 +192,7 @@ export default function CounselorDashboard() {
                 <input 
                   type="text" 
                   placeholder="Search students..." 
-                  className="pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 w-64 font-medium text-sm"
+                  className="pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 w-64 font-medium text-sm"
                 />
               </div>
               <NotificationDropdown role="counselor" />
@@ -200,7 +200,7 @@ export default function CounselorDashboard() {
               <div className="relative">
                 <button 
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  className="flex items-center gap-3 pl-4 border-l border-slate-100 hover:bg-slate-50 p-2 rounded-2xl transition-all"
+                  className="flex items-center gap-3 pl-4 border-l border-slate-100 hover:bg-slate-50 p-2 rounded-xl transition-all"
                 >
                   <div className="text-right hidden sm:block">
                     <p className="text-sm font-bold text-slate-900">Mr. Alfred Funmbi</p>
@@ -209,7 +209,7 @@ export default function CounselorDashboard() {
                   <img 
                     src="https://picsum.photos/seed/counselor/100/100" 
                     alt="Counselor" 
-                    className="w-10 h-10 rounded-xl object-cover border-2 border-slate-50 shadow-sm"
+                    className="w-10 h-10 rounded-lg object-cover border-2 border-slate-50 shadow-sm"
                   />
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -222,7 +222,7 @@ export default function CounselorDashboard() {
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-sm border border-slate-100 py-2 z-50 overflow-hidden"
                       >
                         <button 
                           onClick={() => { navigate('/counselor/settings'); setIsProfileDropdownOpen(false); }}

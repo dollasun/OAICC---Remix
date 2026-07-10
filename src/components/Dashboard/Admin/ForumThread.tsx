@@ -160,18 +160,18 @@ export default function AdminForumThread() {
         onClick={() => navigate(-1)}
         className="group flex items-center gap-3 text-slate-400 font-black hover:text-brand transition-all"
       >
-        <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all shadow-sm">
           <ArrowLeft className="w-6 h-6" />
         </div>
         Back
       </button>
 
       {/* Main Post */}
-      <div className="bg-white rounded-[48px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-10 sm:p-12">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-5">
-              <img src={thread.authorImage} alt={thread.author} className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-50 shadow-sm" />
+              <img src={thread.authorImage} alt={thread.author} className="w-14 h-14 rounded-xl object-cover border-2 border-slate-50 shadow-sm" />
               <div>
                 <h4 className="text-lg font-black text-slate-900">{thread.author}</h4>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{thread.authorRole} • {thread.time}</p>
@@ -180,7 +180,7 @@ export default function AdminForumThread() {
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { setItemToDelete({ type: 'topic', id: thread.id }); setIsDeleteModalOpen(true); }}
-                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all"
+                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
               >
                 <Trash2 className="w-6 h-6" />
               </button>
@@ -188,7 +188,7 @@ export default function AdminForumThread() {
           </div>
 
           <div className="space-y-6">
-            <span className="px-4 py-2 bg-brand/5 text-brand rounded-xl text-[10px] font-black uppercase tracking-widest border border-brand/10">
+            <span className="px-4 py-2 bg-brand/5 text-brand rounded-lg text-[10px] font-black uppercase tracking-widest border border-brand/10">
               {thread.category}
             </span>
             <h1 className="text-3xl font-black text-slate-900 leading-tight">
@@ -215,9 +215,9 @@ export default function AdminForumThread() {
         <h3 className="text-2xl font-black text-slate-900 px-6">Replies</h3>
         <div className="space-y-6">
           {thread.replies.map((reply: any) => (
-            <div key={reply.id} className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
+            <div key={reply.id} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-start gap-5">
-                <img src={reply.authorImage} alt={reply.author} className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-50" />
+                <img src={reply.authorImage} alt={reply.author} className="w-12 h-12 rounded-xl object-cover border-2 border-slate-50" />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-3">
                     <div>
@@ -252,9 +252,9 @@ export default function AdminForumThread() {
               {reply.replies?.length > 0 && (
                 <div className="mt-6 ml-12 space-y-4 border-l-4 border-slate-50 pl-8">
                   {reply.replies.map((nested: any) => (
-                    <div key={nested.id} className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
+                    <div key={nested.id} className="bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
                       <div className="flex items-start gap-4">
-                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-xl object-cover border-2 border-white" />
+                        <img src={nested.authorImage} alt={nested.author} className="w-10 h-10 rounded-lg object-cover border-2 border-white" />
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
@@ -286,7 +286,7 @@ export default function AdminForumThread() {
       <div className="sticky bottom-10 z-50">
         <form 
           onSubmit={handleReply}
-          className="bg-white p-4 rounded-[32px] border border-slate-100 shadow-2xl flex items-center gap-4"
+          className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4"
         >
           <div className="flex-1 relative">
             <input 
@@ -294,7 +294,7 @@ export default function AdminForumThread() {
               placeholder={replyingTo ? `Replying to ${replyingTo.author}...` : "Post an official admin reply..."}
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              className="w-full bg-slate-50 border-none rounded-2xl px-8 py-4 outline-none focus:ring-4 focus:ring-brand/10 font-bold text-slate-700"
+              className="w-full bg-slate-50 border-none rounded-xl px-8 py-4 outline-none focus:ring-4 focus:ring-brand/10 font-bold text-slate-700"
             />
             {replyingTo && (
               <button 
@@ -308,7 +308,7 @@ export default function AdminForumThread() {
           <button 
             type="submit"
             disabled={!replyText.trim()}
-            className="p-4 bg-brand text-white rounded-2xl shadow-xl shadow-brand/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
+            className="p-4 bg-brand text-white rounded-xl shadow-sm shadow-brand/5 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
           >
             <Send className="w-6 h-6" />
           </button>
@@ -330,7 +330,7 @@ export default function AdminForumThread() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[48px] shadow-2xl p-12 text-center"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-12 text-center"
             >
               <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8">
                 <Trash2 className="w-12 h-12 text-red-500" />
@@ -342,13 +342,13 @@ export default function AdminForumThread() {
               <div className="flex gap-4">
                 <button 
                   onClick={() => setIsDeleteModalOpen(false)} 
-                  className="flex-1 py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all"
+                  className="flex-1 py-4 bg-slate-100 text-slate-600 font-black rounded-xl hover:bg-slate-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDelete} 
-                  className="flex-1 py-4 bg-red-500 text-white font-black rounded-2xl shadow-xl shadow-red-200 hover:bg-red-600 transition-all"
+                  className="flex-1 py-4 bg-red-500 text-white font-black rounded-xl shadow-sm shadow-red-200 hover:bg-red-600 transition-all"
                 >
                   Delete
                 </button>

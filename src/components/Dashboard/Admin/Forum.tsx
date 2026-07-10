@@ -173,7 +173,7 @@ export default function AdminForum() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => navigate('/admin/forum')}
-              className="p-2 hover:bg-slate-100 rounded-xl transition-all text-slate-400"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-all text-slate-400"
             >
               <ChevronRight className="w-6 h-6 rotate-180" />
             </button>
@@ -184,13 +184,13 @@ export default function AdminForum() {
           </div>
           <button 
             onClick={() => setIsAddTopicModalOpen(true)}
-            className="flex items-center gap-2 bg-[#00B4D8] text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-brand/20 hover:scale-105 transition-all active:scale-95"
+            className="flex items-center gap-2 bg-[#00B4D8] text-white px-8 py-4 rounded-xl font-black shadow-sm shadow-brand/5 hover:scale-105 transition-all active:scale-95"
           >
             <Plus className="w-6 h-6" /> Create Topic
           </button>
         </div>
 
-        <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -199,7 +199,7 @@ export default function AdminForum() {
                 placeholder="Search discussions..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-sm"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-sm"
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function AdminForum() {
                     <td className="px-8 py-6 text-right">
                       <button 
                         onClick={() => navigate(`/admin/forum/${topic.id}`)}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                       >
                         <Eye className="w-5 h-5" />
                       </button>
@@ -271,12 +271,12 @@ export default function AdminForum() {
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+                className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
               >
                 <div className="p-10">
                   <div className="flex items-center justify-between mb-10">
                     <h2 className="text-3xl font-black text-slate-900">Create Topic</h2>
-                    <button onClick={() => setIsAddTopicModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                    <button onClick={() => setIsAddTopicModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                       <X className="w-6 h-6" />
                     </button>
                   </div>
@@ -290,7 +290,7 @@ export default function AdminForum() {
                         placeholder="What's on your mind?"
                         value={newTopic.title}
                         onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
-                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
+                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
                       />
                     </div>
 
@@ -302,13 +302,13 @@ export default function AdminForum() {
                         placeholder="Tell us more..."
                         value={newTopic.content}
                         onChange={(e) => setNewTopic({...newTopic, content: e.target.value})}
-                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all resize-none" 
+                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all resize-none" 
                       />
                     </div>
 
                     <button 
                       type="submit"
-                      className="w-full py-5 bg-[#00B4D8] text-white font-black rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-5 bg-[#00B4D8] text-white font-black rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                       Post Topic <Send className="w-5 h-5" />
                     </button>
@@ -332,7 +332,7 @@ export default function AdminForum() {
         </div>
         <button 
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 bg-[#00B4D8] text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-brand/20 hover:scale-105 transition-all active:scale-95"
+          className="flex items-center gap-2 bg-[#00B4D8] text-white px-8 py-4 rounded-xl font-black shadow-sm shadow-brand/5 hover:scale-105 transition-all active:scale-95"
         >
           <Plus className="w-6 h-6" /> Create Forum
         </button>
@@ -340,8 +340,8 @@ export default function AdminForum() {
 
       {/* Analytics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-xl transition-all">
-          <div className="w-16 h-16 bg-brand/5 rounded-2xl flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-sm transition-all">
+          <div className="w-16 h-16 bg-brand/5 rounded-xl flex items-center justify-center text-brand group-hover:scale-110 transition-transform">
             <Users className="w-8 h-8" />
           </div>
           <div>
@@ -349,8 +349,8 @@ export default function AdminForum() {
             <h3 className="text-3xl font-black text-slate-900">{totalFollowers}</h3>
           </div>
         </div>
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-xl transition-all">
-          <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-sm transition-all">
+          <div className="w-16 h-16 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
             <MessageSquare className="w-8 h-8" />
           </div>
           <div>
@@ -358,8 +358,8 @@ export default function AdminForum() {
             <h3 className="text-3xl font-black text-slate-900">{forums.length}</h3>
           </div>
         </div>
-        <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-xl transition-all">
-          <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+        <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-6 group hover:shadow-sm transition-all">
+          <div className="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
             <MessageCircle className="w-8 h-8" />
           </div>
           <div>
@@ -372,21 +372,21 @@ export default function AdminForum() {
       {/* Forums Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {forums.map((forum) => (
-          <div key={forum.id} className="bg-white p-8 rounded-[48px] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-brand/5 transition-all group relative">
+          <div key={forum.id} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm hover:shadow-brand/5 transition-all group relative">
             <div className="flex items-start justify-between mb-8">
-              <div className="w-16 h-16 bg-[#00B4D8] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-brand/20">
+              <div className="w-16 h-16 bg-[#00B4D8] rounded-xl flex items-center justify-center text-white shadow-sm shadow-brand/5">
                 <MessageSquare className="w-8 h-8" />
               </div>
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => { setSelectedForum(forum); setEditForumData({ title: forum.title, industries: forum.industries }); setIsEditModalOpen(true); }}
-                  className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-xl transition-all"
+                  className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
                 >
                   <Edit2 className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => { setSelectedForum(forum); setIsDeleteModalOpen(true); }}
-                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -410,7 +410,7 @@ export default function AdminForum() {
 
             <button 
               onClick={() => navigate(`/admin/forum?forumId=${forum.id}`)}
-              className="w-full py-4 bg-slate-50 text-slate-600 font-black rounded-2xl hover:bg-brand hover:text-white transition-all flex items-center justify-center gap-2 group/btn"
+              className="w-full py-4 bg-slate-50 text-slate-600 font-black rounded-xl hover:bg-brand hover:text-white transition-all flex items-center justify-center gap-2 group/btn"
             >
               View Discussions <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
             </button>
@@ -421,7 +421,7 @@ export default function AdminForum() {
       {/* Trending and Active Users */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Trending Topics */}
-        <div className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-sm">
+        <div className="bg-white p-10 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-black text-slate-900">Trending Topics</h2>
             <TrendingUp className="w-6 h-6 text-amber-500" />
@@ -431,10 +431,10 @@ export default function AdminForum() {
               <div 
                 key={topic.id} 
                 onClick={() => navigate(`/admin/forum/${topic.id}`)}
-                className="flex items-center justify-between p-4 rounded-3xl hover:bg-slate-50 transition-all cursor-pointer group"
+                className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                  <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
                     <MessageCircle className="w-6 h-6" />
                   </div>
                   <div>
@@ -452,7 +452,7 @@ export default function AdminForum() {
         </div>
 
         {/* Most Active Users */}
-        <div className="bg-white p-10 rounded-[48px] border border-slate-100 shadow-sm">
+        <div className="bg-white p-10 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-black text-slate-900">Most Active People</h2>
             <Users className="w-6 h-6 text-brand" />
@@ -461,15 +461,15 @@ export default function AdminForum() {
             {Array.from(new Set(topics.map(t => t.author))).slice(0, 4).map((author, idx) => {
               const authorTopics = topics.filter(t => t.author === author);
               return (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-3xl hover:bg-slate-50 transition-all group">
+                <div key={idx} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 transition-all group">
                   <div className="flex items-center gap-4">
-                    <img src={`https://picsum.photos/seed/${author}/100/100`} className="w-12 h-12 rounded-2xl object-cover border-2 border-slate-50" alt={author} />
+                    <img src={`https://picsum.photos/seed/${author}/100/100`} className="w-12 h-12 rounded-xl object-cover border-2 border-slate-50" alt={author} />
                     <div>
                       <p className="font-bold text-slate-900">{author}</p>
                       <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{authorTopics.length} Posts • {authorTopics.reduce((acc, t) => acc + (t.replies?.length || 0), 0)} Replies</p>
                     </div>
                   </div>
-                  <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand font-black text-sm">
+                  <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center text-brand font-black text-sm">
                     #{idx + 1}
                   </div>
                 </div>
@@ -494,12 +494,12 @@ export default function AdminForum() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
                   <h2 className="text-3xl font-black text-slate-900">Add Forum</h2>
-                  <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsAddModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -513,7 +513,7 @@ export default function AdminForum() {
                       placeholder="General"
                       value={newForum.title}
                       onChange={(e) => setNewForum({...newForum, title: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
+                      className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
                     />
                   </div>
 
@@ -522,7 +522,7 @@ export default function AdminForum() {
                     <div className="relative">
                       <select 
                         onChange={(e) => toggleIndustry(e.target.value)}
-                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
+                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
                       >
                         <option value="">Industries</option>
                         {INDUSTRIES.map(ind => (
@@ -542,7 +542,7 @@ export default function AdminForum() {
 
                   <button 
                     type="submit"
-                    className="w-full py-5 bg-[#00B4D8] text-white font-black rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full py-5 bg-[#00B4D8] text-white font-black rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                   >
                     Create <Check className="w-5 h-5" />
                   </button>
@@ -568,12 +568,12 @@ export default function AdminForum() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-10">
                 <div className="flex items-center justify-between mb-10">
                   <h2 className="text-3xl font-black text-slate-900">Edit Forum</h2>
-                  <button onClick={() => setIsEditModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all">
+                  <button onClick={() => setIsEditModalOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all">
                     <X className="w-6 h-6" />
                   </button>
                 </div>
@@ -586,7 +586,7 @@ export default function AdminForum() {
                       required
                       value={editForumData.title}
                       onChange={(e) => setEditForumData({...editForumData, title: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
+                      className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 transition-all" 
                     />
                   </div>
 
@@ -602,7 +602,7 @@ export default function AdminForum() {
                     <div className="relative">
                       <select 
                         onChange={(e) => toggleIndustry(e.target.value, true)}
-                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
+                        className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-xl outline-none focus:border-brand/20 focus:ring-4 focus:ring-brand/5 font-bold text-slate-700 appearance-none transition-all cursor-pointer"
                       >
                         <option value="">Add Industry</option>
                         {INDUSTRIES.map(ind => (
@@ -623,7 +623,7 @@ export default function AdminForum() {
                     </button>
                     <button 
                       type="submit"
-                      className="px-10 py-4 bg-[#00B4D8] text-white font-black rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-95 transition-all"
+                      className="px-10 py-4 bg-[#00B4D8] text-white font-black rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-95 transition-all"
                     >
                       Update
                     </button>
@@ -650,11 +650,11 @@ export default function AdminForum() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[40px] shadow-2xl p-10 text-center"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-10 text-center"
             >
               <button 
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+                className="absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -667,13 +667,13 @@ export default function AdminForum() {
               <div className="flex gap-4">
                 <button 
                   onClick={() => setIsDeleteModalOpen(false)}
-                  className="flex-1 py-4 border-2 border-[#00B4D8] text-[#00B4D8] font-black rounded-2xl hover:bg-slate-50 transition-all"
+                  className="flex-1 py-4 border-2 border-[#00B4D8] text-[#00B4D8] font-black rounded-xl hover:bg-slate-50 transition-all"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDeleteForum}
-                  className="flex-1 py-4 bg-[#EF4444] text-white font-black rounded-2xl shadow-lg shadow-red-200 hover:bg-red-600 transition-all"
+                  className="flex-1 py-4 bg-[#EF4444] text-white font-black rounded-xl shadow-sm shadow-red-200 hover:bg-red-600 transition-all"
                 >
                   Delete
                 </button>

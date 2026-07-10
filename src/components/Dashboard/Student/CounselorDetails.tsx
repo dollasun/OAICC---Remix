@@ -102,17 +102,17 @@ export default function CounselorDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Info */}
         <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div className="p-8 sm:p-10">
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8">
                 <div className="relative">
                   <img 
                     src={counselor.image} 
                     alt={counselor.name} 
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-[32px] object-cover border-4 border-slate-50 shadow-lg"
+                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-4 border-slate-50 shadow-sm"
                   />
                   {counselor.isVerified && (
-                    <div className="absolute -bottom-2 -right-2 bg-brand text-white p-2 rounded-xl border-4 border-white shadow-lg">
+                    <div className="absolute -bottom-2 -right-2 bg-brand text-white p-2 rounded-lg border-4 border-white shadow-sm">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
                   )}
@@ -164,7 +164,7 @@ export default function CounselorDetails() {
                       <h3 className="text-xl font-bold text-slate-900 mb-6">Expertise</h3>
                       <div className="flex flex-wrap gap-3">
                         {counselor.expertise.map((exp) => (
-                          <span key={exp} className="px-5 py-2.5 bg-brand/5 border border-brand/10 rounded-2xl text-sm font-bold text-brand">
+                          <span key={exp} className="px-5 py-2.5 bg-brand/5 border border-brand/10 rounded-xl text-sm font-bold text-brand">
                             {exp}
                           </span>
                         ))}
@@ -181,7 +181,7 @@ export default function CounselorDetails() {
                           }`}>
                             {activity.type === 'session' ? <Calendar className="w-4 h-4" /> : <BookOpen className="w-4 h-4" />}
                           </div>
-                          <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{activity.date}</span>
                               <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
@@ -204,13 +204,13 @@ export default function CounselorDetails() {
           {activeTab === 'about' && (
             <>
               {/* Services */}
-              <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <Award className="w-5 h-5 text-brand" /> Counseling Services
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {counselor.services.map((service, i) => (
-                    <div key={i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-brand/20 transition-all group">
+                    <div key={i} className="p-6 bg-slate-50 rounded-xl border border-slate-100 hover:border-brand/20 transition-all group">
                       <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors">{service.name}</h4>
                       <p className="text-xs font-bold text-emerald-500 mt-2 uppercase tracking-wider">{service.price}</p>
                     </div>
@@ -220,7 +220,7 @@ export default function CounselorDetails() {
 
               {/* Experience & Education */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                   <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                     <GraduationCap className="w-5 h-5 text-brand" /> Education
                   </h3>
@@ -236,7 +236,7 @@ export default function CounselorDetails() {
                   </div>
                 </div>
 
-                <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
                   <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                     <Users className="w-5 h-5 text-brand" /> Professional History
                   </h3>
@@ -259,19 +259,19 @@ export default function CounselorDetails() {
         {/* Sidebar Actions */}
         <div className="space-y-6">
           {sessions.length > 0 && (
-            <div className="bg-emerald-500 p-8 rounded-[32px] text-white shadow-xl shadow-emerald-500/20">
+            <div className="bg-emerald-500 p-8 rounded-2xl text-white shadow-sm shadow-emerald-500/5">
               <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <Calendar className="w-6 h-6" /> Scheduled Session
               </h3>
               <div className="space-y-4">
                 {sessions.map((session: any) => (
-                  <div key={session.id} className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
+                  <div key={session.id} className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
                     <p className="font-bold">{session.title}</p>
                     <div className="flex items-center gap-4 mt-2 text-sm font-medium text-white/80">
                       <span className="flex items-center gap-1"><Clock className="w-4 h-4" /> {session.time}</span>
                       <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {session.date}</span>
                     </div>
-                    <button className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-xl hover:bg-emerald-50 transition-all text-sm">
+                    <button className="w-full mt-4 py-2 bg-white text-emerald-600 font-bold rounded-lg hover:bg-emerald-50 transition-all text-sm">
                       Join Meeting
                     </button>
                   </div>
@@ -280,21 +280,21 @@ export default function CounselorDetails() {
             </div>
           )}
 
-          <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6 sticky top-28">
+          <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm space-y-6 sticky top-28">
             <div className="text-center pb-6 border-b border-slate-50">
               <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Appointment</p>
               <h3 className="text-2xl font-bold text-slate-900">Book a Session</h3>
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                 <Calendar className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">Virtual Meeting</p>
                   <p className="text-xs font-medium text-slate-500">Video call session via Zoom or Google Meet.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+              <div className="flex items-start gap-3 p-4 bg-slate-50 rounded-xl">
                 <MapPin className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-bold text-slate-900">In-Person</p>
@@ -305,12 +305,12 @@ export default function CounselorDetails() {
 
             <button 
               onClick={() => setIsBooking(true)}
-              className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
             >
               Schedule Appointment
             </button>
             
-            <div className="p-4 bg-blue-50 rounded-2xl flex items-start gap-3">
+            <div className="p-4 bg-blue-50 rounded-xl flex items-start gap-3">
               <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
               <p className="text-xs font-medium text-blue-700">
                 Counseling sessions are free for all registered students of {counselor.school}.
@@ -335,7 +335,7 @@ export default function CounselorDetails() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <h2 className="text-2xl font-bold text-slate-900 mb-2">Book a Session</h2>
@@ -349,7 +349,7 @@ export default function CounselorDetails() {
                         type="date" 
                         value={bookingData.date}
                         onChange={(e) => setBookingData({ ...bookingData, date: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                     <div>
@@ -357,7 +357,7 @@ export default function CounselorDetails() {
                       <select 
                         value={bookingData.time}
                         onChange={(e) => setBookingData({ ...bookingData, time: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
                       >
                         <option>09:00 AM</option>
                         <option>10:30 AM</option>
@@ -374,20 +374,20 @@ export default function CounselorDetails() {
                       value={bookingData.reason}
                       onChange={(e) => setBookingData({ ...bookingData, reason: e.target.value })}
                       placeholder="I need help with my university application..."
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
                     ></textarea>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <button 
                       onClick={() => setIsBooking(false)}
-                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
                     <button 
                       onClick={handleConfirmBooking}
-                      className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all"
+                      className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
                     >
                       Confirm Booking
                     </button>

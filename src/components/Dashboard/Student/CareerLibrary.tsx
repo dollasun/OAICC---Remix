@@ -166,7 +166,7 @@ export default function CareerLibrary() {
             placeholder="Search careers, skills, or industries..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-2xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
@@ -174,9 +174,9 @@ export default function CareerLibrary() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-3.5 rounded-2xl font-bold whitespace-nowrap transition-all ${
+              className={`px-6 py-3.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? 'bg-brand text-white shadow-lg shadow-brand/20'
+                  ? 'bg-brand text-white shadow-sm shadow-brand/5'
                   : 'bg-white text-slate-600 border border-slate-200 hover:border-brand hover:text-brand'
               }`}
             >
@@ -194,7 +194,7 @@ export default function CareerLibrary() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="bg-white rounded-[32px] border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all group flex flex-col"
+            className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group flex flex-col"
           >
             <div className="relative h-56 overflow-hidden">
               <img 
@@ -205,7 +205,7 @@ export default function CareerLibrary() {
               <div className="absolute top-4 right-4 flex gap-2">
                 <button 
                   onClick={(e) => handleSaveCareer(career, e)}
-                  className={`p-2 rounded-xl backdrop-blur-sm transition-all ${
+                  className={`p-2 rounded-lg backdrop-blur-sm transition-all ${
                     savedIds.includes(career.id) 
                       ? 'bg-brand text-white' 
                       : 'bg-white/90 text-slate-400 hover:text-brand'
@@ -245,7 +245,7 @@ export default function CareerLibrary() {
 
               <button 
                 onClick={() => navigate(`/student/careers/${career.id}`)}
-                className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-2xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-slate-50 text-slate-900 font-bold rounded-xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
               >
                 View Details <ChevronRight className="w-4 h-4" />
               </button>

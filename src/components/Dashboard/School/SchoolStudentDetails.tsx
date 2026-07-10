@@ -56,12 +56,12 @@ export default function SchoolStudentDetails() {
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate(-1)}
-            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-brand hover:border-brand transition-all shadow-sm"
+            className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-brand hover:border-brand transition-all shadow-sm"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-4">
-            <div className={`w-16 h-16 rounded-3xl flex items-center justify-center text-xl font-bold ${student.color} shadow-sm`}>
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold ${student.color} shadow-sm`}>
               {student.initials}
             </div>
             <div>
@@ -73,7 +73,7 @@ export default function SchoolStudentDetails() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-white border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
+          <button className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
             Download Report
           </button>
           <button 
@@ -113,12 +113,12 @@ export default function SchoolStudentDetails() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-8"
             >
-              <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <h3 className="text-xl font-bold text-slate-900 mb-6">Personal Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                         <Mail className="w-5 h-5" />
                       </div>
                       <div>
@@ -127,7 +127,7 @@ export default function SchoolStudentDetails() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                         <Phone className="w-5 h-5" />
                       </div>
                       <div>
@@ -138,7 +138,7 @@ export default function SchoolStudentDetails() {
                   </div>
                   <div className="space-y-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                         <MapPin className="w-5 h-5" />
                       </div>
                       <div>
@@ -147,7 +147,7 @@ export default function SchoolStudentDetails() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                         <Calendar className="w-5 h-5" />
                       </div>
                       <div>
@@ -159,7 +159,7 @@ export default function SchoolStudentDetails() {
                 </div>
               </div>
 
-              <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <h3 className="text-xl font-bold text-slate-900 mb-4">Biography</h3>
                 <p className="text-slate-600 leading-relaxed">{student.bio}</p>
               </div>
@@ -176,10 +176,10 @@ export default function SchoolStudentDetails() {
                 <div 
                   key={interest.id}
                   onClick={() => setIsInterestModalOpen(true)}
-                  className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 hover:border-brand transition-all cursor-pointer group"
+                  className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:border-brand transition-all cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
                       {interest.icon}
                     </div>
                     <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
@@ -199,7 +199,7 @@ export default function SchoolStudentDetails() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100"
+              className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100"
             >
               <div className="space-y-8">
                 {student.activities.map((activity, idx) => (
@@ -207,7 +207,7 @@ export default function SchoolStudentDetails() {
                     {idx !== student.activities.length - 1 && (
                       <div className="absolute left-6 top-12 bottom-[-32px] w-px bg-slate-100" />
                     )}
-                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center shrink-0 z-10">
+                    <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 z-10">
                       <Clock className="w-5 h-5 text-slate-400" />
                     </div>
                     <div>
@@ -222,9 +222,9 @@ export default function SchoolStudentDetails() {
         </div>
 
         <div className="space-y-8">
-          <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
             <h3 className="text-xl font-bold text-slate-900 mb-6">Assigned Team</h3>
-            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold">
                 T1
               </div>
@@ -236,13 +236,13 @@ export default function SchoolStudentDetails() {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-[32px] shadow-sm border border-slate-100">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-slate-900">Admin Notes</h3>
               <button className="text-brand font-bold text-sm hover:underline">View All</button>
             </div>
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
                 <p className="text-sm text-slate-600 leading-relaxed mb-3 italic">
                   "Esther has shown great progress in her robotics project. Recommended for the upcoming tech competition."
                 </p>
@@ -270,7 +270,7 @@ export default function SchoolStudentDetails() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-[32px] shadow-2xl p-8"
+              className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-8"
             >
               <h3 className="text-2xl font-bold text-slate-900 mb-6">Add Admin Note</h3>
               <textarea 
@@ -280,7 +280,7 @@ export default function SchoolStudentDetails() {
               <div className="flex gap-4 mt-8">
                 <button 
                   onClick={() => setIsNoteModalOpen(false)}
-                  className="flex-1 px-6 py-3 border border-slate-200 rounded-2xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                  className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all"
                 >
                   Cancel
                 </button>

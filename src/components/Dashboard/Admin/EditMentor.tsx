@@ -139,7 +139,7 @@ export default function AdminEditMentor() {
         <ArrowLeft className="w-5 h-5" /> Back to Details
       </button>
 
-      <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 sm:p-12">
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-2xl font-bold text-slate-900">Edit Mentor Profile</h2>
@@ -184,7 +184,7 @@ export default function AdminEditMentor() {
                       input.click();
                     }}
                   >
-                    <div className="w-32 h-32 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-brand transition-all overflow-hidden">
+                    <div className="w-32 h-32 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 group-hover:border-brand transition-all overflow-hidden">
                       {mentorData.avatar ? (
                         <img src={mentorData.avatar} className="w-full h-full object-cover" alt="Avatar" />
                       ) : (
@@ -205,7 +205,7 @@ export default function AdminEditMentor() {
                     <select 
                       value={mentorData.title}
                       onChange={(e) => setMentorData({...mentorData, title: e.target.value})}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                     >
                       <option>Mr.</option>
                       <option>Miss.</option>
@@ -220,7 +220,7 @@ export default function AdminEditMentor() {
                       value={mentorData.firstName}
                       onChange={(e) => setMentorData({ ...mentorData, firstName: e.target.value })}
                       placeholder="Enter First Name" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -230,7 +230,7 @@ export default function AdminEditMentor() {
                       value={mentorData.lastName}
                       onChange={(e) => setMentorData({ ...mentorData, lastName: e.target.value })}
                       placeholder="Enter Last Name" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -240,7 +240,7 @@ export default function AdminEditMentor() {
                       value={mentorData.email}
                       onChange={(e) => setMentorData({ ...mentorData, email: e.target.value })}
                       placeholder="Enter Email Address" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -250,7 +250,7 @@ export default function AdminEditMentor() {
                       value={mentorData.phone}
                       onChange={(e) => setMentorData({ ...mentorData, phone: e.target.value })}
                       placeholder="Enter Phone Number" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                 </div>
@@ -262,12 +262,12 @@ export default function AdminEditMentor() {
                     value={mentorData.bio}
                     onChange={(e) => setMentorData({ ...mentorData, bio: e.target.value })}
                     placeholder="Write a short bio for the mentor..." 
-                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" 
+                    className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" 
                   />
                 </div>
 
                 <div className="flex justify-end pt-4">
-                  <button onClick={() => setStep(2)} className="px-12 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">Next</button>
+                  <button onClick={() => setStep(2)} className="px-12 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all">Next</button>
                 </div>
               </motion.div>
             )}
@@ -281,7 +281,7 @@ export default function AdminEditMentor() {
                     <select 
                       value={mentorData.role}
                       onChange={(e) => setMentorData({ ...mentorData, role: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                     >
                       <option value="">Select Career</option>
                       <option value="Software Engineering">Software Engineering</option>
@@ -298,7 +298,7 @@ export default function AdminEditMentor() {
                       value={mentorData.currentRole}
                       onChange={(e) => setMentorData({ ...mentorData, currentRole: e.target.value })}
                       placeholder="e.g. Senior Product Designer" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -308,13 +308,13 @@ export default function AdminEditMentor() {
                       value={mentorData.company}
                       onChange={(e) => setMentorData({ ...mentorData, company: e.target.value })}
                       placeholder="e.g. Google" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                 </div>
                 <div className="flex justify-between pt-4">
-                  <button onClick={() => setStep(1)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Back</button>
-                  <button onClick={() => setStep(3)} className="px-12 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all">Next</button>
+                  <button onClick={() => setStep(1)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Back</button>
+                  <button onClick={() => setStep(3)} className="px-12 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all">Next</button>
                 </div>
               </motion.div>
             )}
@@ -330,7 +330,7 @@ export default function AdminEditMentor() {
                       value={mentorData.institution}
                       onChange={(e) => setMentorData({ ...mentorData, institution: e.target.value })}
                       placeholder="Enter Institution" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -340,13 +340,13 @@ export default function AdminEditMentor() {
                       value={mentorData.department}
                       onChange={(e) => setMentorData({ ...mentorData, department: e.target.value })}
                       placeholder="Enter Department" 
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                     />
                   </div>
                 </div>
                 <div className="flex justify-between pt-4">
-                  <button onClick={() => setStep(2)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">Back</button>
-                  <button onClick={handleUpdateMentor} className="px-12 py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center gap-2">
+                  <button onClick={() => setStep(2)} className="px-12 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Back</button>
+                  <button onClick={handleUpdateMentor} className="px-12 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center gap-2">
                     Update Mentor <CheckCircle2 className="w-5 h-5" />
                   </button>
                 </div>

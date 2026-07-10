@@ -60,13 +60,13 @@ export default function AdminSetPassword() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1">New password</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
                   <Lock className="w-5 h-5" />
                 </div>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   required
-                  className="w-full pl-16 pr-14 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                  className="w-full pl-16 pr-14 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                   placeholder="••••••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -84,13 +84,13 @@ export default function AdminSetPassword() {
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 ml-1">Confirm password</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
                   <Lock className="w-5 h-5" />
                 </div>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   required
-                  className="w-full pl-16 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
+                  className="w-full pl-16 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
                   placeholder="••••••••••••"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
@@ -100,7 +100,7 @@ export default function AdminSetPassword() {
 
             <button 
               type="submit"
-              className="w-full py-4 bg-brand text-white font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-8"
+              className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-8"
             >
               Reset password <ArrowRight className="w-5 h-5" />
             </button>

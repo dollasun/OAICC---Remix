@@ -98,7 +98,7 @@ export default function Sessions() {
         </div>
         <button 
           onClick={() => setIsNewSessionModalOpen(true)}
-          className="px-6 py-3 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center gap-2"
         >
           <Plus className="w-5 h-5" /> New Session
         </button>
@@ -112,10 +112,10 @@ export default function Sessions() {
             placeholder="Search sessions..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-[20px] outline-none focus:ring-4 focus:ring-brand/5 font-medium text-slate-700 shadow-sm transition-all"
+            className="w-full pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-xl outline-none focus:ring-4 focus:ring-brand/5 font-medium text-slate-700 shadow-sm transition-all"
           />
         </div>
-        <button className="px-6 py-4 bg-white border border-slate-100 rounded-[20px] font-bold text-slate-600 flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+        <button className="px-6 py-4 bg-white border border-slate-100 rounded-xl font-bold text-slate-600 flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
           <Filter className="w-5 h-5" /> Filter
         </button>
       </div>
@@ -126,10 +126,10 @@ export default function Sessions() {
             key={session.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center gap-6 group hover:border-brand/20 transition-all"
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center gap-6 group hover:border-brand/20 transition-all"
           >
             <div className="flex items-center gap-4 flex-1">
-              <img src={session.studentImage || `https://picsum.photos/seed/${session.id}/100/100`} alt={session.studentName} className="w-16 h-16 rounded-2xl object-cover border-2 border-slate-50 shadow-sm" />
+              <img src={session.studentImage || `https://picsum.photos/seed/${session.id}/100/100`} alt={session.studentName} className="w-16 h-16 rounded-xl object-cover border-2 border-slate-50 shadow-sm" />
               <div>
                 <h3 className="text-lg font-bold text-slate-900">{session.title}</h3>
                 <p className="text-sm font-medium text-slate-500">with {session.studentName}</p>
@@ -152,7 +152,7 @@ export default function Sessions() {
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-bold uppercase tracking-widest">
+              <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold uppercase tracking-widest">
                 {session.status}
               </span>
               <button 
@@ -161,18 +161,18 @@ export default function Sessions() {
                     window.open(session.link || 'https://zoom.us', '_blank');
                   }
                 }}
-                className="px-6 py-2 bg-brand text-white font-bold rounded-xl hover:bg-brand/90 transition-all text-sm shadow-lg shadow-brand/10"
+                className="px-6 py-2 bg-brand text-white font-bold rounded-lg hover:bg-brand/90 transition-all text-sm shadow-sm shadow-brand/5"
               >
                 Join Meeting
               </button>
-              <button className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:text-brand group-hover:bg-brand/5 transition-all">
+              <button className="p-3 bg-slate-50 text-slate-400 rounded-lg group-hover:text-brand group-hover:bg-brand/5 transition-all">
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
           </motion.div>
         ))}
         {filteredSessions.length === 0 && (
-          <div className="py-20 text-center bg-white rounded-[40px] border border-slate-100">
+          <div className="py-20 text-center bg-white rounded-2xl border border-slate-100">
             <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <CalendarIcon className="w-10 h-10 text-slate-300" />
             </div>
@@ -197,7 +197,7 @@ export default function Sessions() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
             >
               <div className="p-8 sm:p-10">
                 <div className="flex items-center justify-between mb-8">
@@ -207,7 +207,7 @@ export default function Sessions() {
                   </div>
                   <button 
                     onClick={() => setIsNewSessionModalOpen(false)}
-                    className="p-2 hover:bg-slate-50 rounded-xl transition-colors"
+                    className="p-2 hover:bg-slate-50 rounded-lg transition-colors"
                   >
                     <X className="w-6 h-6 text-slate-400" />
                   </button>
@@ -221,7 +221,7 @@ export default function Sessions() {
                       <select 
                         value={newSessionData.studentId}
                         onChange={(e) => setNewSessionData({ ...newSessionData, studentId: e.target.value })}
-                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 appearance-none"
+                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 appearance-none"
                       >
                         <option value="">Select a student...</option>
                         {assignedStudents.map(student => (
@@ -241,7 +241,7 @@ export default function Sessions() {
                       placeholder="e.g. Career Path Discussion"
                       value={newSessionData.title}
                       onChange={(e) => setNewSessionData({ ...newSessionData, title: e.target.value })}
-                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+                      className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
                     />
                   </div>
 
@@ -252,7 +252,7 @@ export default function Sessions() {
                         type="date" 
                         value={newSessionData.date}
                         onChange={(e) => setNewSessionData({ ...newSessionData, date: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" 
                       />
                     </div>
                     <div>
@@ -260,7 +260,7 @@ export default function Sessions() {
                       <select 
                         value={newSessionData.time}
                         onChange={(e) => setNewSessionData({ ...newSessionData, time: e.target.value })}
-                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+                        className="w-full px-4 py-3 bg-slate-50 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
                       >
                         <option>09:00 AM</option>
                         <option>10:00 AM</option>
@@ -283,7 +283,7 @@ export default function Sessions() {
                         placeholder="https://zoom.us/j/..."
                         value={newSessionData.link}
                         onChange={(e) => setNewSessionData({ ...newSessionData, link: e.target.value })}
-                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
+                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700"
                       />
                     </div>
                   </div>
@@ -291,13 +291,13 @@ export default function Sessions() {
                   <div className="grid grid-cols-2 gap-4 pt-4">
                     <button 
                       onClick={() => setIsNewSessionModalOpen(false)}
-                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all"
+                      className="py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all"
                     >
                       Cancel
                     </button>
                     <button 
                       onClick={handleCreateSession}
-                      className="py-4 bg-brand text-white font-bold rounded-2xl shadow-lg shadow-brand/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
+                      className="py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 className="w-5 h-5" /> Schedule Session
                     </button>

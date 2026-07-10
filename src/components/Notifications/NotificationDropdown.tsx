@@ -52,7 +52,7 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
     <div className="relative">
       <button 
         onMouseEnter={() => setIsOpen(true)}
-        className="relative p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-slate-400"
+        className="relative p-2.5 hover:bg-slate-50 rounded-lg transition-colors text-slate-400"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -72,7 +72,7 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               onMouseEnter={() => setIsOpen(true)}
-              className="absolute right-0 mt-2 w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 z-50 overflow-hidden"
+              className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-sm border border-slate-100 z-50 overflow-hidden"
             >
               <div className="p-6 border-b border-slate-50 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900">Notifications</h3>

@@ -21,72 +21,128 @@ import { useToast } from '../../../context/ToastContext';
 const initialCareers = [
   { 
     id: 1, 
-    name: 'Product Design', 
-    category: 'Creative', 
-    mentors: 15, 
-    date: 'Jan 6, 2022 4:26 PM', 
-    videos: 25, 
-    articles: 12, 
-    resources: 20,
-    image: 'https://picsum.photos/seed/design/100/100',
-    description: 'Create visual concepts to communicate ideas that inspire and inform.'
-  },
-  { 
-    id: 2, 
-    name: 'Medicine', 
-    category: 'Science', 
-    mentors: 15, 
-    date: 'Jan 6, 2022 4:26 PM', 
-    videos: 18, 
-    articles: 30, 
-    resources: 15,
-    image: 'https://picsum.photos/seed/medicine/100/100',
-    description: 'Diagnose and treat illnesses to improve patient health and well-being.'
-  },
-  { 
-    id: 3, 
-    name: 'Engineering', 
-    category: 'Science', 
-    mentors: 15, 
-    date: 'Jan 6, 2022 4:26 PM', 
-    videos: 40, 
-    articles: 25, 
-    resources: 35,
-    image: 'https://picsum.photos/seed/engineering/100/100',
-    description: 'Apply scientific and mathematical principles to design and build structures and systems.'
-  },
-  { 
-    id: 4, 
-    name: 'Real Estate', 
-    category: 'Business', 
-    mentors: 15, 
-    date: 'Jan 6, 2022 4:26 PM', 
-    videos: 12, 
-    articles: 10, 
-    resources: 8,
+    name: 'Estate Agent(Sales)', 
+    category: 'Sales', 
+    mentors: 0, 
+    date: '2026-07-10', 
+    videos: 0, 
+    articles: 1, 
+    resources: 1,
     image: 'https://picsum.photos/seed/estate/100/100',
+    skills: ['Communication skills', 'Negotiation', 'Property Valuation', 'Client Relations', 'Sales', 'Marketing', 'Real Estate Law', 'Closing Deals'],
     description: 'Help clients buy, sell, and rent properties.'
   },
   { 
+    id: 2, 
+    name: 'Medical Sales Representative(Sales)', 
+    category: 'Sales', 
+    mentors: 0, 
+    date: '2026-07-10', 
+    videos: 0, 
+    articles: 1, 
+    resources: 1,
+    image: 'https://picsum.photos/seed/medical/100/100',
+    skills: ['Customer service', 'Medical Knowledge', 'Sales Pitching', 'Product Demos', 'B2B Sales', 'Relationship Building', 'Healthcare Compliance', 'Market Analysis'],
+    description: 'Promote and sell medical products and equipment.'
+  },
+  { 
+    id: 3, 
+    name: 'Recruitment Consultant(Sales)', 
+    category: 'Sales', 
+    mentors: 0, 
+    date: '2026-07-10', 
+    videos: 0, 
+    articles: 1, 
+    resources: 1,
+    image: 'https://picsum.photos/seed/recruitment/100/100',
+    skills: ['Customer service', 'Candidate Sourcing', 'Interviewing', 'Talent Acquisition', 'Negotiation', 'Client Relationship', 'Business Development'],
+    description: 'Match candidates to temporary or permanent jobs.'
+  },
+  { 
+    id: 4, 
+    name: 'Electrical Engineer(Transport & Logistics)', 
+    category: 'Transport and Logistics', 
+    mentors: 0, 
+    date: '2026-07-10', 
+    videos: 0, 
+    articles: 1, 
+    resources: 1,
+    image: 'https://picsum.photos/seed/electrical/100/100',
+    skills: ['Analytical skills', 'Electrical Systems', 'Power Distribution', 'Logistics Planning', 'Troubleshooting', 'Project Management', 'CAD Design'],
+    description: 'Design and manage electrical systems for transport networks.'
+  },
+  { 
     id: 5, 
-    name: 'Software Engineering', 
-    category: 'Technology', 
-    mentors: 15, 
-    date: 'Jan 6, 2022 4:26 PM', 
-    videos: 55, 
-    articles: 40, 
-    resources: 60,
-    image: 'https://picsum.photos/seed/software/100/100',
-    description: 'Design, develop, and maintain software systems and applications.'
+    name: 'Graphic Designer(CAD)', 
+    category: 'Creative Arts and Design', 
+    mentors: 0, 
+    date: '2026-07-09', 
+    videos: 0, 
+    articles: 1, 
+    resources: 1,
+    image: 'https://picsum.photos/seed/graphic/100/100',
+    skills: ['Adaptability', 'CAD Software', 'Graphic Design', '3D Modeling', 'Creative Thinking', 'Typography'],
+    description: 'Create visual designs using computer-aided design software.'
   },
 ];
+
+const getSkillsForCareer = (career: any) => {
+  if (career.skills && career.skills.length > 0) {
+    return career.skills;
+  }
+  const name = (career.name || career.title || '').toLowerCase();
+  if (name.includes('estate') || name.includes('realty')) {
+    return ['Communication skills', 'Negotiation', 'Property Valuation', 'Client Relations', 'Sales', 'Marketing', 'Real Estate Law', 'Closing Deals'];
+  }
+  if (name.includes('medical sales') || name.includes('pharmaceutical sales')) {
+    return ['Customer service', 'Medical Knowledge', 'Sales Pitching', 'Product Demos', 'B2B Sales', 'Relationship Building', 'Compliance', 'Market Analysis'];
+  }
+  if (name.includes('recruitment') || name.includes('hr') || name.includes('talent')) {
+    return ['Customer service', 'Candidate Sourcing', 'Interviewing', 'Talent Acquisition', 'Negotiation', 'Client Relationship', 'Business Development'];
+  }
+  if (name.includes('electrical engineer') || name.includes('electronics')) {
+    return ['Analytical skills', 'Electrical Systems', 'Power Distribution', 'Logistics Planning', 'Troubleshooting', 'Project Management', 'CAD Design'];
+  }
+  if (name.includes('graphic') || name.includes('designer') || name.includes('creative')) {
+    return ['Adaptability', 'CAD Software', 'Graphic Design', '3D Modeling', 'Creative Thinking', 'Typography'];
+  }
+  if (name.includes('software') || name.includes('programmer') || name.includes('developer')) {
+    return ['Problem Solving', 'Coding', 'System Design', 'Git', 'Cloud Computing', 'Database Management', 'Testing', 'Agile'];
+  }
+  if (name.includes('medicine') || name.includes('doctor') || name.includes('surgeon')) {
+    return ['Critical Thinking', 'Empathy', 'Dexterity', 'Anatomy', 'Clinical Skills', 'Emergency Care', 'Pharmacology'];
+  }
+  if (name.includes('engineer')) {
+    return ['Problem Solving', 'Analytical skills', 'CAD Design', 'Project Management', 'Mathematics', 'Physics', 'Engineering Design'];
+  }
+  return ['Professional skills', 'Communication', 'Teamwork', 'Problem Solving'];
+};
+
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return dateStr;
+  }
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+  } catch (e) {
+    // ignore
+  }
+  return dateStr;
+};
 
 export default function AdminCareers() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [careers, setCareers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('All');
+  const [searchColumn, setSearchColumn] = useState('All');
 
   useEffect(() => {
     const data = careersStorage.get(initialCareers);
@@ -94,13 +150,26 @@ export default function AdminCareers() {
   }, []);
 
   const filteredCareers = careers.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         c.category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = filterCategory === 'All' || c.category === filterCategory;
-    return matchesSearch && matchesCategory;
-  });
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const skills = getSkillsForCareer(c);
 
-  const categories = ['All', ...new Set(careers.map(c => c.category))];
+    if (searchColumn === 'Career') {
+      return c.name.toLowerCase().includes(query);
+    }
+    if (searchColumn === 'Top Skills') {
+      return skills.some(skill => skill.toLowerCase().includes(query));
+    }
+    if (searchColumn === 'Category') {
+      return c.category.toLowerCase().includes(query);
+    }
+    
+    // Default or 'All'
+    return c.name.toLowerCase().includes(query) || 
+           c.category.toLowerCase().includes(query) ||
+           skills.some(skill => skill.toLowerCase().includes(query));
+  });
 
   const handleDelete = (id: number) => {
     if (window.confirm('Are you sure you want to delete this career?')) {
@@ -108,6 +177,19 @@ export default function AdminCareers() {
       setCareers(updated);
       careersStorage.save(updated);
       showToast('Career deleted successfully!');
+    }
+  };
+
+  const getSearchPlaceholder = () => {
+    switch (searchColumn) {
+      case 'Career':
+        return 'Search by career name...';
+      case 'Top Skills':
+        return 'Search by top skills...';
+      case 'Category':
+        return 'Search by category...';
+      default:
+        return 'Search careers by name, skills or category...';
     }
   };
 
@@ -152,7 +234,7 @@ export default function AdminCareers() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input 
             type="text" 
-            placeholder="Search careers by name or category..." 
+            placeholder={getSearchPlaceholder()} 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand/10 outline-none transition-all font-medium"
@@ -161,13 +243,14 @@ export default function AdminCareers() {
         <div className="relative">
           <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <select 
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
+            value={searchColumn}
+            onChange={(e) => setSearchColumn(e.target.value)}
             className="pl-12 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 outline-none focus:ring-4 focus:ring-brand/10 appearance-none cursor-pointer"
           >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
+            <option value="All">All</option>
+            <option value="Career">Career</option>
+            <option value="Top Skills">Top Skills</option>
+            <option value="Category">Category</option>
           </select>
         </div>
       </div>
@@ -178,57 +261,77 @@ export default function AdminCareers() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Category</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Mentors</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Created</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CAREER</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">TOP SKILLS</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CATEGORY</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">MENTORS</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">DATE CREATED</th>
+                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filteredCareers.map((career) => (
-                <tr key={career.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
-                      <div>
-                        <p className="font-bold text-slate-900">{career.name}</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <Video className="w-3 h-3" /> {career.videos}
-                          </span>
-                          <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <FileText className="w-3 h-3" /> {career.articles}
-                          </span>
+              {filteredCareers.map((career) => {
+                const skillsList = getSkillsForCareer(career);
+                return (
+                  <tr key={career.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                        <div>
+                          <p className="font-bold text-slate-900">{career.name}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              <Video className="w-3 h-3" /> {career.videos || 0}
+                            </span>
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              <FileText className="w-3 h-3" /> {career.articles || 0}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className="text-sm font-medium text-slate-600">{career.category}</span>
-                  </td>
-                  <td className="px-8 py-6 text-center">
-                    <span className="font-bold text-slate-900">{career.mentors}</span>
-                  </td>
-                  <td className="px-8 py-6 text-sm font-medium text-slate-500">{career.date}</td>
-                  <td className="px-8 py-6 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => navigate(`/admin/careers/edit/${career.id}`)}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
-                      >
-                        <Edit2 className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(career.id)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-8 py-6">
+                      {skillsList && skillsList.length > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <span className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium text-slate-700">
+                            {skillsList[0]}
+                          </span>
+                          {skillsList.length > 1 && (
+                            <span className="px-2.5 py-1.5 bg-slate-100 text-xs font-bold text-slate-600 rounded-lg">
+                              +{skillsList.length - 1}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400 font-medium">-</span>
+                      )}
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="text-sm font-medium text-slate-500">{career.category}</span>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className="text-sm font-medium text-slate-500">{career.mentors || 0}</span>
+                    </td>
+                    <td className="px-8 py-6 text-sm font-medium text-slate-500">{formatDate(career.date)}</td>
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => navigate(`/admin/careers/edit/${career.id}`)}
+                          className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
+                        >
+                          <Edit2 className="w-5 h-5" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(career.id)}
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

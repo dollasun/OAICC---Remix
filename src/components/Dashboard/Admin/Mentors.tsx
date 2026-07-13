@@ -62,20 +62,42 @@ export default function AdminMentors() {
   const { showToast } = useToast();
   const [mentors, setMentors] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchColumn, setSearchColumn] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
     setMentors(mentorsStorage.get(initialMentors));
   }, []);
 
-  const filteredMentors = mentors.filter(m => 
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.role.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort((a, b) => {
+  const filteredMentors = mentors.filter(m => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+
+    if (searchColumn === 'Mentors Name') {
+      return m.name.toLowerCase().includes(query);
+    }
+    if (searchColumn === 'Career') {
+      return m.role.toLowerCase().includes(query);
+    }
+
+    return m.name.toLowerCase().includes(query) ||
+           m.email.toLowerCase().includes(query) ||
+           m.role.toLowerCase().includes(query);
+  }).sort((a, b) => {
     if (sortBy === 'name') return a.name.localeCompare(b.name);
     return 0; // Default to initial order for 'newest'
   });
+
+  const getSearchPlaceholder = () => {
+    switch (searchColumn) {
+      case 'Mentors Name':
+        return 'Search by mentor name...';
+      case 'Career':
+        return 'Search by career...';
+      default:
+        return 'Search mentors...';
+    }
+  };
 
   const handleDeleteMentor = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -122,21 +144,35 @@ export default function AdminMentors() {
 
       {/* Mentors Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search mentors..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
-            />
+        <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 max-w-xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder={getSearchPlaceholder()} 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+              />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <select 
+                value={searchColumn}
+                onChange={(e) => setSearchColumn(e.target.value)}
+                className="pl-12 pr-10 py-3 bg-slate-50 border-none rounded-xl font-bold text-slate-600 outline-none focus:ring-2 focus:ring-brand/20 appearance-none cursor-pointer text-sm"
+              >
+                <option value="All">All Fields</option>
+                <option value="Mentors Name">Mentors Name</option>
+                <option value="Career">Career</option>
+              </select>
+            </div>
           </div>
           <select 
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="bg-transparent border-none text-slate-400 font-bold text-sm outline-none focus:ring-0 cursor-pointer hover:text-brand transition-colors"
+            className="bg-transparent border-none text-slate-400 font-bold text-sm outline-none focus:ring-0 cursor-pointer hover:text-brand transition-colors self-end md:self-auto"
           >
             <option value="newest">Newest First</option>
             <option value="name">Sort by Name</option>

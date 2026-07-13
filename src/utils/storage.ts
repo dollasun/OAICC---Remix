@@ -122,35 +122,61 @@ export const forumCategoriesStorage = {
   save: (data: any) => saveStoredData(STORAGE_KEY_FORUM_CATEGORIES, data),
 };
 
+const rawDefaultMentors = [
+  { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Design', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m1/100/100' },
+  { id: 2, name: 'Amanda Lance', email: 'lance@example.com', role: 'Medicine', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m2/100/100' },
+  { id: 3, name: 'Bolu Ahmed', email: 'bolu@example.com', role: 'Engineering', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m3/100/100' },
+  { id: 4, name: 'Lilian Okoh', email: 'lilian@example.com', role: 'Real Estate', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m4/100/100' },
+  { id: 5, name: 'John Chidiebere', email: 'john@example.com', role: 'Software Engineering', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m5/100/100' },
+  { id: 6, name: 'Adeola Bisoye', email: 'adeola@example.com', role: 'Medicine', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m6/100/100' },
+  { id: 7, name: 'Sarah Jenkins', email: 'sarah@example.com', role: 'Marketing', date: 'Feb 12, 2023 10:15 AM', avatar: 'https://picsum.photos/seed/m7/100/100' },
+  { id: 8, name: 'Michael Chen', email: 'michael@example.com', role: 'Finance', date: 'Mar 5, 2023 2:30 PM', avatar: 'https://picsum.photos/seed/m8/100/100' },
+  { id: 9, name: 'Elena Rodriguez', email: 'elena@example.com', role: 'Law', date: 'Apr 20, 2023 9:45 AM', avatar: 'https://picsum.photos/seed/m9/100/100' },
+  { id: 10, name: 'David Smith', email: 'david@example.com', role: 'Architecture', date: 'May 15, 2023 11:20 AM', avatar: 'https://picsum.photos/seed/m10/100/100' },
+  { id: 11, name: 'Priya Sharma', email: 'priya@example.com', role: 'Data Science', date: 'Jun 8, 2023 3:10 PM', avatar: 'https://picsum.photos/seed/m11/100/100' },
+  { id: 12, name: 'James Wilson', email: 'james@example.com', role: 'Psychology', date: 'Jul 22, 2023 1:55 PM', avatar: 'https://picsum.photos/seed/m12/100/100' },
+  { id: 13, name: 'Isabella Garcia', email: 'isabella@example.com', role: 'Education', date: 'Aug 14, 2023 10:05 AM', avatar: 'https://picsum.photos/seed/m13/100/100' },
+  { id: 14, name: 'Robert Taylor', email: 'robert@example.com', role: 'Business', date: 'Sep 30, 2023 4:40 PM', avatar: 'https://picsum.photos/seed/m14/100/100' },
+  { id: 15, name: 'Sophie Martin', email: 'sophie@example.com', role: 'Journalism', date: 'Oct 18, 2023 12:25 PM', avatar: 'https://picsum.photos/seed/m15/100/100' },
+  { id: 16, name: 'William Brown', email: 'william@example.com', role: 'Agriculture', date: 'Nov 5, 2023 8:50 AM', avatar: 'https://picsum.photos/seed/m16/100/100' },
+  { id: 17, name: 'Olivia White', email: 'olivia@example.com', role: 'Hospitality', date: 'Dec 12, 2023 2:15 PM', avatar: 'https://picsum.photos/seed/m17/100/100' },
+  { id: 18, name: 'Lucas Moore', email: 'lucas@example.com', role: 'Sports Management', date: 'Jan 25, 2024 11:30 AM', avatar: 'https://picsum.photos/seed/m18/100/100' },
+  { id: 19, name: 'Noah Garcia', email: 'noah@example.com', role: 'Civil Engineering', date: 'Feb 10, 2024 9:00 AM', avatar: 'https://picsum.photos/seed/m19/100/100' },
+  { id: 20, name: 'Mia Martinez', email: 'mia@example.com', role: 'Pharmacy', date: 'Feb 15, 2024 2:30 PM', avatar: 'https://picsum.photos/seed/m20/100/100' },
+  { id: 21, name: 'Ethan Robinson', email: 'ethan@example.com', role: 'Cybersecurity', date: 'Feb 20, 2024 11:45 AM', avatar: 'https://picsum.photos/seed/m21/100/100' },
+  { id: 22, name: 'Ava Clark', email: 'ava@example.com', role: 'Human Resources', date: 'Mar 1, 2024 10:20 AM', avatar: 'https://picsum.photos/seed/m22/100/100' },
+  { id: 23, name: 'Liam Rodriguez', email: 'liam@example.com', role: 'Mechanical Engineering', date: 'Mar 5, 2024 3:15 PM', avatar: 'https://picsum.photos/seed/m23/100/100' },
+  { id: 24, name: 'Charlotte Lewis', email: 'charlotte@example.com', role: 'Public Relations', date: 'Mar 10, 2024 1:00 PM', avatar: 'https://picsum.photos/seed/m24/100/100' },
+  { id: 25, name: 'Benjamin Lee', email: 'benjamin@example.com', role: 'Artificial Intelligence', date: 'Mar 15, 2024 9:30 AM', avatar: 'https://picsum.photos/seed/m25/100/100' },
+  { id: 26, name: 'Amelia Walker', email: 'amelia@example.com', role: 'Environmental Science', date: 'Mar 20, 2024 4:45 PM', avatar: 'https://picsum.photos/seed/m26/100/100' },
+  { id: 27, name: 'James Hall', email: 'james.h@example.com', role: 'Real Estate Development', date: 'Mar 25, 2024 11:00 AM', avatar: 'https://picsum.photos/seed/m27/100/100' },
+  { id: 28, name: 'Harper Young', email: 'harper@example.com', role: 'Veterinary Medicine', date: 'Apr 1, 2024 2:15 PM', avatar: 'https://picsum.photos/seed/m28/100/100' },
+  { id: 29, name: 'Alexander King', email: 'alex@example.com', role: 'Aerospace Engineering', date: 'Apr 5, 2024 10:30 AM', avatar: 'https://picsum.photos/seed/m29/100/100' },
+  { id: 30, name: 'Evelyn Wright', email: 'evelyn@example.com', role: 'Interior Design', date: 'Apr 10, 2024 3:50 PM', avatar: 'https://picsum.photos/seed/m30/100/100' }
+];
+
+const defaultMentors = rawDefaultMentors.map((m, index) => ({
+  ...m,
+  image: m.avatar,
+  expertise: m.role,
+  bio: `Professional mentor specializing in ${m.role}. With years of practical industry experience, I am committed to supporting students and aspiring professionals in their career journeys.`,
+  students: 10 + (index % 11),
+  rating: parseFloat((4.5 + (index % 6) * 0.1).toFixed(1)),
+  linkedin: `https://linkedin.com/in/${m.name.toLowerCase().replace(/\s+/g, '')}`,
+  twitter: `https://twitter.com/${m.name.toLowerCase().replace(/\s+/g, '')}`,
+  website: `https://${m.name.toLowerCase().replace(/\s+/g, '')}.dev`
+}));
+
 export const mentorsStorage = {
-  get: (initialData: any = [
-    {
-      id: 1,
-      name: 'Mason Biyi',
-      role: 'Senior Software Engineer at Google',
-      expertise: 'Software Engineering',
-      image: 'https://picsum.photos/seed/m1/100/100',
-      students: 12,
-      rating: 4.9,
-      bio: 'Passionate about mentoring the next generation of engineers.',
-      linkedin: 'https://linkedin.com/in/masonbiyi',
-      twitter: 'https://twitter.com/masonbiyi',
-      website: 'https://masonbiyi.dev'
-    },
-    {
-      id: 2,
-      name: 'Dr. Sarah Alabi',
-      role: 'Consultant Surgeon',
-      expertise: 'Medicine',
-      image: 'https://picsum.photos/seed/m2/100/100',
-      students: 8,
-      rating: 4.8,
-      bio: 'Helping medical students navigate their career paths.',
-      linkedin: 'https://linkedin.com/in/drsarahalabi',
-      twitter: '',
-      website: 'https://drsarahalabi.com'
+  get: (initialData: any = defaultMentors) => {
+    const backup = (!initialData || initialData.length === 0) ? defaultMentors : initialData;
+    const data = getStoredData(STORAGE_KEY_MENTORS, backup);
+    if (!data || data.length === 0) {
+      saveStoredData(STORAGE_KEY_MENTORS, backup);
+      return backup;
     }
-  ]) => getStoredData(STORAGE_KEY_MENTORS, initialData),
+    return data;
+  },
   save: (data: any) => saveStoredData(STORAGE_KEY_MENTORS, data),
 };
 

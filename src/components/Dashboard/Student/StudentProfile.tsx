@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, 
@@ -19,11 +19,14 @@ import {
   Globe,
   Trash2,
   Calendar,
-  Target
+  Target,
+  BarChart,
+  Check
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
+import { intakeQuestions, clusters } from '../../../data/questionnaire';
 
 export default function StudentProfile() {
   const navigate = useNavigate();
@@ -40,6 +43,42 @@ export default function StudentProfile() {
     push: true,
     mentor: true
   });
+
+  // Assessment State
+  const [intakeAnswers, setIntakeAnswers] = useState<Record<string, string | string[]>>({});
+  
+  useEffect(() => {
+    const saved = localStorage.getItem('studentIntakeAnswers');
+    if (saved) {
+      setIntakeAnswers(JSON.parse(saved));
+    }
+  }, []);
+
+  const handleIntakeChange = (id: string, value: string | string[], type: string) => {
+    if (type === 'multiple') {
+      const current = (intakeAnswers[id] as string[]) || [];
+      const valStr = value as string;
+      const updatedList = current.includes(valStr)
+        ? current.filter(item => item !== valStr)
+        : [...current, valStr];
+      const updated = { ...intakeAnswers, [id]: updatedList };
+      setIntakeAnswers(updated);
+      localStorage.setItem('studentIntakeAnswers', JSON.stringify(updated));
+    } else {
+      const updated = { ...intakeAnswers, [id]: value };
+      setIntakeAnswers(updated);
+      localStorage.setItem('studentIntakeAnswers', JSON.stringify(updated));
+    }
+    showToast('Progress saved automatically');
+  };
+
+  const answeredCount = Object.keys(intakeAnswers).filter(k => {
+    const val = intakeAnswers[k];
+    if (Array.isArray(val)) return val.length > 0;
+    return !!val;
+  }).length;
+  const totalQuestions = intakeQuestions.length;
+  const completionPercentage = Math.round((answeredCount / totalQuestions) * 100);
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
@@ -73,8 +112,14 @@ export default function StudentProfile() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
       {/* Profile Header */}
-      <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-center gap-8">
+      <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden">
+        {/* Subtle Background Accent based on completion */}
+        <div 
+          className="absolute bottom-0 left-0 h-1.5 bg-brand transition-all duration-1000" 
+          style={{ width: `${completionPercentage}%` }}
+        />
+        
+        <div className="flex flex-col sm:flex-row items-center gap-8 relative z-10">
           <div className="relative group cursor-pointer" onClick={handleImageClick}>
             <img 
               src={profileImage} 
@@ -105,12 +150,202 @@ export default function StudentProfile() {
                 <MapPin className="w-4 h-4" /> Lagos, Nigeria
               </div>
             </div>
+            
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
+                <span className="font-bold text-brand">{completionPercentage}%</span>
+              </div>
+              <div className="flex-1 w-full text-left">
+                <div className="flex justify-between items-center mb-1">
+                  <p className="text-sm font-bold text-slate-700">Profile Completion</p>
+                  <span className="text-xs text-slate-500 font-medium">{answeredCount} of {totalQuestions} answered</span>
+                </div>
+                <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionPercentage}%` }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="h-full bg-brand rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Settings Accordion */}
       <div className="space-y-4">
+        
+        {/* Career Discovery Assessment */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleAccordion('assessment')}
+            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                <BarChart className="w-6 h-6" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-lg font-bold text-slate-900">Student Intake Profile</h3>
+                <p className="text-sm font-medium text-slate-500">Provide a quick snapshot of where you're at</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {completionPercentage === 100 && (
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Completed
+                </span>
+              )}
+              <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform ${activeAccordion === 'assessment' ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
+          
+          <AnimatePresence>
+            {activeAccordion === 'assessment' && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-t border-slate-50"
+              >
+                <div className="p-4 sm:p-8 bg-slate-50/50">
+                  <div className="max-w-3xl mx-auto space-y-8">
+                    <p className="text-sm text-slate-600 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                      <strong>Instructions:</strong> Please complete these onboarding questions to help us personalize your dashboard. Your progress is saved automatically.
+                    </p>
+
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-8">
+                      {intakeQuestions.map((q, idx) => {
+                        const hasAnswered = q.type === 'multiple' 
+                          ? (intakeAnswers[q.id] as string[])?.length > 0
+                          : !!intakeAnswers[q.id];
+
+                        return (
+                          <div key={q.id} className="border-b border-slate-100 pb-8 last:border-0 last:pb-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="inline-flex items-center px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] uppercase font-bold tracking-wider">
+                                {q.area}
+                              </span>
+                              {hasAnswered && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                            </div>
+                            <p className="text-base font-bold text-slate-800 mb-1 flex items-start gap-3">
+                              <span className="text-brand shrink-0 mt-0.5">{idx + 1}.</span>
+                              <span>{q.question}</span>
+                            </p>
+                            {q.type === 'multiple' && (
+                              <p className="text-sm text-slate-500 ml-7 mb-4">Select all that apply</p>
+                            )}
+                            {q.type !== 'multiple' && <div className="h-4"></div>}
+
+                            <div className="pl-7">
+                              {q.type === 'text' ? (
+                                <textarea
+                                  className="w-full p-4 border-2 border-slate-200 rounded-xl resize-none h-28 focus:border-brand outline-none transition-colors text-slate-700"
+                                  placeholder="Type your answer here..."
+                                  value={(intakeAnswers[q.id] as string) || ''}
+                                  onChange={(e) => handleIntakeChange(q.id, e.target.value, 'text')}
+                                />
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                  {q.options?.map(opt => {
+                                    const isSelected = q.type === 'multiple' 
+                                      ? (intakeAnswers[q.id] as string[])?.includes(opt)
+                                      : intakeAnswers[q.id] === opt;
+                                    
+                                    return (
+                                      <button
+                                        key={opt}
+                                        onClick={() => handleIntakeChange(q.id, opt, q.type || 'single')}
+                                        className={`w-full p-3 md:p-4 rounded-xl text-left font-bold transition-all flex items-center justify-between border-2 ${
+                                          isSelected
+                                            ? 'border-brand bg-cyan-50/60 text-brand'
+                                            : 'border-slate-150 bg-slate-50/40 text-slate-600 hover:border-slate-300 hover:bg-white'
+                                        }`}
+                                      >
+                                        <span className="text-sm">{opt}</span>
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center transition-all ${
+                                          isSelected ? 'bg-brand text-white' : 'border-2 border-slate-300'
+                                        }`}>
+                                          {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Personal Information */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleAccordion('personal')}
+            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+                <User className="w-6 h-6" />
+              </div>
+              <div className="text-left">
+                <h3 className="text-lg font-bold text-slate-900">Personal Information</h3>
+                <p className="text-sm font-medium text-slate-500">Update your name, email, and location</p>
+              </div>
+            </div>
+            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform ${activeAccordion === 'personal' ? 'rotate-180' : ''}`} />
+          </button>
+          
+          <AnimatePresence>
+            {activeAccordion === 'personal' && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-t border-slate-50"
+              >
+                <div className="p-8 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
+                      <input type="text" defaultValue="Bolu Ahmed" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
+                      <input type="email" defaultValue="bolu.ahmed@example.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
+                      <input type="tel" defaultValue="+234 801 234 5678" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-slate-700 ml-1">Location</label>
+                      <input type="text" defaultValue="Lagos, Nigeria" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <button 
+                      onClick={() => showToast('Profile updated successfully!')}
+                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Events & Sessions */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <button 
@@ -188,65 +423,6 @@ export default function StudentProfile() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Personal Information */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <button 
-            onClick={() => toggleAccordion('personal')}
-            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 transition-all"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
-                <User className="w-6 h-6" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-bold text-slate-900">Personal Information</h3>
-                <p className="text-sm font-medium text-slate-500">Update your name, email, and location</p>
-              </div>
-            </div>
-            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform ${activeAccordion === 'personal' ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <AnimatePresence>
-            {activeAccordion === 'personal' && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="border-t border-slate-50"
-              >
-                <div className="p-8 space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-                      <input type="text" defaultValue="Bolu Ahmed" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                      <input type="email" defaultValue="bolu.ahmed@example.com" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-                      <input type="tel" defaultValue="+234 801 234 5678" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 ml-1">Location</label>
-                      <input type="text" defaultValue="Lagos, Nigeria" className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
-                    </div>
-                  </div>
-                  <div className="flex justify-end pt-4">
-                    <button 
-                      onClick={() => showToast('Profile updated successfully!')}
-                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
-                    >
-                      Save Changes
-                    </button>
                   </div>
                 </div>
               </motion.div>

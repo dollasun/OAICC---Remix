@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { 
@@ -8,17 +8,19 @@ import {
   Users, 
   Heart, 
   Briefcase,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 import Logo from './Logo';
 import { UserRole } from '../types';
+import GoogleAuthModal from './Auth/GoogleAuthModal';
 
 const roles: { id: UserRole; title: string; icon: React.ReactNode; description: string; color: string }[] = [
   { 
     id: 'student', 
     title: 'Student', 
     icon: <GraduationCap className="w-8 h-8" />, 
-    description: 'Explore career paths and track your learning journey.',
+    description: 'Explore career paths, take interest/strength quizzes, and track your journey.',
     color: 'bg-blue-500'
   },
   { 
@@ -60,22 +62,35 @@ const roles: { id: UserRole; title: string; icon: React.ReactNode; description: 
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12 flex flex-col items-center"
+        className="text-center mb-10 flex flex-col items-center max-w-3xl"
       >
         <Logo size="xl" className="mb-6" />
         <h1 className="text-5xl font-bold text-slate-900 mb-4 font-display">
           Welcome to <span className="text-brand">OAICC</span>
         </h1>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
           The ultimate platform for career guidance and student success. 
-          Select your role to get started.
+          Select your role or sign up directly with Google to get started.
         </p>
+
+        {/* Quick Google Sign Up Simulation CTA */}
+        <button
+          onClick={() => setShowGoogleModal(true)}
+          className="flex items-center gap-3 px-6 py-3.5 bg-white border-2 border-slate-200 rounded-full hover:border-brand hover:shadow-md transition-all font-bold text-slate-800 text-sm group"
+        >
+          <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+          <span>Sign up with Google (Student)</span>
+          <span className="px-2 py-0.5 bg-brand/10 text-brand rounded-full text-xs font-bold flex items-center gap-1">
+            <Sparkles className="w-3 h-3" /> Quick Demo
+          </span>
+        </button>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
@@ -92,7 +107,7 @@ export default function LandingPage() {
               } else if (role.id === 'counselor') {
                 navigate('/counselor/signin');
               } else {
-                navigate(`/auth/signin?role=${role.id}`);
+                navigate(`/auth/signup?role=${role.id}`);
               }
             }}
             className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-sm transition-all cursor-pointer border border-slate-100 group"
@@ -108,6 +123,13 @@ export default function LandingPage() {
           </motion.div>
         ))}
       </div>
+
+      <GoogleAuthModal 
+        isOpen={showGoogleModal} 
+        onClose={() => setShowGoogleModal(false)} 
+        targetRole="student"
+        mode="signup"
+      />
 
       <footer className="mt-16 text-slate-400 text-sm">
         &copy; {new Date().getFullYear()} OAICC Career Counseling Platform. All rights reserved.

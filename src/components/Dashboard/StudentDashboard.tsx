@@ -49,7 +49,7 @@ export default function StudentDashboard() {
     { icon: Bell, label: 'Events', path: '/student/events' },
     { icon: UserCircle, label: 'Counselors', path: '/student/counselors' },
     { icon: Activity, label: 'Activity', path: '/student/activity' },
-    { icon: Settings, label: 'Settings', path: '/student/settings' },
+    { icon: User, label: 'My Profile', path: '/student/settings' },
   ];
 
   const isActive = (path: string) => {

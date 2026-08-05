@@ -11,10 +11,12 @@ import {
   TrendingUp,
   Bookmark,
   ChevronRight,
-  Video
+  Video,
+  Target
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { savedCareersStorage, counselingSessionsStorage, careersStorage, eventsStorage } from '../../../utils/storage';
+import { coreAssessmentQuestions } from '../../../data/questionnaire';
 
 export default function StudentHome() {
   const navigate = useNavigate();
@@ -22,6 +24,9 @@ export default function StudentHome() {
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
+  
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const totalQuestions = coreAssessmentQuestions.length;
 
   useEffect(() => {
     const saved = savedCareersStorage.get([]);
@@ -40,6 +45,11 @@ export default function StudentHome() {
 
     const allEvents = eventsStorage.get([]);
     setEvents(allEvents.slice(0, 2));
+
+    const assessmentSaved = localStorage.getItem('studentAssessmentAnswers');
+    if (assessmentSaved) {
+      setAnsweredCount(Object.keys(JSON.parse(assessmentSaved)).length);
+    }
   }, []);
 
   const stats = [
@@ -64,6 +74,8 @@ export default function StudentHome() {
     setSavedIds(updated.map((c: any) => c.id));
   };
 
+  const completionPercentage = Math.round((answeredCount / totalQuestions) * 100);
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
@@ -79,6 +91,60 @@ export default function StudentHome() {
           Explore Careers <ArrowRight className="w-5 h-5" />
         </button>
       </div>
+
+      {/* Assessment Prompt */}
+      {completionPercentage < 100 && (
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white border-2 border-brand/20 p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center gap-8 justify-between"
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+          
+          <div className="flex-1 relative z-10 w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+                <Target className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Complete your Profile Assessment</h2>
+            </div>
+            
+            <p className="text-slate-600 font-medium mb-6">
+              You haven't finished your Career Discovery Assessment yet! 
+              Answer a few more questions to unlock highly personalized career matches and mentor recommendations.
+            </p>
+
+            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
+                <span className="font-bold text-brand text-sm">{completionPercentage}%</span>
+              </div>
+              <div className="flex-1 w-full text-left">
+                <div className="flex justify-between items-center mb-1">
+                  <p className="text-sm font-bold text-slate-700">Assessment Progress</p>
+                  <span className="text-xs text-slate-500 font-medium">{answeredCount} / {totalQuestions} answered</span>
+                </div>
+                <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionPercentage}%` }}
+                    transition={{ duration: 1, delay: 0.2 }}
+                    className="h-full bg-brand rounded-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="relative z-10 w-full sm:w-auto">
+            <button 
+              onClick={() => navigate('/student/onboarding')}
+              className="w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/10 hover:scale-105 transition-all flex items-center justify-center gap-2"
+            >
+              Continue Assessment <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -243,4 +309,5 @@ export default function StudentHome() {
     </div>
   );
 }
+
 

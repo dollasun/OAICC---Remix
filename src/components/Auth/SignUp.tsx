@@ -4,12 +4,14 @@ import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
+import GoogleAuthModal from './GoogleAuthModal';
 
 export default function SignUp() {
   const [searchParams] = useSearchParams();
-  const role = searchParams.get('role') || 'parent';
+  const role = searchParams.get('role') || 'student';
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   React.useEffect(() => {
     if (role === 'school') {
@@ -115,11 +117,22 @@ export default function SignUp() {
               Sign Up
             </button>
 
-            <button type="button" className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
+            <button 
+              type="button" 
+              onClick={() => setShowGoogleModal(true)}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-brand/40 transition-all font-medium text-slate-700 shadow-sm"
+            >
               <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
               Sign up with Google
             </button>
           </form>
+
+          <GoogleAuthModal 
+            isOpen={showGoogleModal} 
+            onClose={() => setShowGoogleModal(false)} 
+            targetRole={role}
+            mode="signup"
+          />
         </motion.div>
       </div>
     </div>

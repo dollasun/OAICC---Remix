@@ -4,19 +4,27 @@ import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
+import GoogleAuthModal from './GoogleAuthModal';
 
 export default function SignIn() {
   const [searchParams] = useSearchParams();
-  const role = searchParams.get('role') || 'parent';
+  const role = searchParams.get('role') || 'student';
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (role === 'school') {
       navigate('/school/dashboard');
+    } else if (role === 'teacher') {
+      navigate('/teacher/dashboard');
+    } else if (role === 'parent') {
+      navigate('/parent/dashboard');
+    } else if (role === 'counselor') {
+      navigate('/counselor/dashboard');
     } else {
-      navigate(`/onboarding/${role}`);
+      navigate('/student/dashboard');
     }
   };
 
@@ -115,11 +123,22 @@ export default function SignIn() {
               </div>
             </div>
 
-            <button type="button" className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all font-medium text-slate-700">
+            <button 
+              type="button" 
+              onClick={() => setShowGoogleModal(true)}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-brand/40 transition-all font-medium text-slate-700 shadow-sm"
+            >
               <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
               Sign in with Google
             </button>
           </form>
+
+          <GoogleAuthModal 
+            isOpen={showGoogleModal} 
+            onClose={() => setShowGoogleModal(false)} 
+            targetRole={role}
+            mode="signin"
+          />
         </motion.div>
       </div>
     </div>

@@ -13,75 +13,8 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { careersStorage, savedCareersStorage } from '../../../utils/storage';
-
-const initialCareers = [
-  {
-    id: 1,
-    title: 'Software Engineer',
-    category: 'Technology',
-    salary: '$80k - $150k',
-    growth: 'High',
-    education: 'Bachelor\'s Degree',
-    match: '98%',
-    image: 'https://picsum.photos/seed/coding/600/400',
-    description: 'Design, develop, and maintain software systems and applications.'
-  },
-  {
-    id: 2,
-    title: 'Data Scientist',
-    category: 'Technology',
-    salary: '$90k - $160k',
-    growth: 'Very High',
-    education: 'Master\'s Degree',
-    match: '92%',
-    image: 'https://picsum.photos/seed/analysis/600/400',
-    description: 'Analyze complex data to help organizations make better decisions.'
-  },
-  {
-    id: 3,
-    title: 'Graphic Designer',
-    category: 'Creative',
-    salary: '$45k - $90k',
-    growth: 'Medium',
-    education: 'Bachelor\'s Degree',
-    match: '85%',
-    image: 'https://picsum.photos/seed/art/600/400',
-    description: 'Create visual concepts to communicate ideas that inspire and inform.'
-  },
-  {
-    id: 4,
-    title: 'Marketing Manager',
-    category: 'Business',
-    salary: '$70k - $130k',
-    growth: 'High',
-    education: 'Bachelor\'s Degree',
-    match: '78%',
-    image: 'https://picsum.photos/seed/strategy/600/400',
-    description: 'Plan and execute strategies to promote products or services.'
-  },
-  {
-    id: 5,
-    title: 'Cybersecurity Analyst',
-    category: 'Technology',
-    salary: '$85k - $140k',
-    growth: 'Very High',
-    education: 'Bachelor\'s Degree',
-    match: '88%',
-    image: 'https://picsum.photos/seed/security/600/400',
-    description: 'Protect an organization\'s computer networks and systems.'
-  },
-  {
-    id: 6,
-    title: 'Financial Analyst',
-    category: 'Finance',
-    salary: '$65k - $120k',
-    growth: 'Medium',
-    education: 'Bachelor\'s Degree',
-    match: '72%',
-    image: 'https://picsum.photos/seed/finance/600/400',
-    description: 'Provide guidance to businesses and individuals making investment decisions.'
-  }
-];
+import { clusters } from '../../../data/questionnaire';
+import { careerGlossary } from '../../../data/careers';
 
 export default function CareerLibrary() {
   const navigate = useNavigate();
@@ -91,9 +24,10 @@ export default function CareerLibrary() {
   const [savedIds, setSavedIds] = useState<number[]>([]);
 
   useEffect(() => {
-    // Map admin careers to student career format if needed
+    // Check if admin has added any careers
     const adminCareers = careersStorage.get([]);
-    let allCareers;
+    let allCareers: any[] = [];
+    
     if (adminCareers.length > 0) {
       allCareers = adminCareers.map((c: any) => ({
         id: c.id,
@@ -107,7 +41,25 @@ export default function CareerLibrary() {
         description: c.description
       }));
     } else {
-      allCareers = initialCareers;
+      // Generate initial careers from the glossary
+      let idCounter = 1;
+      for (const [cluster, jobs] of Object.entries(careerGlossary)) {
+        // Pick a few jobs from each cluster to show initially if no admin careers exist
+        const sampleJobs = jobs.slice(0, 5);
+        sampleJobs.forEach(job => {
+          allCareers.push({
+            id: idCounter++,
+            title: job,
+            category: cluster,
+            salary: '$60k - $120k',
+            growth: 'Medium',
+            education: 'Bachelor\'s Degree',
+            match: `${Math.floor(Math.random() * 30) + 65}%`,
+            image: `https://picsum.photos/seed/${idCounter}/600/400`,
+            description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()} tasks and responsibilities.`
+          });
+        });
+      }
     }
 
     // Sort by match percentage (highest first)
@@ -123,7 +75,7 @@ export default function CareerLibrary() {
     setSavedIds(saved.map((c: any) => c.id));
   }, []);
 
-  const categories = ['All', 'Technology', 'Creative', 'Business', 'Finance', 'Healthcare', 'Science'];
+  const categories = ['All', ...clusters];
 
   const filteredCareers = careers.filter(career => {
     const matchesSearch = career.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -223,7 +175,7 @@ export default function CareerLibrary() {
 
             <div className="p-8 flex-1 flex flex-col">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-bold text-brand uppercase tracking-widest px-2 py-1 bg-brand/5 rounded-lg">
+                <span className="text-[10px] font-bold text-brand uppercase tracking-widest px-2 py-1 bg-brand/5 rounded-lg line-clamp-1">
                   {career.category}
                 </span>
               </div>
@@ -272,4 +224,5 @@ export default function CareerLibrary() {
     </div>
   );
 }
+
 

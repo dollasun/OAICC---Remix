@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
@@ -29,6 +29,8 @@ import {
   MessageCircle,
   Settings
 } from 'lucide-react';
+import { careersStorage } from '../../../utils/storage';
+import { careerGlossary } from '../../../data/careers';
 
 export default function CareerDetails() {
   const { id } = useParams();
@@ -39,6 +41,7 @@ export default function CareerDetails() {
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [viewMode, setViewMode] = useState<'main' | 'videos' | 'articles' | 'resources'>('main');
+  const [career, setCareer] = useState<any>(null);
   
   // Video player state
   const [isPlaying, setIsPlaying] = useState(false);
@@ -50,6 +53,101 @@ export default function CareerDetails() {
     { id: 'c2', author: 'Alex Chen', text: 'Great article. The part about Maxwell\'s equations was a bit unexpected but interesting.', time: '1h ago', avatar: 'https://picsum.photos/seed/s2/100/100' }
   ]);
   const [newComment, setNewComment] = useState('');
+
+  useEffect(() => {
+    const adminCareers = careersStorage.get([]);
+    let allCareers: any[] = [];
+    
+    if (adminCareers.length > 0) {
+      allCareers = adminCareers.map((c: any) => ({
+        id: c.id,
+        title: c.name,
+        category: c.category,
+        match: c.match || `${Math.floor(Math.random() * 40) + 60}%`,
+        image: c.image || 'https://picsum.photos/seed/design/1200/600',
+        description: c.description || `A professional in the ${c.category} industry.`,
+        salary: {
+          entry: `$${c.salaryMin || '50,000'}`,
+          average: `$${(c.salaryMin && c.salaryMax) ? (parseInt(c.salaryMin) + parseInt(c.salaryMax)) / 2 : '85,000'}`,
+          senior: `$${c.salaryMax || '120,000'}`,
+          median: `$${(c.salaryMin && c.salaryMax) ? (parseInt(c.salaryMin) + parseInt(c.salaryMax)) / 2 : '85,000'}`
+        },
+        growth: '22% (Much faster than average)',
+        education: 'Bachelor\'s Degree in related field',
+        skills: ['Physical fitness', 'Leadership', 'Communication', 'Problem Solving', 'Teamwork'],
+        responsibilities: [
+          'Collaborate with cross-functional teams to define and design new features',
+          'Troubleshoot, debug and upgrade existing processes',
+          'Build reusable frameworks for future use',
+          'Optimize processes for maximum speed and scalability'
+        ],
+        pathway: [
+          { step: 'High School', description: 'Focus on relevant electives.' },
+          { step: 'Bachelor\'s Degree', description: 'Major in a related field.' },
+          { step: 'Internships', description: 'Gain practical experience through internships.' },
+          { step: 'Entry-level Role', description: 'Start as a Junior or Associate.' },
+          { step: 'Specialization', description: 'Focus on specific areas of expertise.' }
+        ],
+        videos: [],
+        articles: [],
+        resources: []
+      }));
+    } else {
+      let idCounter = 1;
+      for (const [cluster, jobs] of Object.entries(careerGlossary)) {
+        const sampleJobs = jobs.slice(0, 5);
+        sampleJobs.forEach(job => {
+          allCareers.push({
+            id: idCounter,
+            title: job,
+            category: cluster,
+            match: `${Math.floor(Math.random() * 30) + 65}%`,
+            image: `https://picsum.photos/seed/${idCounter}/1200/600`,
+            description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()} tasks and responsibilities.`,
+            salary: {
+              entry: '$60,000',
+              average: '$115,000',
+              senior: '$165,000+',
+              median: '$85,000'
+            },
+            growth: '22% (Much faster than average)',
+            education: 'Bachelor\'s Degree in related field',
+            skills: ['Physical fitness', 'Leadership', 'Communication', 'Problem Solving', 'Teamwork'],
+            responsibilities: [
+              'Collaborate with cross-functional teams to define and design new features',
+              'Troubleshoot, debug and upgrade existing processes',
+              'Build reusable frameworks for future use',
+              'Optimize processes for maximum speed and scalability'
+            ],
+            pathway: [
+              { step: 'High School', description: 'Focus on relevant electives.' },
+              { step: 'Bachelor\'s Degree', description: 'Major in a related field.' },
+              { step: 'Internships', description: 'Gain practical experience through internships.' },
+              { step: 'Entry-level Role', description: 'Start as a Junior or Associate.' },
+              { step: 'Specialization', description: 'Focus on specific areas of expertise.' }
+            ],
+            videos: [
+              { id: 'v1', title: 'Data editor updates', author: 'David Aina', category: cluster, thumbnail: 'https://picsum.photos/seed/v1/400/225', duration: '12:45' },
+              { id: 'v2', title: 'Introduction to field', author: 'Sarah Johnson', category: cluster, thumbnail: 'https://picsum.photos/seed/v2/400/225', duration: '15:20' }
+            ],
+            articles: [
+              { id: 'a1', title: 'Industry updates', author: 'David Aina', category: cluster, readTime: '5 mins read', image: 'https://picsum.photos/seed/a1/400/250' },
+              { id: 'a2', title: 'Getting started', author: 'David Aina', category: cluster, readTime: '8 mins read', image: 'https://picsum.photos/seed/a2/400/250' }
+            ],
+            resources: [
+              { id: 'r1', title: 'Landing a Role', author: 'Coursera', thumbnail: 'https://picsum.photos/seed/r1/400/250' }
+            ]
+          });
+          idCounter++;
+        });
+      }
+    }
+
+    const found = allCareers.find(c => c.id.toString() === id);
+    if (found) {
+      setCareer(found);
+    }
+  }, [id]);
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
@@ -76,63 +174,16 @@ export default function CareerDetails() {
     }
   };
 
-  // Mock data for a single career
-  const career = {
-    id: 1,
-    title: 'Product Design',
-    category: 'Design',
-    match: '98%',
-    image: 'https://picsum.photos/seed/design/1200/600',
-    description: 'Product design is a subset of industrial design. They use their designing skills and technical knowledge to design new products or improve the way that existing products look or work. Product designers design products keeping in mind the consumer market and are involved in the whole product design life cycle, from concept to its design delivery.',
-    salary: {
-      entry: '$60,000',
-      average: '$115,000',
-      senior: '$165,000+',
-      median: '$85,000'
-    },
-    growth: '22% (Much faster than average)',
-    education: 'Bachelor\'s Degree in Design or related field',
-    skills: [
-      'Physical fitness', 'Leadership', 'Communication', 'First aid', 'Problem Solving', 'User Research', 'Prototyping'
-    ],
-    responsibilities: [
-      'Write clean, maintainable, and efficient code',
-      'Collaborate with cross-functional teams to define and design new features',
-      'Troubleshoot, debug and upgrade existing software',
-      'Build reusable code and libraries for future use',
-      'Optimize applications for maximum speed and scalability'
-    ],
-    pathway: [
-      { step: 'High School', description: 'Focus on Mathematics, Physics, and Computer Science electives.' },
-      { step: 'Bachelor\'s Degree', description: 'Major in Computer Science, Software Engineering, or a related technical field.' },
-      { step: 'Internships', description: 'Gain practical experience through summer internships at tech companies.' },
-      { step: 'Entry-level Role', description: 'Start as a Junior Software Engineer or Associate Developer.' },
-      { step: 'Specialization', description: 'Focus on specific areas like Frontend, Backend, Mobile, or AI.' }
-    ],
-    videos: [
-      { id: 'v1', title: 'Data editor updates', author: 'David Aina', category: 'Software development', thumbnail: 'https://picsum.photos/seed/v1/400/225', duration: '12:45' },
-      { id: 'v2', title: 'Introduction to UI/UX', author: 'Sarah Johnson', category: 'Design', thumbnail: 'https://picsum.photos/seed/v2/400/225', duration: '15:20' },
-      { id: 'v3', title: 'Prototyping basics', author: 'Michael Chen', category: 'Design', thumbnail: 'https://picsum.photos/seed/v3/400/225', duration: '08:15' },
-      { id: 'v4', title: 'User research methods', author: 'Emma Wilson', category: 'Research', thumbnail: 'https://picsum.photos/seed/v4/400/225', duration: '20:30' },
-    ],
-    articles: [
-      { id: 'a1', title: 'Data editor updates', author: 'David Aina', category: 'Software development', readTime: '5 mins read', image: 'https://picsum.photos/seed/a1/400/250' },
-      { id: 'a2', title: 'Installing Glide apps', author: 'David Aina', category: 'Software development', readTime: '8 mins read', image: 'https://picsum.photos/seed/a2/400/250' },
-      { id: 'a3', title: 'Barcode scanning', author: 'David Aina', category: 'Software development', readTime: '4 mins read', image: 'https://picsum.photos/seed/a3/400/250' },
-      { id: 'a4', title: 'Custom analytics app', author: 'David Aina', category: 'Software development', readTime: '6 mins read', image: 'https://picsum.photos/seed/a4/400/250' },
-    ],
-    resources: [
-      { id: 'r1', title: 'Landing a UX Role', author: 'Coursera', thumbnail: 'https://picsum.photos/seed/r1/400/250' },
-      { id: 'r2', title: 'Foundations of User Experience', author: 'Coursera', thumbnail: 'https://picsum.photos/seed/r2/400/250' },
-    ]
-  };
-
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'skills', label: 'Skills & Duties' },
     { id: 'pathway', label: 'Career Path' },
     { id: 'market', label: 'Market Trends' }
   ];
+
+  if (!career) {
+    return <div className="p-8 text-center text-slate-500 font-bold">Loading career...</div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">

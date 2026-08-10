@@ -1,23 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand: #00B4D8;
   --color-brand-hover: #0096B4;
   --color-brand-light: #E0F7FA;
+  --color-brand-dark: #0077B6;
   
   --font-sans: "SF Pro Rounded", "Quicksand", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: "SF Pro Rounded", "Quicksand", sans-serif;
 }
 
 @layer base {
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans antialiased transition-colors duration-200;
   }
 }
 
 .glass-card {
-  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
+  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 dark:border-slate-800 shadow-sm;
 }
 
 .btn-primary {
@@ -25,7 +32,7 @@
 }
 
 .input-field {
-  @apply w-full px-5 py-4 rounded-xl border border-slate-200 bg-white focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 placeholder:text-slate-400 font-medium;
+  @apply w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:border-brand dark:focus:border-brand focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium;
 }
 
 /* Ensure icons in inputs have proper separation */
@@ -34,12 +41,13 @@
 }
 
 .input-with-icon .icon-wrapper {
-  @apply absolute left-5 text-slate-400 pointer-events-none flex items-center justify-center border-r border-slate-100 pr-3;
+  @apply absolute left-5 text-slate-400 dark:text-slate-500 pointer-events-none flex items-center justify-center border-r border-slate-100 dark:border-slate-800 pr-3;
 }
 
 .input-with-icon input {
   @apply pl-16;
 }
+
 @theme {
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.02);
   --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.03), 0 1px 2px -1px rgb(0 0 0 / 0.02);

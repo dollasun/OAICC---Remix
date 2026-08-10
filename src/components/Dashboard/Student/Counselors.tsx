@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
   Filter, 
-  UserCircle, 
   GraduationCap, 
   Calendar, 
   MessageSquare, 
@@ -11,7 +10,6 @@ import {
   MapPin,
   CheckCircle2,
   Clock,
-  BookOpen,
   X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -312,35 +310,6 @@ export default function Counselors() {
             </div>
           </motion.div>
         ))}
-      </div>
-
-      {/* Resources Banner */}
-      <div className="bg-brand rounded-2xl p-8 sm:p-12 text-white relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-          <div className="flex-1">
-            <h2 className="text-3xl font-bold mb-4">Academic Resources</h2>
-            <p className="text-white/80 text-lg font-medium mb-8">
-              Access our curated collection of guides, templates, and scholarship lists to help you succeed.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <button className="bg-white text-brand px-8 py-3.5 rounded-xl font-bold hover:scale-105 transition-all flex items-center gap-2">
-                <BookOpen className="w-5 h-5" /> Browse Resources
-              </button>
-              <button className="bg-brand-dark bg-opacity-20 border border-white/20 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-opacity-30 transition-all">
-                Scholarship List
-              </button>
-            </div>
-          </div>
-          <div className="w-full md:w-1/3 flex justify-center">
-            <div className="w-48 h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm relative">
-              <GraduationCap className="w-24 h-24 text-white" />
-              <div className="absolute -top-4 -right-4 w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-sm rotate-12">
-                <CheckCircle2 className="w-8 h-8 text-brand" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <UserCircle className="absolute -bottom-10 -left-10 w-64 h-64 text-white/5" />
       </div>
     </div>
   );

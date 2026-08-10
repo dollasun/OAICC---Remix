@@ -8,17 +8,18 @@ import {
   Lightbulb,
   Briefcase,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  Award
 } from 'lucide-react';
 import Logo from '../Logo';
-import { coreAssessmentQuestions } from '../../data/questionnaire';
+import { INITIAL_QUESTIONS } from '../../data/assessmentQuestions';
 import { useToast } from '../../context/ToastContext';
 
 const sectionIcons: Record<string, React.ReactNode> = {
-  'Interests': <Lightbulb className="w-8 h-8 text-white" />,
-  'Strengths': <Target className="w-8 h-8 text-white" />,
-  'Work Style': <Briefcase className="w-8 h-8 text-white" />,
-  'Subject Signals': <Brain className="w-8 h-8 text-white" />
+  'interests': <Lightbulb className="w-8 h-8 text-white" />,
+  'strengths': <Target className="w-8 h-8 text-white" />,
+  'work-style': <Briefcase className="w-8 h-8 text-white" />,
+  'subject-signals': <Brain className="w-8 h-8 text-white" />
 };
 
 export default function StudentOnboarding() {
@@ -32,21 +33,27 @@ export default function StudentOnboarding() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    const isContinue = searchParams.get('continue') === 'true' || searchParams.get('start') === 'true';
     const saved = localStorage.getItem('studentAssessmentAnswers');
     if (saved) {
       const parsed = JSON.parse(saved);
       setAnswers(parsed);
-      const firstUnanswered = coreAssessmentQuestions.findIndex(q => !parsed[q.id]);
+      const firstUnanswered = INITIAL_QUESTIONS.findIndex(q => !parsed[q.id]);
       if (firstUnanswered !== -1) {
         setCurrentIndex(firstUnanswered);
       } else {
-        setCurrentIndex(0);
+        setCurrentIndex(INITIAL_QUESTIONS.length);
       }
+      if (isContinue) {
+        setStarted(true);
+      }
+    } else if (isContinue) {
+      setStarted(true);
     }
-  }, []);
+  }, [searchParams]);
 
-  const currentQuestion = coreAssessmentQuestions[currentIndex] || coreAssessmentQuestions[0];
-  const progress = Math.round((currentIndex / coreAssessmentQuestions.length) * 100);
+  const currentQuestion = INITIAL_QUESTIONS[currentIndex] || INITIAL_QUESTIONS[0];
+  const progress = Math.round((currentIndex / INITIAL_QUESTIONS.length) * 100);
 
   const handleAnswer = (val: number) => {
     const updated = { ...answers, [currentQuestion.id]: val };
@@ -54,16 +61,22 @@ export default function StudentOnboarding() {
     localStorage.setItem('studentAssessmentAnswers', JSON.stringify(updated));
     
     setTimeout(() => {
-      if (currentIndex < coreAssessmentQuestions.length - 1) {
+      if (currentIndex < INITIAL_QUESTIONS.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
-        finishOnboarding();
+        // Allow it to increment to show the completion screen
+        setCurrentIndex(currentIndex + 1);
       }
     }, 300);
   };
 
-  const finishOnboarding = () => {
+  const saveAndExit = () => {
     showToast('Progress saved! Welcome to your dashboard.');
+    navigate('/student/dashboard');
+  };
+
+  const finishOnboarding = () => {
+    showToast('Assessment complete! Welcome to your personalized dashboard.');
     navigate('/student/dashboard');
   };
 
@@ -116,25 +129,63 @@ export default function StudentOnboarding() {
     );
   }
 
-  if (currentIndex >= coreAssessmentQuestions.length) {
+  if (currentIndex >= INITIAL_QUESTIONS.length) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        {/* Celebration Background Effects */}
+        <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-amber-400/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-emerald-500/20 rounded-full blur-[100px] pointer-events-none mix-blend-multiply" />
+        
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white rounded-3xl p-8 text-center shadow-xl shadow-brand/5 border border-slate-100"
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", bounce: 0.5 }}
+          className="max-w-md w-full bg-white/90 backdrop-blur-xl rounded-[2rem] p-8 md:p-12 text-center shadow-2xl shadow-brand/10 border border-white relative z-10"
         >
-          <div className="w-20 h-20 mx-auto bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20 mb-6">
-            <ArrowRight className="w-10 h-10 text-white" />
+          {/* Gamified Badge */}
+          <div className="relative w-32 h-32 mx-auto mb-8">
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 rounded-full opacity-30 blur-xl"
+            />
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", bounce: 0.6 }}
+              className="relative w-full h-full bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/30 border-4 border-white"
+            >
+              <Award className="w-16 h-16 text-white" />
+            </motion.div>
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Assessment Complete!</h2>
-          <p className="text-slate-600 mb-8 font-medium">We've personalized your dashboard based on your responses.</p>
-          <button 
-            onClick={() => finishOnboarding()}
-            className="w-full py-4 bg-brand text-white font-bold rounded-xl hover:bg-brand-hover transition-all"
+
+          <motion.h2 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="text-3xl font-extrabold text-slate-900 mb-4"
           >
-            Go to Dashboard
-          </button>
+            Assessment Complete!
+          </motion.h2>
+
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="text-slate-600 mb-8 font-medium text-lg leading-relaxed"
+          >
+            Congratulations! You've unlocked the <span className="font-bold text-amber-500">Self-Aware</span> badge. We've personalized your dashboard based on your unique profile.
+          </motion.p>
+
+          <motion.button 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            onClick={() => finishOnboarding()}
+            className="w-full py-5 bg-gradient-to-r from-brand to-cyan-500 text-white text-lg font-bold rounded-2xl shadow-xl shadow-brand/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+          >
+            Go to My Dashboard <ArrowRight className="w-6 h-6" />
+          </motion.button>
         </motion.div>
       </div>
     );
@@ -158,7 +209,7 @@ export default function StudentOnboarding() {
           <Logo size="sm" />
         </div>
         <button 
-          onClick={() => finishOnboarding()}
+          onClick={() => saveAndExit()}
           className="px-5 py-2.5 bg-white/80 backdrop-blur border border-slate-200 text-slate-600 font-bold text-sm rounded-full hover:bg-white transition-all shadow-sm flex items-center gap-2"
         >
           Save & Exit <ChevronRight className="w-4 h-4" />
@@ -168,14 +219,14 @@ export default function StudentOnboarding() {
       {/* Progress Bar */}
       <div className="w-full max-w-5xl mx-auto px-6 relative z-10">
         <div className="flex justify-between text-xs font-bold text-slate-500 mb-3">
-          <span className="uppercase tracking-widest">{currentQuestion.section}</span>
-          <span>{currentIndex + 1} / {coreAssessmentQuestions.length}</span>
+          <span className="uppercase tracking-widest">{currentQuestion.sectionId}</span>
+          <span>{currentIndex + 1} / {INITIAL_QUESTIONS.length}</span>
         </div>
         <div className="h-2.5 w-full bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm">
           <motion.div 
             className="h-full bg-gradient-to-r from-brand to-cyan-400 rounded-full"
             initial={{ width: `${progress}%` }}
-            animate={{ width: `${((currentIndex + 1) / coreAssessmentQuestions.length) * 100}%` }}
+            animate={{ width: `${((currentIndex + 1) / INITIAL_QUESTIONS.length) * 100}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>
@@ -195,11 +246,11 @@ export default function StudentOnboarding() {
             >
               <div className="flex flex-col items-center text-center">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand to-cyan-500 flex items-center justify-center shadow-lg shadow-brand/20 mb-8">
-                  {sectionIcons[currentQuestion.section] || <Target className="w-8 h-8 text-white" />}
+                  {sectionIcons[currentQuestion.sectionId] || <Target className="w-8 h-8 text-white" />}
                 </div>
                 
                 <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-12 min-h-[5rem] flex items-center justify-center">
-                  "{currentQuestion.text}"
+                  "{currentQuestion.questionText}"
                 </h2>
 
                 <div className="w-full max-w-xl mx-auto flex justify-between items-end gap-2 md:gap-4">

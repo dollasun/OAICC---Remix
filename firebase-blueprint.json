@@ -1,0 +1,57 @@
+{
+  "projectInfo": {
+    "name": "Career Assessment Platform",
+    "description": "Platform for career assessments, users, and career management."
+  },
+  "collections": [
+    {
+      "name": "users",
+      "description": "Stores user records including students, teachers, parents, counselors, and admins.",
+      "schema": {
+        "id": { "type": "string", "description": "User ID matching Firebase Auth UID" },
+        "role": { "type": "string", "description": "User role: student, parent, teacher, counselor, admin" },
+        "email": { "type": "string", "description": "User's email address" },
+        "firstName": { "type": "string", "description": "User's first name" },
+        "lastName": { "type": "string", "description": "User's last name" },
+        "createdAt": { "type": "timestamp", "description": "Record creation time" }
+      },
+      "securityRules": {
+        "read": "request.auth != null && (request.auth.uid == resource.id || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')",
+        "write": "request.auth != null && (request.auth.uid == resource.id || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')"
+      }
+    },
+    {
+      "name": "assessmentQuestions",
+      "description": "Stores assessment questions.",
+      "schema": {
+        "id": { "type": "string", "description": "Question ID" },
+        "category": { "type": "string", "description": "Question category" },
+        "questionText": { "type": "string", "description": "The question text" },
+        "options": { "type": "array", "description": "Array of possible answers" },
+        "createdAt": { "type": "timestamp", "description": "Record creation time" },
+        "updatedAt": { "type": "timestamp", "description": "Record update time" }
+      },
+      "securityRules": {
+        "read": "request.auth != null",
+        "write": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    },
+    {
+      "name": "careers",
+      "description": "Stores career information.",
+      "schema": {
+        "id": { "type": "string", "description": "Career ID" },
+        "title": { "type": "string", "description": "Career title" },
+        "description": { "type": "string", "description": "Career description" },
+        "requirements": { "type": "array", "description": "Array of requirements" },
+        "salaryRange": { "type": "string", "description": "Estimated salary range" },
+        "createdAt": { "type": "timestamp", "description": "Record creation time" },
+        "updatedAt": { "type": "timestamp", "description": "Record update time" }
+      },
+      "securityRules": {
+        "read": "request.auth != null",
+        "write": "request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'"
+      }
+    }
+  ]
+}

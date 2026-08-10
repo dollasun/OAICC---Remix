@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CheckCircle2, AlertCircle, X, Info } from 'lucide-react';
 
@@ -8,10 +8,11 @@ interface Toast {
   id: string;
   message: string;
   type: ToastType;
+  action?: { label: string; onClick: () => void };
 }
 
 interface ToastContextType {
-  showToast: (message: string, type?: ToastType) => void;
+  showToast: (message: string, type?: ToastType, action?: { label: string; onClick: () => void }) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -27,20 +28,22 @@ export const useToast = () => {
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const showToast = useCallback((message: string, type: ToastType = 'success') => {
+  const showToast = useCallback((message: string, type: ToastType = 'success', action?: { label: string; onClick: () => void }) => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
+    setToasts((prev) => [...prev, { id, message, type, action }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 5000);
+    }, action ? 10000 : 5000); // give more time if there is an action
   }, []);
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={contextValue}>
       {children}
       <div className="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none">
         <AnimatePresence mode="popLayout">
@@ -65,6 +68,18 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 
                 <p className="flex-1 text-sm font-bold">{toast.message}</p>
                 
+                {toast.action && (
+                  <button 
+                    onClick={() => {
+                      toast.action!.onClick();
+                      removeToast(toast.id);
+                    }}
+                    className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  >
+                    {toast.action.label}
+                  </button>
+                )}
+
                 <button 
                   onClick={() => removeToast(toast.id)}
                   className="p-1 hover:bg-slate-50 rounded-lg transition-colors text-slate-400"

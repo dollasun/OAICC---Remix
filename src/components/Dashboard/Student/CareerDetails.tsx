@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { careersStorage } from '../../../utils/storage';
 import { careerGlossary } from '../../../data/careers';
+import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function CareerDetails() {
   const { id } = useParams();
@@ -55,97 +56,163 @@ export default function CareerDetails() {
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
-    const adminCareers = careersStorage.get([]);
-    let allCareers: any[] = [];
-    
-    if (adminCareers.length > 0) {
-      allCareers = adminCareers.map((c: any) => ({
-        id: c.id,
-        title: c.name,
-        category: c.category,
-        match: c.match || `${Math.floor(Math.random() * 40) + 60}%`,
-        image: c.image || 'https://picsum.photos/seed/design/1200/600',
-        description: c.description || `A professional in the ${c.category} industry.`,
-        salary: {
-          entry: `$${c.salaryMin || '50,000'}`,
-          average: `$${(c.salaryMin && c.salaryMax) ? (parseInt(c.salaryMin) + parseInt(c.salaryMax)) / 2 : '85,000'}`,
-          senior: `$${c.salaryMax || '120,000'}`,
-          median: `$${(c.salaryMin && c.salaryMax) ? (parseInt(c.salaryMin) + parseInt(c.salaryMax)) / 2 : '85,000'}`
-        },
-        growth: '22% (Much faster than average)',
-        education: 'Bachelor\'s Degree in related field',
-        skills: ['Physical fitness', 'Leadership', 'Communication', 'Problem Solving', 'Teamwork'],
-        responsibilities: [
-          'Collaborate with cross-functional teams to define and design new features',
-          'Troubleshoot, debug and upgrade existing processes',
-          'Build reusable frameworks for future use',
-          'Optimize processes for maximum speed and scalability'
-        ],
-        pathway: [
-          { step: 'High School', description: 'Focus on relevant electives.' },
-          { step: 'Bachelor\'s Degree', description: 'Major in a related field.' },
-          { step: 'Internships', description: 'Gain practical experience through internships.' },
-          { step: 'Entry-level Role', description: 'Start as a Junior or Associate.' },
-          { step: 'Specialization', description: 'Focus on specific areas of expertise.' }
-        ],
-        videos: [],
-        articles: [],
-        resources: []
-      }));
-    } else {
-      let idCounter = 1;
-      for (const [cluster, jobs] of Object.entries(careerGlossary)) {
-        const sampleJobs = jobs.slice(0, 5);
-        sampleJobs.forEach(job => {
-          allCareers.push({
-            id: idCounter,
-            title: job,
-            category: cluster,
-            match: `${Math.floor(Math.random() * 30) + 65}%`,
-            image: `https://picsum.photos/seed/${idCounter}/1200/600`,
-            description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()} tasks and responsibilities.`,
-            salary: {
-              entry: '$60,000',
-              average: '$115,000',
-              senior: '$165,000+',
-              median: '$85,000'
-            },
-            growth: '22% (Much faster than average)',
-            education: 'Bachelor\'s Degree in related field',
-            skills: ['Physical fitness', 'Leadership', 'Communication', 'Problem Solving', 'Teamwork'],
-            responsibilities: [
-              'Collaborate with cross-functional teams to define and design new features',
-              'Troubleshoot, debug and upgrade existing processes',
-              'Build reusable frameworks for future use',
-              'Optimize processes for maximum speed and scalability'
-            ],
-            pathway: [
-              { step: 'High School', description: 'Focus on relevant electives.' },
-              { step: 'Bachelor\'s Degree', description: 'Major in a related field.' },
-              { step: 'Internships', description: 'Gain practical experience through internships.' },
-              { step: 'Entry-level Role', description: 'Start as a Junior or Associate.' },
-              { step: 'Specialization', description: 'Focus on specific areas of expertise.' }
-            ],
-            videos: [
-              { id: 'v1', title: 'Data editor updates', author: 'David Aina', category: cluster, thumbnail: 'https://picsum.photos/seed/v1/400/225', duration: '12:45' },
-              { id: 'v2', title: 'Introduction to field', author: 'Sarah Johnson', category: cluster, thumbnail: 'https://picsum.photos/seed/v2/400/225', duration: '15:20' }
-            ],
-            articles: [
-              { id: 'a1', title: 'Industry updates', author: 'David Aina', category: cluster, readTime: '5 mins read', image: 'https://picsum.photos/seed/a1/400/250' },
-              { id: 'a2', title: 'Getting started', author: 'David Aina', category: cluster, readTime: '8 mins read', image: 'https://picsum.photos/seed/a2/400/250' }
-            ],
-            resources: [
-              { id: 'r1', title: 'Landing a Role', author: 'Coursera', thumbnail: 'https://picsum.photos/seed/r1/400/250' }
-            ]
-          });
-          idCounter++;
-        });
+    const topCareers = getTopRecommendedCareers(100);
+    let found: any = topCareers.find(c => c.id.toString() === id);
+
+    if (!found) {
+      const adminCareers = careersStorage.get([]);
+      const foundAdmin = adminCareers.find((c: any) => c.id.toString() === id);
+      if (foundAdmin) {
+        found = {
+          id: foundAdmin.id,
+          title: foundAdmin.name || foundAdmin.title,
+          category: foundAdmin.category || 'Professional Services',
+          description: foundAdmin.description || `A professional in the ${foundAdmin.category || 'selected'} field.`,
+          salary: `$${foundAdmin.salaryMin || '60,000'} - $${foundAdmin.salaryMax || '120,000'}`,
+          growth: '20%',
+          education: "Bachelor's Degree",
+          image: foundAdmin.image || `https://picsum.photos/seed/${foundAdmin.id}/1200/600`,
+          matchScore: 92,
+          match: '92%'
+        };
       }
     }
 
-    const found = allCareers.find(c => c.id.toString() === id);
+    if (!found) {
+      let idCounter = 1;
+      for (const [cluster, jobs] of Object.entries(careerGlossary)) {
+        for (const job of jobs) {
+          if (idCounter.toString() === id) {
+            found = {
+              id: idCounter,
+              title: job,
+              category: cluster,
+              description: `A dedicated professional role focused on ${job.toLowerCase()} within the ${cluster} industry.`,
+              salary: '$70,000 - $135,000',
+              growth: '18%',
+              education: "Bachelor's Degree",
+              image: `https://picsum.photos/seed/${idCounter}/1200/600`,
+              matchScore: 88,
+              match: '88%'
+            };
+            break;
+          }
+          idCounter++;
+        }
+        if (found) break;
+      }
+    }
+
     if (found) {
-      setCareer(found);
+      const categoryLower = (found.category || '').toLowerCase();
+      
+      let skills = ['Communication', 'Problem Solving', 'Analytical Thinking', 'Team Collaboration', 'Strategic Planning'];
+      let responsibilities = [
+        'Lead and coordinate core operational tasks and deliverables effectively.',
+        'Collaborate with cross-functional teams to streamline project execution workflows.',
+        'Analyze data and performance metrics to drive continuous improvement.',
+        'Ensure compliance with organizational guidelines and industry standards.'
+      ];
+
+      if (categoryLower.includes('tech') || categoryLower.includes('information') || categoryLower.includes('software') || categoryLower.includes('data')) {
+        skills = ['Software Architecture', 'Data Structures & Algorithms', 'Cloud Infrastructure', 'API Design', 'System Security', 'Problem Solving'];
+        responsibilities = [
+          'Design, build, and deploy scalable software and cloud system architectures.',
+          'Conduct code reviews, automated testing, and continuous integration workflows.',
+          'Optimize system performance, speed, and resolve technical bottlenecks.',
+          'Collaborate with product managers and designers to deliver seamless user experiences.'
+        ];
+      } else if (categoryLower.includes('health') || categoryLower.includes('medicine')) {
+        skills = ['Clinical Diagnosis', 'Patient Care & Empathy', 'Medical Ethics', 'Surgical Procedures', 'Critical Thinking', 'Emergency Response'];
+        responsibilities = [
+          'Perform medical evaluations, physical assessments, and patient diagnostic tests.',
+          'Formulate and execute personalized treatment plans for patients.',
+          'Maintain thorough health documentation while following strict medical regulations.',
+          'Collaborate with specialists and nurses to ensure optimal patient recovery.'
+        ];
+      } else if (categoryLower.includes('finance') || categoryLower.includes('account')) {
+        skills = ['Financial Modeling', 'Risk Assessment', 'Auditing & Compliance', 'Data Analytics', 'Portfolio Management', 'Strategic Planning'];
+        responsibilities = [
+          'Analyze balance sheets, revenue cycles, and financial growth projections.',
+          'Prepare budget forecasts, tax strategies, and financial audit documentation.',
+          'Evaluate market risk factors and advise corporate leaders on financial investments.',
+          'Ensure strict compliance with financial regulations and reporting standards.'
+        ];
+      } else if (categoryLower.includes('creative') || categoryLower.includes('design') || categoryLower.includes('art')) {
+        skills = ['User Experience (UX)', 'Visual Aesthetics', 'Prototyping (Figma)', 'Design Systems', 'User Research', 'Creative Direction'];
+        responsibilities = [
+          'Translate complex customer needs into intuitive visual designs and interactive wireframes.',
+          'Conduct user research and usability testing to refine design iterations.',
+          'Maintain brand design systems, typography standards, and visual assets.',
+          'Collaborate closely with engineering teams to ensure flawless frontend implementation.'
+        ];
+      }
+
+      const pathway = [
+        { 
+          step: 'Foundation & Preparation', 
+          type: 'education',
+          duration: '1-4 years',
+          description: 'Build strong foundational knowledge in STEM, business, or humanities electives.',
+          milestones: ['Complete relevant high school courses', 'Participate in extracurricular clubs', 'Research potential programs']
+        },
+        { 
+          step: "Undergraduate Degree / Formal Training", 
+          type: 'education',
+          duration: '2-4 years',
+          description: `Earn a Bachelor's Degree or accredited qualification in ${found.category} or a related field.`,
+          milestones: ['Maintain strong GPA', 'Join professional student organizations', 'Build foundational portfolio']
+        },
+        { 
+          step: 'Internships & Hands-On Experience', 
+          type: 'professional',
+          duration: '6-12 months',
+          description: 'Gain real-world experience through corporate internships, capstone projects, or technical bootcamps.',
+          milestones: ['Secure a summer internship', 'Find an industry mentor', 'Contribute to real-world projects']
+        },
+        { 
+          step: 'Entry-Level Placement', 
+          type: 'professional',
+          duration: '1-3 years',
+          description: `Launch your career as a Junior or Associate ${found.title} to master core tools and processes.`,
+          milestones: ['Land first full-time role', 'Master industry-standard tools', 'Deliver measurable business value']
+        },
+        { 
+          step: 'Advanced Specialization & Leadership', 
+          type: 'professional',
+          duration: '3+ years',
+          description: 'Transition into senior management, specialized consulting, or executive leadership roles.',
+          milestones: ['Lead cross-functional teams', 'Speak at industry conferences', 'Mentor junior professionals']
+        }
+      ];
+
+      const salaryObj = typeof found.salary === 'object' ? found.salary : {
+        entry: '$60,000',
+        average: found.salary || '$95,000',
+        senior: '$150,000+',
+        median: found.salary ? found.salary.split('-')[0].trim() : '$85,000'
+      };
+
+      setCareer({
+        ...found,
+        salary: salaryObj,
+        growth: found.growth ? `${found.growth} (Faster than average)` : '22% (Faster than average)',
+        education: found.education || "Bachelor's Degree",
+        skills,
+        responsibilities,
+        pathway,
+        videos: [
+          { id: 'v1', title: `A Day in the Life of a ${found.title}`, author: 'Career Spotlight', category: found.category, thumbnail: `https://picsum.photos/seed/v1-${found.id}/400/225`, duration: '10:15' },
+          { id: 'v2', title: `Top Skills Required for ${found.title}`, author: 'Industry Experts', category: found.category, thumbnail: `https://picsum.photos/seed/v2-${found.id}/400/225`, duration: '14:30' }
+        ],
+        articles: [
+          { id: 'a1', title: `Industry Trends & Outlook for ${found.title}`, author: 'Career Insights', category: found.category, readTime: '5 mins read', image: `https://picsum.photos/seed/a1-${found.id}/400/250` },
+          { id: 'a2', title: `How to Build a Portfolio as a ${found.title}`, author: 'Mentor Network', category: found.category, readTime: '7 mins read', image: `https://picsum.photos/seed/a2-${found.id}/400/250` }
+        ],
+        resources: [
+          { id: 'r1', title: `${found.title} Starter Career Roadmap`, author: 'OAICC Learning', thumbnail: `https://picsum.photos/seed/r1-${found.id}/400/250` }
+        ]
+      });
     }
   }, [id]);
 
@@ -416,10 +483,24 @@ export default function CareerDetails() {
                         <Briefcase className="w-5 h-5 text-brand" /> Essential Skills
                       </h3>
                       <div className="flex flex-wrap gap-3">
-                        {career.skills.map((skill) => (
+                        {career.skills.map((skill: string) => (
                           <span key={skill} className="px-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700">
                             {skill}
                           </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-brand" /> Key Duties & Responsibilities
+                      </h3>
+                      <div className="space-y-3">
+                        {career.responsibilities.map((resp: string, idx: number) => (
+                          <div key={idx} className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                            <CheckCircle2 className="w-5 h-5 text-brand shrink-0 mt-0.5" />
+                            <p className="text-slate-700 font-medium text-sm leading-relaxed">{resp}</p>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -428,14 +509,46 @@ export default function CareerDetails() {
 
                 {activeTab === 'pathway' && (
                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="relative space-y-8 before:absolute before:left-6 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-100">
-                      {career.pathway.map((step, i) => (
-                        <div key={i} className="relative pl-16">
-                          <div className="absolute left-0 w-12 h-12 bg-white border-4 border-slate-50 rounded-xl flex items-center justify-center text-brand font-bold shadow-sm">
-                            {i + 1}
+                    <div className="relative space-y-8 before:absolute before:left-[27px] before:top-8 before:bottom-4 before:w-0.5 before:bg-slate-200">
+                      {career.pathway.map((step: any, i: number) => (
+                        <div key={i} className="relative pl-20">
+                          <div className={`absolute left-0 top-1 w-14 h-14 bg-white border-4 ${step.type === 'education' ? 'border-blue-100 text-blue-500' : 'border-emerald-100 text-emerald-500'} rounded-full flex items-center justify-center shadow-sm z-10`}>
+                            {step.type === 'education' ? <GraduationCap className="w-6 h-6" /> : <Briefcase className="w-6 h-6" />}
                           </div>
-                          <h4 className="text-lg font-bold text-slate-900 mb-1">{step.step}</h4>
-                          <p className="text-slate-500 font-medium">{step.description}</p>
+                          
+                          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${step.type === 'education' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                    {step.type}
+                                  </span>
+                                  <span className="text-xs font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-md flex items-center gap-1">
+                                    <Clock className="w-3 h-3" /> {step.duration}
+                                  </span>
+                                </div>
+                                <h4 className="text-xl font-bold text-slate-900">{step.step}</h4>
+                              </div>
+                            </div>
+                            
+                            <p className="text-slate-600 font-medium mb-6">{step.description}</p>
+                            
+                            <div>
+                              <h5 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <Target className="w-4 h-4 text-brand" /> Key Milestones
+                              </h5>
+                              <div className="grid gap-2">
+                                {step.milestones.map((milestone: string, idx: number) => (
+                                  <div key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                                    <div className="w-5 h-5 rounded-md border-2 border-slate-200 bg-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-slate-300 opacity-0 transition-opacity" />
+                                    </div>
+                                    <span className="text-sm font-medium text-slate-700">{milestone}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>

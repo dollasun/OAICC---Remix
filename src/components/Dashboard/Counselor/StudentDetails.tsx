@@ -20,6 +20,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { studentsStorage, counselingSessionsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 type Tab = 'profile' | 'career' | 'tracker';
 
@@ -38,6 +39,8 @@ export default function CounselorStudentDetails() {
     type: 'Virtual',
     notes: ''
   });
+
+  const recommendedCareers = getTopRecommendedCareers(10);
 
   useEffect(() => {
     const allStudents = studentsStorage.get();
@@ -266,65 +269,55 @@ export default function CounselorStudentDetails() {
           >
             <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-bold text-slate-900">Career Interest</h3>
-                <span className="px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold">High Match</span>
+                <h3 className="text-2xl font-bold text-slate-900">Top 10 Recommended Careers</h3>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-12">
-                <div>
-                  <div className="relative rounded-2xl overflow-hidden mb-6 aspect-video">
-                    <img 
-                      src={getCareerImage(student.career)} 
-                      alt={student.career} 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
-                      <h4 className="text-2xl font-bold text-white">{student.career}</h4>
-                    </div>
-                  </div>
-                  <p className="text-slate-600 font-medium leading-relaxed">
-                    {getCareerDescription(student.career)}
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-4">Interest Tags</h4>
-                    <div className="flex flex-wrap gap-3">
-                      {student.interests.map((interest, i) => (
-                        <span key={i} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-bold">
-                          {interest}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-4">Recommended Resources</h4>
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group cursor-pointer hover:bg-brand/5 transition-all">
-                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-brand shadow-sm">
-                          <Video className="w-6 h-6" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendedCareers.map((career, index) => (
+                  <div key={career.id} className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 group">
+                    <div className="relative h-40">
+                      <img 
+                        src={career.image} 
+                        alt={career.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                        <div className="flex items-center justify-between w-full">
+                          <h4 className="text-xl font-bold text-white">{career.title}</h4>
+                          <span className="px-3 py-1 bg-white/20 backdrop-blur-md text-white rounded-lg text-xs font-bold">
+                            #{index + 1}
+                          </span>
                         </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-slate-900">Intro to UI/UX Design</p>
-                          <p className="text-xs font-medium text-slate-500">Video Course • 45 mins</p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-brand" />
-                      </div>
-                      <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl group cursor-pointer hover:bg-brand/5 transition-all">
-                        <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-brand shadow-sm">
-                          <FileText className="w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-bold text-slate-900">The Design Process</p>
-                          <p className="text-xs font-medium text-slate-500">Article • 10 mins read</p>
-                        </div>
-                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-brand" />
                       </div>
                     </div>
+                    <div className="p-6">
+                      <p className="text-sm text-slate-600 font-medium mb-4 line-clamp-2">
+                        {career.description}
+                      </p>
+                      
+                      <div className="space-y-1.5 mb-6">
+                        <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                          <span className="text-slate-500">Match Score</span>
+                          <span className="text-brand">{career.matchScore || parseInt(career.match)}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-brand rounded-full" 
+                            style={{ width: `${career.matchScore || parseInt(career.match)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => navigate(`/counselor/careers/${career.id}`)}
+                        className="w-full py-2.5 bg-white text-slate-600 font-bold text-sm rounded-xl hover:bg-brand hover:text-white transition-all border border-slate-200 hover:border-brand shadow-sm flex items-center justify-center gap-2"
+                      >
+                        View More Details
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </motion.div>

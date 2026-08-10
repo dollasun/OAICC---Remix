@@ -16,6 +16,7 @@ const STORAGE_KEY_INTEREST_QUIZ = 'app_interest_quiz';
 const STORAGE_KEY_STRENGTH_QUIZ = 'app_strength_quiz';
 const STORAGE_KEY_COUNSELING_SESSIONS = 'app_counseling_sessions';
 const STORAGE_KEY_MESSAGES = 'app_messages';
+const STORAGE_KEY_STUDENT_MESSAGES = 'app_student_messages';
 
 export const getStoredData = (key: string, initialData: any) => {
   const stored = localStorage.getItem(key);
@@ -509,4 +510,69 @@ export const messagesStorage = {
     return data.length === 0 ? initialData : data;
   },
   save: (data: any) => saveStoredData(STORAGE_KEY_MESSAGES, data),
+};
+
+export const studentMessagesStorage = {
+  get: (initialData: any = [
+    {
+      id: 1,
+      name: 'Mr. Alfred Funmbi',
+      role: 'Counselor',
+      lastMessage: 'Hi Bolu! Make sure you have your transcripts ready for our session.',
+      time: '10:15 AM',
+      unread: 1,
+      image: 'https://picsum.photos/seed/c1/100/100',
+      online: true,
+      messages: [
+        { id: 1, sender: 'student', text: 'Hello Mr. Alfred, I just wanted to ask about the next steps for my software engineering application.', time: '10:00 AM' },
+        { id: 2, sender: 'contact', text: 'Hi Bolu! Make sure you have your transcripts ready for our session today.', time: '10:15 AM' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Dr. Sarah Ojo',
+      role: 'School Admin',
+      lastMessage: 'The internship submission deadline is next Friday at 4:00 PM.',
+      time: '11:25 AM',
+      unread: 0,
+      image: 'https://picsum.photos/seed/admin1/100/100',
+      online: true,
+      messages: [
+        { id: 1, sender: 'contact', text: 'Welcome Bolu! Your SSS3 profile and career assessment accounts have been verified.', time: '9:00 AM' },
+        { id: 2, sender: 'student', text: 'Thank you Dr. Sarah! When is the deadline for submitting the internship form?', time: '11:10 AM' },
+        { id: 3, sender: 'contact', text: 'The internship submission deadline is next Friday at 4:00 PM.', time: '11:25 AM' }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Mrs. Kemi Ahmed',
+      role: 'Parent',
+      lastMessage: 'Hi Bolu, how did your meeting with Mr. Alfred go today?',
+      time: '2:15 PM',
+      unread: 1,
+      image: 'https://picsum.photos/seed/parent1/100/100',
+      online: false,
+      messages: [
+        { id: 1, sender: 'contact', text: 'Hi Bolu, how did your meeting with Mr. Alfred go today?', time: '2:15 PM' }
+      ]
+    },
+    {
+      id: 4,
+      name: 'Mr. Mason Biyi',
+      role: 'Teacher',
+      lastMessage: 'Great submission on your STEM robotics assignment Bolu! Keep up the good work.',
+      time: 'Yesterday',
+      unread: 0,
+      image: 'https://picsum.photos/seed/teacher1/100/100',
+      online: false,
+      messages: [
+        { id: 1, sender: 'contact', text: 'Great submission on your STEM robotics assignment Bolu! Keep up the good work.', time: '1:00 PM' },
+        { id: 2, sender: 'student', text: 'Thank you Mr. Mason! I really enjoyed working on it.', time: '1:15 PM' }
+      ]
+    }
+  ]) => {
+    const data = getStoredData(STORAGE_KEY_STUDENT_MESSAGES, initialData);
+    return data.length === 0 ? initialData : data;
+  },
+  save: (data: any) => saveStoredData(STORAGE_KEY_STUDENT_MESSAGES, data),
 };

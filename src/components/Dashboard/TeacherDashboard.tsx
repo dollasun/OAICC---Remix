@@ -23,6 +23,7 @@ import TeacherProfile from './Teacher/TeacherProfile';
 import TeacherEvents from './Teacher/TeacherEvents';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
+import ThemeToggle from '../ThemeToggle';
 
 const classes = [
   { id: 'sss2a', name: 'SSS 2 A' },
@@ -64,9 +65,9 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex transition-colors duration-200">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 left-0 z-50 hidden lg:flex">
+      <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed inset-y-0 left-0 z-50 hidden lg:flex">
         <div className="p-6">
           <Link to="/" className="flex items-center gap-2">
             <Logo size="sm" />
@@ -81,7 +82,7 @@ export default function TeacherDashboard() {
               className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-bold transition-all ${
                 isClassSectionActive() && !isActive('/teacher/settings')
                   ? 'bg-brand text-white shadow-sm shadow-brand/5'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -106,7 +107,7 @@ export default function TeacherDashboard() {
                       className={`block py-2 text-sm font-bold transition-all ${
                         isClassActive(cls.id)
                           ? 'text-brand'
-                          : 'text-slate-400 hover:text-slate-600'
+                          : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                       }`}
                     >
                       {cls.name}
@@ -123,7 +124,7 @@ export default function TeacherDashboard() {
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/teacher/events') 
                 ? 'bg-brand text-white shadow-sm shadow-brand/5' 
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             <Calendar className="w-5 h-5" />
@@ -136,7 +137,7 @@ export default function TeacherDashboard() {
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
               isActive('/teacher/settings') 
                 ? 'bg-brand text-white shadow-sm shadow-brand/5' 
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             <Settings className="w-5 h-5" />
@@ -144,10 +145,10 @@ export default function TeacherDashboard() {
           </Link>
         </nav>
 
-        <div className="p-4 border-t border-slate-100 mt-auto">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 mt-auto">
           <button 
             onClick={() => navigate('/teacher/settings')}
-            className="w-full flex items-center gap-3 p-3 mb-4 hover:bg-slate-50 rounded-xl transition-all text-left"
+            className="w-full flex items-center gap-3 p-3 mb-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all text-left"
           >
             <img 
               src="https://picsum.photos/seed/teacher/100/100" 
@@ -155,13 +156,13 @@ export default function TeacherDashboard() {
               className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">Mr. Uzo Kelechi</p>
-              <p className="text-xs text-slate-500 truncate">Teacher</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">Mr. Uzo Kelechi</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Teacher</p>
             </div>
           </button>
           <button 
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 rounded-lg transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
           >
             <LogOut className="w-5 h-5" />
             Sign Out
@@ -172,31 +173,32 @@ export default function TeacherDashboard() {
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40">
+        <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 transition-colors">
           <div className="flex items-center gap-4 lg:hidden">
             <Logo size="sm" />
           </div>
           <div className="relative w-full max-w-xs sm:max-w-md hidden sm:block">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
             <input 
               type="text" 
               placeholder="Search anything..." 
-              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border-none rounded-lg focus:ring-4 focus:ring-brand/10 outline-none transition-all"
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-4 focus:ring-brand/10 outline-none transition-all text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
           
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <NotificationDropdown role="teacher" />
 
-            <div className="h-8 w-px bg-slate-200 mx-2"></div>
+            <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
             <div className="relative">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-3 hover:bg-slate-50 p-2 rounded-xl transition-all"
+                className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900">Mr. Uzo Kelechi</p>
-                  <p className="text-xs text-slate-500">Teacher</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Mr. Uzo Kelechi</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Teacher</p>
                 </div>
                 <img 
                   src="https://picsum.photos/seed/teacher/100/100" 
@@ -214,18 +216,18 @@ export default function TeacherDashboard() {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-sm border border-slate-100 py-2 z-50 overflow-hidden"
+                      className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 py-2 z-50 overflow-hidden"
                     >
                       <button 
                         onClick={() => { navigate('/teacher/settings'); setIsProfileOpen(false); }}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
                         <User className="w-4 h-4" /> My profile
                       </button>
-                      <div className="h-px bg-slate-100 my-1"></div>
+                      <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
                       <button 
                         onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50"
+                        className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
                       >
                         <LogOut className="w-4 h-4" /> Sign out
                       </button>

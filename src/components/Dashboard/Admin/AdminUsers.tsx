@@ -409,7 +409,7 @@ export default function AdminUsers() {
                     <div className="space-y-8">
                     <h3 className="text-lg font-bold text-slate-900">Assign permissions</h3>
                     <div className="space-y-6">
-                      {['Career', 'Interest Quiz', 'Forum', 'Mentor', 'Events', 'Counselor', 'Admin Management'].map((perm) => (
+                      {['Career', 'Onboarding Assessment', 'Forum', 'Mentor', 'Events', 'Counselor', 'Admin Management'].map((perm) => (
                         <div key={perm} className="space-y-4">
                           <h4 className="text-sm font-bold text-slate-700">{perm}</h4>
                           <div className="grid grid-cols-2 gap-4">

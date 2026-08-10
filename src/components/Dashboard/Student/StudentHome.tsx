@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
   ArrowRight, 
@@ -12,11 +12,19 @@ import {
   Bookmark,
   ChevronRight,
   Video,
-  Target
+  Target,
+  X,
+  Scale,
+  Award,
+  CheckCircle2,
+  Lock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { savedCareersStorage, counselingSessionsStorage, careersStorage, eventsStorage } from '../../../utils/storage';
-import { coreAssessmentQuestions } from '../../../data/questionnaire';
+import { savedCareersStorage, counselingSessionsStorage, eventsStorage } from '../../../utils/storage';
+import { INITIAL_QUESTIONS } from '../../../data/assessmentQuestions';
+import { getTopRecommendedCareers } from '../../../utils/recommendations';
+import CompareCareersModal from './CompareCareersModal';
+import { useToast } from '../../../context/ToastContext';
 
 export default function StudentHome() {
   const navigate = useNavigate();
@@ -26,7 +34,32 @@ export default function StudentHome() {
   const [events, setEvents] = useState<any[]>([]);
   
   const [answeredCount, setAnsweredCount] = useState(0);
-  const totalQuestions = coreAssessmentQuestions.length;
+  const [compareIds, setCompareIds] = useState<number[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [hasCompared, setHasCompared] = useState(() => localStorage.getItem('hasComparedCareers') === 'true');
+  const totalQuestions = INITIAL_QUESTIONS.length;
+  const { showToast } = useToast();
+
+  const toggleCompare = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    if (compareIds.includes(id)) {
+      setCompareIds(prev => prev.filter(cId => cId !== id));
+    } else {
+      if (compareIds.length < 2) {
+        setCompareIds(prev => {
+          const newIds = [...prev, id];
+          if (newIds.length === 2 && !hasCompared) {
+            setHasCompared(true);
+            localStorage.setItem('hasComparedCareers', 'true');
+          }
+          return newIds;
+        });
+      } else {
+        // Replace the oldest one if already 2 selected, or just notify user
+        setCompareIds([compareIds[1], id]);
+      }
+    }
+  };
 
   useEffect(() => {
     const saved = savedCareersStorage.get([]);
@@ -37,18 +70,27 @@ export default function StudentHome() {
     const studentSessions = allSessions.filter((s: any) => s.studentId === 1 || s.studentName === 'Osayuki Yuki');
     setUpcomingSessions(studentSessions.slice(0, 2));
 
-    const allCareers = careersStorage.get([]);
-    setRecommendations(allCareers.slice(0, 3).map((c: any) => ({
-      ...c,
-      match: '95%'
-    })));
+    // Get top 10 careers with highest recommendation scores
+    const topRecommended = getTopRecommendedCareers(10);
+    setRecommendations(topRecommended);
 
     const allEvents = eventsStorage.get([]);
     setEvents(allEvents.slice(0, 2));
 
     const assessmentSaved = localStorage.getItem('studentAssessmentAnswers');
+    let count = 0;
     if (assessmentSaved) {
-      setAnsweredCount(Object.keys(JSON.parse(assessmentSaved)).length);
+      count = Object.keys(JSON.parse(assessmentSaved)).length;
+      setAnsweredCount(count);
+    }
+
+    if (count < totalQuestions) {
+      setTimeout(() => {
+        showToast('Please complete your onboarding questions.', 'info', {
+          label: 'Complete Now',
+          onClick: () => navigate('/student/onboarding?continue=true')
+        });
+      }, 500);
     }
   }, []);
 
@@ -76,6 +118,59 @@ export default function StudentHome() {
 
   const completionPercentage = Math.round((answeredCount / totalQuestions) * 100);
 
+  const badges = [
+    {
+      id: 'starter',
+      title: 'Assessment Starter',
+      description: 'Started the career assessment',
+      icon: Target,
+      color: 'bg-blue-500',
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-500',
+      unlocked: answeredCount > 0,
+    },
+    {
+      id: 'self_aware',
+      title: 'Self-Aware',
+      description: 'Completed the career assessment',
+      icon: Star,
+      color: 'bg-brand',
+      bgColor: 'bg-brand/10',
+      textColor: 'text-brand',
+      unlocked: answeredCount === totalQuestions,
+    },
+    {
+      id: 'explorer',
+      title: 'Career Explorer',
+      description: 'Saved your first career',
+      icon: Bookmark,
+      color: 'bg-indigo-500',
+      bgColor: 'bg-indigo-50',
+      textColor: 'text-indigo-500',
+      unlocked: savedIds.length > 0,
+    },
+    {
+      id: 'decisive',
+      title: 'Decisive Planner',
+      description: 'Saved 3 or more careers',
+      icon: CheckCircle2,
+      color: 'bg-emerald-500',
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-500',
+      unlocked: savedIds.length >= 3,
+    },
+    {
+      id: 'analytical',
+      title: 'Analytical Thinker',
+      description: 'Compared two careers',
+      icon: Scale,
+      color: 'bg-amber-500',
+      bgColor: 'bg-amber-50',
+      textColor: 'text-amber-500',
+      unlocked: hasCompared,
+    }
+  ];
+
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
@@ -100,13 +195,13 @@ export default function StudentHome() {
           className="bg-white border-2 border-brand/20 p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center gap-8 justify-between"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-          
+
           <div className="flex-1 relative z-10 w-full">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
                 <Target className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">Complete your Profile Assessment</h2>
+              <h2 className="text-xl font-bold text-slate-900">Complete your Onboarding Assessment</h2>
             </div>
             
             <p className="text-slate-600 font-medium mb-6">
@@ -137,7 +232,7 @@ export default function StudentHome() {
           
           <div className="relative z-10 w-full sm:w-auto">
             <button 
-              onClick={() => navigate('/student/onboarding')}
+              onClick={() => navigate('/onboarding/student?continue=true')}
               className="w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/10 hover:scale-105 transition-all flex items-center justify-center gap-2"
             >
               Continue Assessment <ArrowRight className="w-5 h-5" />
@@ -165,6 +260,53 @@ export default function StudentHome() {
         ))}
       </div>
 
+      {/* Career Milestones */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Career Milestones</h2>
+            <p className="text-sm text-slate-500 font-medium">Earn badges by completing your profile and exploring careers.</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {badges.map((badge, idx) => (
+            <motion.div
+              key={badge.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + idx * 0.1 }}
+              className={`p-4 rounded-2xl border transition-all ${
+                badge.unlocked 
+                  ? `bg-white border-slate-200 shadow-sm hover:shadow-md` 
+                  : 'bg-slate-50 border-slate-100 opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
+              }`}
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 relative ${badge.bgColor} ${badge.textColor}`}>
+                  <badge.icon className="w-6 h-6" />
+                  {!badge.unlocked && (
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 border-2 border-slate-50">
+                      <Lock className="w-3 h-3" />
+                    </div>
+                  )}
+                  {badge.unlocked && (
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    </div>
+                  )}
+                </div>
+                <h3 className={`font-bold text-sm mb-1 ${badge.unlocked ? 'text-slate-900' : 'text-slate-500'}`}>{badge.title}</h3>
+                <p className="text-xs text-slate-500 font-medium">{badge.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recommended Careers */}
         <div className="lg:col-span-2 space-y-6">
@@ -178,30 +320,74 @@ export default function StudentHome() {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {recommendations.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-sm transition-all group cursor-pointer relative">
-                <div className="relative h-48">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-brand flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-brand" /> {item.match} Match
+            {recommendations.map((item, idx) => (
+              <div 
+                key={item.id} 
+                onClick={() => navigate(`/student/careers/${item.id}`)}
+                className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer relative flex flex-col justify-between"
+              >
+                <div>
+                  <div className="relative h-44">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-extrabold text-brand flex items-center gap-1 shadow-sm border border-slate-100">
+                      <Star className="w-3.5 h-3.5 fill-brand text-brand" /> {item.match || item.matchScore + '%'} Match
+                    </div>
+                    <div className="absolute bottom-3 left-3 bg-slate-900/70 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-[10px] font-bold">
+                      Rank #{idx + 1}
+                    </div>
+                    <button 
+                      onClick={(e) => handleSaveCareer(item, e)}
+                      className={`absolute top-3 right-3 p-2 rounded-lg backdrop-blur-sm transition-all ${
+                        savedIds.includes(item.id) 
+                          ? 'bg-brand text-white' 
+                          : 'bg-white/90 text-slate-400 hover:text-brand'
+                      }`}
+                    >
+                      <Bookmark className={`w-4 h-4 ${savedIds.includes(item.id) ? 'fill-white' : ''}`} />
+                    </button>
+
+                    <button 
+                      onClick={(e) => toggleCompare(e, item.id)}
+                      className={`absolute top-12 right-3 mt-1 p-2 rounded-lg backdrop-blur-sm transition-all ${
+                        compareIds.includes(item.id) 
+                          ? 'bg-emerald-500 text-white shadow-md' 
+                          : 'bg-white/90 text-slate-400 hover:text-emerald-500'
+                      }`}
+                      title="Compare Career"
+                    >
+                      <Scale className="w-4 h-4" />
+                    </button>
                   </div>
-                  <button 
-                    onClick={(e) => handleSaveCareer(item, e)}
-                    className={`absolute top-4 right-4 p-2 rounded-lg backdrop-blur-sm transition-all ${
-                      savedIds.includes(item.id) 
-                        ? 'bg-brand text-white' 
-                        : 'bg-white/90 text-slate-400 hover:text-brand'
-                    }`}
-                  >
-                    <Bookmark className={`w-5 h-5 ${savedIds.includes(item.id) ? 'fill-white' : ''}`} />
-                  </button>
+                  <div className="p-5">
+                    <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-1">{item.category}</p>
+                    <h3 className="text-base font-bold text-slate-900 mb-2 line-clamp-1">{item.title}</h3>
+                    <p className="text-xs text-slate-500 font-medium line-clamp-2 mb-3">{item.description}</p>
+                    {item.salary && (
+                      <p className="text-xs font-bold text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100 mb-4">
+                        Salary: <span className="text-brand">{item.salary}</span>
+                      </p>
+                    )}
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                        <span className="text-slate-500">Match Score</span>
+                        <span className="text-brand">{item.matchScore || parseInt(item.match)}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-brand rounded-full" 
+                          style={{ width: `${item.matchScore || parseInt(item.match)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <p className="text-[10px] font-bold text-brand uppercase tracking-widest mb-1">{item.category}</p>
-                  <h3 className="text-lg font-bold text-slate-900 mb-4">{item.title}</h3>
+                <div className="px-5 pb-5 pt-0">
                   <button 
-                    onClick={() => navigate('/student/careers')}
-                    className="w-full py-3 bg-slate-50 text-slate-600 font-bold rounded-lg group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/student/careers/${item.id}`);
+                    }}
+                    className="w-full py-2.5 bg-slate-50 text-slate-600 font-bold text-xs rounded-xl group-hover:bg-brand group-hover:text-white transition-all flex items-center justify-center gap-2"
                   >
                     View Details <ChevronRight className="w-4 h-4" />
                   </button>
@@ -306,6 +492,57 @@ export default function StudentHome() {
           </section>
         </div>
       </div>
+      
+      {/* Compare Floating Bar */}
+      <AnimatePresence>
+        {compareIds.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-6"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                <Scale className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <p className="font-bold">{compareIds.length} Career{compareIds.length > 1 ? 's' : ''} Selected</p>
+                <p className="text-xs text-slate-400">
+                  {compareIds.length === 1 ? 'Select one more to compare' : 'Ready to compare'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 border-l border-white/10 pl-6">
+              <button 
+                onClick={() => setCompareIds([])}
+                className="text-slate-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                Clear
+              </button>
+              <button 
+                disabled={compareIds.length !== 2}
+                onClick={() => setShowCompareModal(true)}
+                className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  compareIds.length === 2 
+                    ? 'bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20' 
+                    : 'bg-white/10 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                Compare Now
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {showCompareModal && compareIds.length === 2 && (
+        <CompareCareersModal 
+          careerIds={compareIds} 
+          onClose={() => setShowCompareModal(false)} 
+        />
+      )}
     </div>
   );
 }

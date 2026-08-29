@@ -33,8 +33,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          if (userDoc.exists()) {
+          const fetchDocPromise = getDoc(doc(db, 'users', currentUser.uid));
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Firestore fetch timeout')), 3000)
+          );
+          
+          const userDoc = (await Promise.race([fetchDocPromise, timeoutPromise])) as any;
+          if (userDoc && userDoc.exists && userDoc.exists()) {
             setUserData(userDoc.data() as UserData);
           } else {
             // If it's a new user and they sign in via Google, we might not know their role initially.
@@ -47,11 +52,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               lastName: currentUser.displayName?.split(' ').slice(1).join(' ') || '',
               createdAt: new Date().toISOString()
             };
-            await setDoc(doc(db, 'users', currentUser.uid), newUserData);
+            try {
+              await setDoc(doc(db, 'users', currentUser.uid), newUserData);
+            } catch (err) {
+              console.warn("Could not save user data to Firestore:", err);
+            }
             setUserData(newUserData);
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.warn("Firestore user data fetch failed or timed out, using fallback user profile:", error);
+          const fallbackUserData: UserData = {
+            id: currentUser.uid,
+            role: 'student',
+            email: currentUser.email || '',
+            firstName: currentUser.displayName?.split(' ')[0] || 'User',
+            lastName: currentUser.displayName?.split(' ').slice(1).join(' ') || '',
+            createdAt: new Date().toISOString()
+          };
+          setUserData(fallbackUserData);
         }
       } else {
         setUserData(null);

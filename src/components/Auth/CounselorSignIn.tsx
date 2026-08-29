@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
+import { useToast } from '../../context/ToastContext';
 
 const slides = [
   {
@@ -24,6 +25,7 @@ const slides = [
 
 export default function CounselorSignIn() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState({
@@ -43,6 +45,7 @@ export default function CounselorSignIn() {
     // Simulate authentication
     localStorage.setItem('counselor_auth', 'true');
     localStorage.setItem('user_role', 'counselor');
+    showToast('Welcome back! Successfully signed in.', 'success');
     navigate('/counselor/dashboard');
   };
 

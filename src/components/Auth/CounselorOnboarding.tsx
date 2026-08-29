@@ -190,22 +190,26 @@ export default function CounselorOnboarding() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Years of Experience</label>
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Years of Experience <span className="text-slate-400 text-xs font-normal">(Optional)</span>
+                    </label>
                     <input 
                       type="text"
                       className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all"
-                      placeholder="e.g. 5+ years"
+                      placeholder="e.g. 5+ years (optional)"
                       value={formData.experience}
                       onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700 ml-1">Education / Certifications</label>
+                    <label className="text-sm font-bold text-slate-700 ml-1">
+                      Education / Certifications <span className="text-slate-400 text-xs font-normal">(Optional)</span>
+                    </label>
                     <textarea 
                       rows={4}
                       className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-4 focus:ring-brand/10 font-medium text-slate-700 transition-all resize-none"
-                      placeholder="List your relevant education and certifications..."
+                      placeholder="List your relevant education and certifications (optional)..."
                       value={formData.education}
                       onChange={(e) => setFormData({ ...formData, education: e.target.value })}
                     />

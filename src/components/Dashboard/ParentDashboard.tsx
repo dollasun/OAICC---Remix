@@ -13,16 +13,19 @@ import {
   User,
   Home,
   ChevronDown,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import Logo from '../Logo';
 import ChildrenList from './ChildrenList';
 import ChildDetails from './ChildDetails';
 import ProfileSettings from './ProfileSettings';
 import ParentEvents from './Parent/ParentEvents';
+import ParentMessages from './Parent/ParentMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
+import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 const children = [
   { id: '1', name: 'Favour Aina' },
@@ -34,6 +37,7 @@ export default function ParentDashboard() {
   const navigate = useNavigate();
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { totalUnread } = useCrossPortalMessaging('parent-1', 'parent');
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -113,6 +117,26 @@ export default function ParentDashboard() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Messages Link */}
+          <Link
+            to="/parent/messages"
+            className={`flex items-center justify-between px-4 py-3 rounded-lg font-bold transition-all ${
+              isActive('/parent/messages') 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5" />
+              Messages
+            </div>
+            {totalUnread > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold bg-brand text-white rounded-full">
+                {totalUnread}
+              </span>
+            )}
+          </Link>
 
           {/* Events Link */}
           <Link
@@ -242,6 +266,7 @@ export default function ParentDashboard() {
             <Route path="child/:id" element={<ChildDetails />} />
             <Route path="dashboard/child/:id" element={<ChildDetails />} />
             <Route path="events" element={<ParentEvents />} />
+            <Route path="messages" element={<ParentMessages />} />
             <Route path="settings" element={<ProfileSettings />} />
             <Route path="notifications" element={<NotificationPage />} />
           </Routes>

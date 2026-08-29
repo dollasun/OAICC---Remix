@@ -14,16 +14,19 @@ import {
   Home,
   ChevronDown,
   LayoutGrid,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import Logo from '../Logo';
 import StudentList from './Teacher/StudentList';
 import StudentDetails from './Teacher/StudentDetails';
 import TeacherProfile from './Teacher/TeacherProfile';
 import TeacherEvents from './Teacher/TeacherEvents';
+import TeacherMessages from './Teacher/TeacherMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
+import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 const classes = [
   { id: 'sss2a', name: 'SSS 2 A' },
@@ -35,6 +38,7 @@ export default function TeacherDashboard() {
   const navigate = useNavigate();
   const [isClassExpanded, setIsClassExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { totalUnread } = useCrossPortalMessaging('teacher-1', 'teacher');
   
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -117,6 +121,26 @@ export default function TeacherDashboard() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Messages Link */}
+          <Link
+            to="/teacher/messages"
+            className={`flex items-center justify-between px-4 py-3 rounded-lg font-bold transition-all ${
+              isActive('/teacher/messages') 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5" />
+              Messages
+            </div>
+            {totalUnread > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold bg-brand text-white rounded-full">
+                {totalUnread}
+              </span>
+            )}
+          </Link>
 
           {/* Events Link */}
           <Link
@@ -247,6 +271,7 @@ export default function TeacherDashboard() {
             <Route path="class/:id" element={<StudentList />} />
             <Route path="student/:id" element={<StudentDetails />} />
             <Route path="events" element={<TeacherEvents />} />
+            <Route path="messages" element={<TeacherMessages />} />
             <Route path="settings" element={<TeacherProfile />} />
             <Route path="notifications" element={<NotificationPage />} />
           </Routes>

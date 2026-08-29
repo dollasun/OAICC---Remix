@@ -13,6 +13,11 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const db = getFirestore(app, "ai-studio-remixoaicccareer-d01a87a8-80f3-4131-bded-a3ea1c731873");
+let db: any;
+try {
+  db = getFirestore(app, "ai-studio-remixoaicccareer-d01a87a8-80f3-4131-bded-a3ea1c731873");
+} catch (e) {
+  db = getFirestore(app);
+}
 
 export { app, auth, db };

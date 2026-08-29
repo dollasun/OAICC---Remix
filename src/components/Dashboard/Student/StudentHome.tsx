@@ -17,14 +17,15 @@ import {
   Scale,
   Award,
   CheckCircle2,
-  Lock
+  Lock,
+  Sparkles,
+  ArrowUpRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { savedCareersStorage, counselingSessionsStorage, eventsStorage } from '../../../utils/storage';
 import { INITIAL_QUESTIONS } from '../../../data/assessmentQuestions';
 import { getTopRecommendedCareers } from '../../../utils/recommendations';
 import CompareCareersModal from './CompareCareersModal';
-import { useToast } from '../../../context/ToastContext';
 
 export default function StudentHome() {
   const navigate = useNavigate();
@@ -38,7 +39,6 @@ export default function StudentHome() {
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [hasCompared, setHasCompared] = useState(() => localStorage.getItem('hasComparedCareers') === 'true');
   const totalQuestions = INITIAL_QUESTIONS.length;
-  const { showToast } = useToast();
 
   const toggleCompare = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
@@ -83,21 +83,61 @@ export default function StudentHome() {
       count = Object.keys(JSON.parse(assessmentSaved)).length;
       setAnsweredCount(count);
     }
-
-    if (count < totalQuestions) {
-      setTimeout(() => {
-        showToast('Please complete your onboarding questions.', 'info', {
-          label: 'Complete Now',
-          onClick: () => navigate('/student/onboarding?continue=true')
-        });
-      }, 500);
-    }
   }, []);
 
   const stats = [
-    { label: 'Completed Tasks', value: '12', icon: TrendingUp, color: 'bg-emerald-500' },
-    { label: 'Saved Careers', value: savedIds.length.toString(), icon: Bookmark, color: 'bg-brand' },
-    { label: 'Upcoming Events', value: events.length.toString(), icon: Calendar, color: 'bg-indigo-500' },
+    { 
+      label: 'Completed Tasks', 
+      value: '12', 
+      icon: TrendingUp, 
+      color: 'bg-emerald-500', 
+      bgColor: 'bg-emerald-50 text-emerald-600',
+      borderColor: 'border-emerald-200/70 hover:border-emerald-300',
+      gradient: 'from-emerald-500 to-teal-600',
+      lightBg: 'from-emerald-50/50 to-white',
+      badge: '+3 this week',
+      badgeColor: 'bg-emerald-100 text-emerald-700',
+      path: '/student/dashboard'
+    },
+    { 
+      label: 'Saved Careers', 
+      value: savedIds.length.toString(), 
+      icon: Bookmark, 
+      color: 'bg-brand', 
+      bgColor: 'bg-cyan-50 text-brand',
+      borderColor: 'border-cyan-200/70 hover:border-cyan-300',
+      gradient: 'from-brand to-cyan-500',
+      lightBg: 'from-cyan-50/50 to-white',
+      badge: savedIds.length > 0 ? `${savedIds.length} saved` : 'Explore',
+      badgeColor: 'bg-cyan-100 text-cyan-800',
+      path: '/student/careers'
+    },
+    { 
+      label: 'Counseling Sessions', 
+      value: upcomingSessions.length.toString(), 
+      icon: Users, 
+      color: 'bg-amber-500', 
+      bgColor: 'bg-amber-50 text-amber-600',
+      borderColor: 'border-amber-200/70 hover:border-amber-300',
+      gradient: 'from-amber-500 to-orange-500',
+      lightBg: 'from-amber-50/50 to-white',
+      badge: upcomingSessions.length > 0 ? 'Active' : 'Book now',
+      badgeColor: 'bg-amber-100 text-amber-800',
+      path: '/student/counselors'
+    },
+    { 
+      label: 'Upcoming Events', 
+      value: events.length.toString(), 
+      icon: Calendar, 
+      color: 'bg-indigo-500', 
+      bgColor: 'bg-indigo-50 text-indigo-600',
+      borderColor: 'border-indigo-200/70 hover:border-indigo-300',
+      gradient: 'from-indigo-500 to-violet-600',
+      lightBg: 'from-indigo-50/50 to-white',
+      badge: events.length > 0 ? `${events.length} upcoming` : 'Join events',
+      badgeColor: 'bg-indigo-100 text-indigo-800',
+      path: '/student/events'
+    },
   ];
 
   const handleSaveCareer = (career: any, e: React.MouseEvent) => {
@@ -174,17 +214,31 @@ export default function StudentHome() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Welcome back, Bolu! 👋</h1>
-          <p className="text-slate-500 font-medium mt-1">Here's what's happening with your career journey today.</p>
+      <div className="bg-gradient-to-r from-white via-cyan-50/30 to-white p-5 sm:p-7 rounded-3xl border border-slate-200/80 shadow-xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-brand/5 to-transparent pointer-events-none" />
+        
+        <div className="relative z-10 space-y-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/10 text-brand border border-brand/15">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Student Career Discovery Portal</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Welcome back, <span className="bg-gradient-to-r from-brand via-cyan-600 to-teal-500 bg-clip-text text-transparent">Bolu!</span> 👋
+          </h1>
+          <p className="text-sm sm:text-base text-slate-500 font-medium">
+            Here's what's happening with your personalized career journey today.
+          </p>
         </div>
-        <button 
-          onClick={() => navigate('/student/careers')}
-          className="flex items-center gap-2 bg-brand text-white px-6 py-3 rounded-xl font-bold shadow-sm shadow-brand/5 hover:scale-105 transition-all"
-        >
-          Explore Careers <ArrowRight className="w-5 h-5" />
-        </button>
+
+        <div className="relative z-10 flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/student/careers')}
+            className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-brand to-cyan-500 hover:from-cyan-600 hover:to-brand text-white font-bold text-sm rounded-2xl shadow-md shadow-brand/20 hover:shadow-lg hover:shadow-brand/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
+          >
+            <span>Explore Careers</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
       </div>
 
       {/* Assessment Prompt */}
@@ -192,115 +246,144 @@ export default function StudentHome() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border-2 border-brand/20 p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden flex flex-col sm:flex-row items-center gap-8 justify-between"
+          className="bg-white border border-brand/25 p-4 sm:p-5 lg:p-6 rounded-3xl shadow-xs relative overflow-hidden"
         >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-
-          <div className="flex-1 relative z-10 w-full">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
-                <Target className="w-5 h-5" />
+          {/* Top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand via-cyan-400 to-indigo-500" />
+          
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 relative z-10">
+            {/* Left section: Icon + Title + Subtitle */}
+            <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand/15 to-cyan-500/20 border border-brand/20 text-brand flex items-center justify-center shrink-0 shadow-xs">
+                <Target className="w-6 h-6" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">Complete your Onboarding Assessment</h2>
-            </div>
-            
-            <p className="text-slate-600 font-medium mb-6">
-              You haven't finished your Career Discovery Assessment yet! 
-              Answer a few more questions to unlock highly personalized career matches and mentor recommendations.
-            </p>
-
-            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 shrink-0">
-                <span className="font-bold text-brand text-sm">{completionPercentage}%</span>
-              </div>
-              <div className="flex-1 w-full text-left">
-                <div className="flex justify-between items-center mb-1">
-                  <p className="text-sm font-bold text-slate-700">Assessment Progress</p>
-                  <span className="text-xs text-slate-500 font-medium">{answeredCount} / {totalQuestions} answered</span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+                    Career Discovery Assessment
+                  </h2>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                    In Progress
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400 hidden sm:inline-block">
+                    • {totalQuestions - answeredCount} questions left
+                  </span>
                 </div>
-                <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+                  Answer remaining questions to unlock accurate career matches & mentor recommendations.
+                </p>
+              </div>
+            </div>
+
+            {/* Right section: Progress + CTA */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 lg:shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+              {/* Compact Progress Widget */}
+              <div className="bg-slate-50 border border-slate-200/70 px-4 py-2.5 rounded-2xl flex flex-col justify-center min-w-[170px] md:min-w-[190px] gap-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-500 text-[11px]">
+                    {answeredCount} / {totalQuestions} answered
+                  </span>
+                  <span className="font-extrabold text-brand text-xs">
+                    {completionPercentage}%
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-slate-200/70 rounded-full overflow-hidden">
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${completionPercentage}%` }}
-                    transition={{ duration: 1, delay: 0.2 }}
-                    className="h-full bg-brand rounded-full"
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-brand via-cyan-500 to-teal-400 rounded-full"
                   />
                 </div>
               </div>
+
+              {/* Action Button */}
+              <button 
+                onClick={() => navigate('/onboarding/student?continue=true')}
+                className="px-5 py-3 bg-gradient-to-r from-brand to-cyan-500 hover:from-cyan-600 hover:to-brand text-white font-bold text-xs sm:text-sm rounded-2xl shadow-sm shadow-brand/20 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 whitespace-nowrap group"
+              >
+                <span>Continue Assessment</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
-          </div>
-          
-          <div className="relative z-10 w-full sm:w-auto">
-            <button 
-              onClick={() => navigate('/onboarding/student?continue=true')}
-              className="w-full sm:w-auto px-8 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/10 hover:scale-105 transition-all flex items-center justify-center gap-2"
-            >
-              Continue Assessment <ArrowRight className="w-5 h-5" />
-            </button>
           </div>
         </motion.div>
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
         {stats.map((stat, index) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group"
+            transition={{ delay: index * 0.08 }}
+            onClick={() => navigate(stat.path)}
+            className={`bg-gradient-to-b ${stat.lightBg} p-4 sm:p-5 rounded-3xl border ${stat.borderColor} shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all group cursor-pointer relative overflow-hidden flex flex-col justify-between`}
           >
-            <div className={`${stat.color} w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform`}>
-              <stat.icon className="w-6 h-6" />
+            <div>
+              <div className="flex items-center justify-between mb-3.5">
+                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center text-white shadow-xs group-hover:scale-110 transition-transform`}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
+                <span className={`text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full ${stat.badgeColor}`}>
+                  {stat.badge}
+                </span>
+              </div>
+              <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{stat.value}</p>
+              <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1 leading-snug">{stat.label}</p>
             </div>
-            <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mt-1">{stat.label}</p>
+
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400 group-hover:text-slate-700 transition-colors">
+              <span>View details</span>
+              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </div>
           </motion.div>
         ))}
       </div>
 
       {/* Career Milestones */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
+          <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center text-white shadow-xs">
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Career Milestones</h2>
-            <p className="text-sm text-slate-500 font-medium">Earn badges by completing your profile and exploring careers.</p>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Career Milestones</h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">Earn badges by completing your profile and exploring careers.</p>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {badges.map((badge, idx) => (
             <motion.div
               key={badge.id}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 + idx * 0.1 }}
-              className={`p-4 rounded-2xl border transition-all ${
+              transition={{ delay: 0.15 + idx * 0.08 }}
+              className={`p-4 rounded-3xl border transition-all ${
                 badge.unlocked 
-                  ? `bg-white border-slate-200 shadow-sm hover:shadow-md` 
-                  : 'bg-slate-50 border-slate-100 opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
+                  ? `bg-white border-slate-200 shadow-xs hover:shadow-md hover:-translate-y-0.5` 
+                  : 'bg-slate-50/80 border-slate-200/60 opacity-60 grayscale hover:grayscale-0 hover:opacity-100'
               }`}
             >
               <div className="flex flex-col items-center text-center">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 relative ${badge.bgColor} ${badge.textColor}`}>
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-3 relative ${badge.bgColor} ${badge.textColor} shadow-xs`}>
                   <badge.icon className="w-6 h-6" />
                   {!badge.unlocked && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 border-2 border-slate-50">
-                      <Lock className="w-3 h-3" />
+                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center text-slate-500 border-2 border-white">
+                      <Lock className="w-2.5 h-2.5" />
                     </div>
                   )}
                   {badge.unlocked && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-brand rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white border-2 border-white shadow-xs">
+                      <CheckCircle2 className="w-3 h-3" />
                     </div>
                   )}
                 </div>
-                <h3 className={`font-bold text-sm mb-1 ${badge.unlocked ? 'text-slate-900' : 'text-slate-500'}`}>{badge.title}</h3>
-                <p className="text-xs text-slate-500 font-medium">{badge.description}</p>
+                <h3 className={`font-bold text-xs sm:text-sm mb-1 ${badge.unlocked ? 'text-slate-900' : 'text-slate-500'}`}>{badge.title}</h3>
+                <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed">{badge.description}</p>
               </div>
             </motion.div>
           ))}

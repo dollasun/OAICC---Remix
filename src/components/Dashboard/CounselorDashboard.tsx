@@ -18,6 +18,7 @@ import {
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../Logo';
 import { messagesStorage } from '../../utils/storage';
+import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 // Import Counselor Pages
 import CounselorOverview from './Counselor/Overview';
@@ -34,26 +35,22 @@ export default function CounselorDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
+  const { totalUnread } = useCrossPortalMessaging('counselor-1', 'counselor');
 
   useEffect(() => {
     const isCounselor = localStorage.getItem('counselor_auth') === 'true';
     if (!isCounselor) {
       navigate('/counselor/signin');
     }
-
-    const chats = messagesStorage.get();
-    const count = chats.reduce((acc: number, chat: any) => acc + (chat.unread || 0), 0);
-    setUnreadCount(count);
   }, [navigate, location.pathname]);
 
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/counselor/dashboard' },
     { icon: Users, label: 'Students', path: '/counselor/students' },
     { icon: Calendar, label: 'Sessions', path: '/counselor/sessions' },
-    { icon: MessageSquare, label: 'Messages', path: '/counselor/messages', badge: unreadCount },
+    { icon: MessageSquare, label: 'Messages', path: '/counselor/messages', badge: totalUnread },
     { icon: Settings, label: 'Settings', path: '/counselor/settings' },
   ];
 

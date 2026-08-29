@@ -24,14 +24,18 @@ import {
   Check
 } from 'lucide-react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
 import { intakeQuestions, clusters } from '../../../data/questionnaire';
 
 export default function StudentProfile() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showToast } = useToast();
-  const [activeAccordion, setActiveAccordion] = useState<string | null>('personal');
+  const initialAccordion = searchParams.get('tab') === 'intake' || searchParams.get('tab') === 'assessment' 
+    ? 'assessment' 
+    : 'personal';
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(initialAccordion);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -213,7 +217,7 @@ export default function StudentProfile() {
                 <div className="p-4 sm:p-8 bg-slate-50/50">
                   <div className="max-w-3xl mx-auto space-y-8">
                     <p className="text-sm text-slate-600 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-                      <strong>Instructions:</strong> Please complete these onboarding questions to help us personalize your dashboard. Your progress is saved automatically.
+                      <strong>Instructions:</strong> Please complete these student intake profile questions to help us personalize your dashboard. Your progress is saved automatically.
                     </p>
 
                     <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-8">

@@ -5,16 +5,19 @@ import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
 import GoogleAuthModal from './GoogleAuthModal';
+import { useToast } from '../../context/ToastContext';
 
 export default function SignIn() {
   const [searchParams] = useSearchParams();
   const role = searchParams.get('role') || 'student';
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    showToast('Welcome back! Successfully signed in.', 'success');
     if (role === 'school') {
       navigate('/school/dashboard');
     } else if (role === 'teacher') {

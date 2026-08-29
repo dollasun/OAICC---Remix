@@ -6,9 +6,9 @@ import {
   UserRole 
 } from '../../../utils/crossPortalMessaging';
 
-export default function Messages() {
-  const currentUserId = 'counselor-1';
-  const currentUserRole: UserRole = 'counselor';
+export default function TeacherMessages() {
+  const currentUserId = 'teacher-1';
+  const currentUserRole: UserRole = 'teacher';
 
   const { 
     threads, 
@@ -28,7 +28,7 @@ export default function Messages() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    sendMessage(newMessage, 'Mr. Alfred Funmbi');
+    sendMessage(newMessage, 'Mr. Mason Biyi');
     setNewMessage('');
   };
 
@@ -54,7 +54,7 @@ export default function Messages() {
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search chats..." 
+              placeholder="Search messages..." 
               className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-none rounded-lg outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm text-slate-900 dark:text-slate-100"
             />
           </div>
@@ -114,7 +114,7 @@ export default function Messages() {
       {/* Chat Window */}
       {activeThread && activeContact ? (
         <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col overflow-hidden">
-          {/* Chat Header */}
+          {/* Header */}
           <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -163,15 +163,15 @@ export default function Messages() {
             </div>
 
             {activeThread.messages.map((msg, idx) => {
-              const isMe = msg.senderId === currentUserId || msg.senderRole === 'counselor';
+              const isMe = msg.senderId === currentUserId || msg.senderRole === 'teacher';
               return (
                 <div 
-                  key={`c-msg-${msg.id}-${idx}`}
+                  key={`t-msg-${msg.id}-${idx}`}
                   className={`flex items-start gap-4 ${isMe ? 'flex-row-reverse' : ''}`}
                 >
                   {isMe ? (
                     <div className="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-white text-[10px] font-bold mt-1 shrink-0">
-                      AF
+                      MB
                     </div>
                   ) : (
                     <img src={activeContact.image} alt={activeContact.name} className="w-8 h-8 rounded-lg object-cover mt-1 shrink-0" />

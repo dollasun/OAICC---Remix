@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { CheckCircle2, AlertCircle, X, Info } from 'lucide-react';
 
@@ -13,6 +13,7 @@ interface Toast {
 
 interface ToastContextType {
   showToast: (message: string, type?: ToastType, action?: { label: string; onClick: () => void }) => void;
+  clearToasts: () => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -26,69 +27,94 @@ export const useToast = () => {
 };
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const showToast = useCallback((message: string, type: ToastType = 'success', action?: { label: string; onClick: () => void }) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, message, type, action }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, action ? 10000 : 5000); // give more time if there is an action
+  const clearToasts = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setToast(null);
   }, []);
 
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  const showToast = useCallback((message: string, type: ToastType = 'success', action?: { label: string; onClick: () => void }) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    const id = Math.random().toString(36).substring(2, 9);
+    setToast({ id, message, type, action });
 
-  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+    timeoutRef.current = setTimeout(() => {
+      setToast((current) => (current?.id === id ? null : current));
+    }, action ? 6000 : 4000);
+  }, []);
+
+  const contextValue = useMemo(() => ({ showToast, clearToasts }), [showToast, clearToasts]);
 
   return (
     <ToastContext.Provider value={contextValue}>
       {children}
-      <div className="fixed bottom-8 right-8 z-[9999] flex flex-col gap-3 pointer-events-none">
-        <AnimatePresence mode="popLayout">
-          {toasts.map((toast) => (
+      <div className="fixed bottom-6 right-6 z-[9999] pointer-events-none max-w-md w-full sm:w-auto">
+        <AnimatePresence mode="wait">
+          {toast && (
             <motion.div
               key={toast.id}
-              layout
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="pointer-events-auto"
+              exit={{ opacity: 0, y: 10, scale: 0.96, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.2 }}
+              className="pointer-events-auto mx-4 sm:mx-0"
             >
               <div className={`
-                flex items-center gap-3 px-6 py-4 rounded-xl shadow-sm border min-w-[320px] max-w-md
-                ${toast.type === 'success' ? 'bg-white border-emerald-100 text-emerald-900' : 
-                  toast.type === 'error' ? 'bg-white border-red-100 text-red-900' : 
-                  'bg-white border-blue-100 text-blue-900'}
+                flex items-center gap-3 px-4 py-3.5 sm:px-5 sm:py-4 rounded-2xl shadow-lg border min-w-[280px] sm:min-w-[340px] max-w-md backdrop-blur-md
+                ${toast.type === 'success' ? 'bg-slate-900/95 text-white border-slate-800' : 
+                  toast.type === 'error' ? 'bg-rose-950/95 text-white border-rose-900' : 
+                  'bg-slate-900/95 text-white border-slate-800'}
               `}>
-                {toast.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-                {toast.type === 'error' && <AlertCircle className="w-5 h-5 text-red-500" />}
-                {toast.type === 'info' && <Info className="w-5 h-5 text-blue-500" />}
+                <div className="shrink-0">
+                  {toast.type === 'success' && (
+                    <div className="w-7 h-7 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                      <CheckCircle2 className="w-4 h-4" />
+                    </div>
+                  )}
+                  {toast.type === 'error' && (
+                    <div className="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/30">
+                      <AlertCircle className="w-4 h-4" />
+                    </div>
+                  )}
+                  {toast.type === 'info' && (
+                    <div className="w-7 h-7 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+                      <Info className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
                 
-                <p className="flex-1 text-sm font-bold">{toast.message}</p>
+                <p className="flex-1 text-xs sm:text-sm font-semibold leading-snug">{toast.message}</p>
                 
                 {toast.action && (
                   <button 
                     onClick={() => {
                       toast.action!.onClick();
-                      removeToast(toast.id);
+                      clearToasts();
                     }}
-                    className="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                    className="px-2.5 py-1 text-xs font-bold rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors shrink-0"
                   >
                     {toast.action.label}
                   </button>
                 )}
 
                 <button 
-                  onClick={() => removeToast(toast.id)}
-                  className="p-1 hover:bg-slate-50 rounded-lg transition-colors text-slate-400"
+                  onClick={clearToasts}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white shrink-0"
+                  title="Dismiss"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </motion.div>
-          ))}
+          )}
         </AnimatePresence>
       </div>
     </ToastContext.Provider>

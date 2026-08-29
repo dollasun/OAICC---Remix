@@ -23,7 +23,8 @@ import {
   ExternalLink,
   ShieldCheck,
   CheckCircle2,
-  Calendar
+  Calendar,
+  MessageSquare
 } from 'lucide-react';
 import Logo from '../Logo';
 import SchoolOverview from './School/SchoolOverview';
@@ -32,14 +33,17 @@ import SchoolClassDetails from './School/SchoolClassDetails';
 import SchoolProfile from './School/SchoolProfile';
 import SchoolStudentDetails from './School/SchoolStudentDetails';
 import SchoolEvents from './School/SchoolEvents';
+import SchoolMessages from './School/SchoolMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
+import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 export default function SchoolDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { totalUnread } = useCrossPortalMessaging('admin-1', 'admin');
   
   const isActive = (path: string) => {
     if (path === '/school/dashboard' && location.pathname === '/school/dashboard') return true;
@@ -80,6 +84,25 @@ export default function SchoolDashboard() {
           >
             <Users className="w-5 h-5" />
             Classes
+          </Link>
+
+          <Link
+            to="/school/messages"
+            className={`flex items-center justify-between px-4 py-3 rounded-lg font-bold transition-all ${
+              isActive('/school/messages') 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <MessageSquare className="w-5 h-5" />
+              Messages
+            </div>
+            {totalUnread > 0 && (
+              <span className="px-2 py-0.5 text-xs font-bold bg-brand text-white rounded-full">
+                {totalUnread}
+              </span>
+            )}
           </Link>
 
           <Link
@@ -196,6 +219,7 @@ export default function SchoolDashboard() {
             <Route path="classes/:id" element={<SchoolClassDetails />} />
             <Route path="student/:id" element={<SchoolStudentDetails />} />
             <Route path="events" element={<SchoolEvents />} />
+            <Route path="messages" element={<SchoolMessages />} />
             <Route path="settings" element={<SchoolProfile />} />
             <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />

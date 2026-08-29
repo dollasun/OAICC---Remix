@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Logo from '../Logo';
 import { INITIAL_QUESTIONS } from '../../data/assessmentQuestions';
+import { Question } from '../../data/assessmentData';
 import { useToast } from '../../context/ToastContext';
 
 const sectionIcons: Record<string, React.ReactNode> = {
@@ -21,6 +22,39 @@ const sectionIcons: Record<string, React.ReactNode> = {
   'work-style': <Briefcase className="w-8 h-8 text-white" />,
   'subject-signals': <Brain className="w-8 h-8 text-white" />
 };
+
+const generatePattern = (questions: Question[]) => {
+  const interests = questions.filter(q => q.sectionId === 'interests');
+  const strengths = questions.filter(q => q.sectionId === 'strengths');
+  const workStyles = questions.filter(q => q.sectionId === 'work-style');
+  const subjectSignals = questions.filter(q => q.sectionId === 'subject-signals');
+
+  const result: Question[] = [];
+  
+  // Create pattern: 5 interests, 4 strengths, 2 work style, 1 subject signal
+  while (interests.length >= 5 && strengths.length >= 4 && workStyles.length >= 2 && subjectSignals.length >= 1) {
+    result.push(...interests.splice(0, 5));
+    result.push(...strengths.splice(0, 4));
+    result.push(...workStyles.splice(0, 2));
+    result.push(...subjectSignals.splice(0, 1));
+  }
+
+  // Collect any remaining questions
+  const remaining = [...interests, ...strengths, ...workStyles, ...subjectSignals];
+  
+  // Shuffle remaining
+  for (let i = remaining.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+  }
+
+  return [...result, ...remaining];
+};
+
+const ORDERED_QUESTIONS = [
+  ...generatePattern(INITIAL_QUESTIONS.filter(q => q.use === 'Core')),
+  ...generatePattern(INITIAL_QUESTIONS.filter(q => q.use === 'Optional'))
+];
 
 export default function StudentOnboarding() {
   const navigate = useNavigate();
@@ -38,11 +72,11 @@ export default function StudentOnboarding() {
     if (saved) {
       const parsed = JSON.parse(saved);
       setAnswers(parsed);
-      const firstUnanswered = INITIAL_QUESTIONS.findIndex(q => !parsed[q.id]);
+      const firstUnanswered = ORDERED_QUESTIONS.findIndex(q => !parsed[q.id]);
       if (firstUnanswered !== -1) {
         setCurrentIndex(firstUnanswered);
       } else {
-        setCurrentIndex(INITIAL_QUESTIONS.length);
+        setCurrentIndex(ORDERED_QUESTIONS.length);
       }
       if (isContinue) {
         setStarted(true);
@@ -52,16 +86,23 @@ export default function StudentOnboarding() {
     }
   }, [searchParams]);
 
-  const currentQuestion = INITIAL_QUESTIONS[currentIndex] || INITIAL_QUESTIONS[0];
-  const progress = Math.round((currentIndex / INITIAL_QUESTIONS.length) * 100);
+  const currentQuestion = ORDERED_QUESTIONS[currentIndex] || ORDERED_QUESTIONS[0];
+  const progress = Math.round((currentIndex / ORDERED_QUESTIONS.length) * 100);
+  const answerCount = Object.keys(answers).length;
+  const canSaveAndExit = answerCount >= 20;
 
   const handleAnswer = (val: number) => {
     const updated = { ...answers, [currentQuestion.id]: val };
+    const newAnswerCount = Object.keys(updated).length;
     setAnswers(updated);
     localStorage.setItem('studentAssessmentAnswers', JSON.stringify(updated));
     
+    if (newAnswerCount === 20 && answerCount === 19) {
+      showToast('You can now save & exit to continue later, or keep going!', 'info');
+    }
+    
     setTimeout(() => {
-      if (currentIndex < INITIAL_QUESTIONS.length - 1) {
+      if (currentIndex < ORDERED_QUESTIONS.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
         // Allow it to increment to show the completion screen
@@ -71,6 +112,7 @@ export default function StudentOnboarding() {
   };
 
   const saveAndExit = () => {
+    if (!canSaveAndExit) return;
     showToast('Progress saved! Welcome to your dashboard.');
     navigate('/student/dashboard');
   };
@@ -129,7 +171,7 @@ export default function StudentOnboarding() {
     );
   }
 
-  if (currentIndex >= INITIAL_QUESTIONS.length) {
+  if (currentIndex >= ORDERED_QUESTIONS.length) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
         {/* Celebration Background Effects */}
@@ -210,7 +252,12 @@ export default function StudentOnboarding() {
         </div>
         <button 
           onClick={() => saveAndExit()}
-          className="px-5 py-2.5 bg-white/80 backdrop-blur border border-slate-200 text-slate-600 font-bold text-sm rounded-full hover:bg-white transition-all shadow-sm flex items-center gap-2"
+          disabled={!canSaveAndExit}
+          className={`px-5 py-2.5 font-bold text-sm rounded-full transition-all flex items-center gap-2 shadow-sm border ${
+            canSaveAndExit 
+              ? 'bg-gradient-to-r from-brand to-cyan-500 text-white border-transparent hover:shadow-md hover:scale-[1.02] active:scale-[0.98]' 
+              : 'bg-slate-100/50 backdrop-blur text-slate-400 border-slate-200 opacity-70 cursor-not-allowed'
+          }`}
         >
           Save & Exit <ChevronRight className="w-4 h-4" />
         </button>
@@ -220,13 +267,13 @@ export default function StudentOnboarding() {
       <div className="w-full max-w-5xl mx-auto px-6 relative z-10">
         <div className="flex justify-between text-xs font-bold text-slate-500 mb-3">
           <span className="uppercase tracking-widest">{currentQuestion.sectionId}</span>
-          <span>{currentIndex + 1} / {INITIAL_QUESTIONS.length}</span>
+          <span>{currentIndex + 1} / {ORDERED_QUESTIONS.length}</span>
         </div>
         <div className="h-2.5 w-full bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm">
           <motion.div 
             className="h-full bg-gradient-to-r from-brand to-cyan-400 rounded-full"
             initial={{ width: `${progress}%` }}
-            animate={{ width: `${((currentIndex + 1) / INITIAL_QUESTIONS.length) * 100}%` }}
+            animate={{ width: `${((currentIndex + 1) / ORDERED_QUESTIONS.length) * 100}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>

@@ -19,8 +19,6 @@ import {
   X
 } from 'lucide-react';
 import Logo from '../Logo';
-import { useToast } from '../../context/ToastContext';
-import { intakeQuestions } from '../../data/questionnaire';
 
 // Import sub-components (to be created)
 import StudentHome from './Student/StudentHome';
@@ -38,36 +36,15 @@ import StudentMessages from './Student/StudentMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
+import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 export default function StudentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { showToast } = useToast();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const saved = localStorage.getItem('studentIntakeAnswers');
-      let isComplete = false;
-      if (saved) {
-        const answers = JSON.parse(saved);
-        if (Object.keys(answers).length >= intakeQuestions.length) {
-          isComplete = true;
-        }
-      }
-
-      if (!isComplete && location.pathname !== '/student/settings') {
-        showToast('Please complete your profile assessment', 'info', {
-          label: 'Complete Now',
-          onClick: () => navigate('/student/settings')
-        });
-      }
-    }, 120000); // 2 minutes
-
-    return () => clearInterval(interval);
-  }, [showToast, navigate, location.pathname]);
+  const { totalUnread } = useCrossPortalMessaging('student-1', 'student');
 
   const navItems = [
     { icon: Home, label: 'Home', path: '/student/dashboard' },
@@ -128,14 +105,21 @@ export default function StudentDashboard() {
               key={item.path}
               to={item.path}
               onClick={() => setIsSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
+              className={`flex items-center justify-between px-4 py-3 rounded-lg font-bold transition-all ${
                 isActive(item.path)
                   ? 'bg-brand text-white shadow-sm shadow-brand/5'
                   : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
               } ${isSidebarCollapsed ? 'justify-center' : ''}`}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {!isSidebarCollapsed && <span>{item.label}</span>}
+              <div className="flex items-center gap-3">
+                <item.icon className="w-5 h-5 shrink-0" />
+                {!isSidebarCollapsed && <span>{item.label}</span>}
+              </div>
+              {!isSidebarCollapsed && item.path === '/student/messages' && totalUnread > 0 && (
+                <span className="px-2 py-0.5 text-xs font-bold bg-brand text-white rounded-full">
+                  {totalUnread}
+                </span>
+              )}
             </Link>
           ))}
         </nav>

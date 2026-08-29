@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
+import { useToast } from '../../context/ToastContext';
 
 const carouselImages = [
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80",
@@ -14,6 +15,7 @@ const carouselImages = [
 
 export default function AdminSignIn() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formData, setFormData] = useState({
@@ -33,6 +35,7 @@ export default function AdminSignIn() {
     // Simulate authentication
     localStorage.setItem('admin_auth', 'true');
     localStorage.setItem('user_role', 'admin');
+    showToast('Welcome back, Administrator!', 'success');
     navigate('/admin/dashboard');
   };
 

@@ -44,7 +44,7 @@ export default function ChildDetails() {
   };
 
   // 1. Career Interest list: top 10 recommended careers + favorited careers
-  const recommendedCareers = getTopRecommendedCareers(10);
+  const recommendedCareers = getTopRecommendedCareers(5).slice(0, 6);
   const [combinedCareers, setCombinedCareers] = useState<any[]>([]);
 
   useEffect(() => {

@@ -23,90 +23,213 @@ const sectionIcons: Record<string, React.ReactNode> = {
   'subject-signals': <Brain className="w-8 h-8 text-white" />
 };
 
-const generatePattern = (questions: Question[]) => {
-  const interests = questions.filter(q => q.sectionId === 'interests');
-  const strengths = questions.filter(q => q.sectionId === 'strengths');
-  const workStyles = questions.filter(q => q.sectionId === 'work-style');
-  const subjectSignals = questions.filter(q => q.sectionId === 'subject-signals');
-
-  const result: Question[] = [];
-  
-  // Create pattern: 5 interests, 4 strengths, 2 work style, 1 subject signal
-  while (interests.length >= 5 && strengths.length >= 4 && workStyles.length >= 2 && subjectSignals.length >= 1) {
-    result.push(...interests.splice(0, 5));
-    result.push(...strengths.splice(0, 4));
-    result.push(...workStyles.splice(0, 2));
-    result.push(...subjectSignals.splice(0, 1));
-  }
-
-  // Collect any remaining questions
-  const remaining = [...interests, ...strengths, ...workStyles, ...subjectSignals];
-  
-  // Shuffle remaining
-  for (let i = remaining.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
-  }
-
-  return [...result, ...remaining];
-};
-
-const ORDERED_QUESTIONS = [
-  ...generatePattern(INITIAL_QUESTIONS.filter(q => q.use === 'Core')),
-  ...generatePattern(INITIAL_QUESTIONS.filter(q => q.use === 'Optional'))
-];
-
 export default function StudentOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const studentName = searchParams.get('name') || 'Student';
   const { showToast } = useToast();
-
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
 
+  // 1. D & k constants and mappings for Industry Fit
+  const D_K_MAP: Record<string, { D: number, k: number }> = {
+    "Accountancy, banking and finance": { D: 5.5, k: 2.75 },
+    "Business, consulting and management": { D: 5.5, k: 2.75 },
+    "Charity and voluntary work": { D: 2.5, k: 1.25 },
+    "Creative arts and design": { D: 3.5, k: 1.75 },
+    "Energy and utilities": { D: 2.5, k: 1.25 },
+    "Engineering and manufacturing": { D: 7.5, k: 3.75 },
+    "Environment and agriculture": { D: 2.0, k: 1.00 },
+    "Healthcare": { D: 4.5, k: 2.25 },
+    "Hospitality and events management": { D: 3.5, k: 1.75 },
+    "Information technology": { D: 6.0, k: 3.00 },
+    "Law": { D: 4.5, k: 2.25 },
+    "Law enforcement and security": { D: 3.5, k: 1.75 },
+    "Leisure, Sport and Tourism": { D: 4.0, k: 2.00 },
+    "Marketing, advertising and PR": { D: 2.0, k: 1.00 },
+    "Media and Internet": { D: 5.5, k: 2.75 },
+    "Property and Construction": { D: 2.0, k: 1.00 },
+    "Public Services and Administration": { D: 3.0, k: 1.50 },
+    "Recruitment and HR": { D: 3.5, k: 1.75 },
+    "Retail": { D: 2.5, k: 1.25 },
+    "Sales": { D: 4.5, k: 2.25 },
+    "Science and Pharmaceuticals": { D: 6.0, k: 3.00 },
+    "Social Care": { D: 4.0, k: 2.00 },
+    "Teacher Training and Education": { D: 3.0, k: 1.50 },
+    "Transport and Logistics": { D: 2.0, k: 1.00 }
+  };
+
+  const CLUSTER_TO_INDUSTRY: Record<string, string> = {
+    'Finance, Accounting & Banking': 'Accountancy, banking and finance',
+    'Business, Management & Entrepreneurship': 'Business, consulting and management',
+    'Social Impact & Community Support': 'Charity and voluntary work',
+    'Creative Arts, Design & Media': 'Creative arts and design',
+    'Construction, Real Estate & Built Environment': 'Property and Construction',
+    'Health & Care': 'Healthcare',
+    'Technology & Digital': 'Information technology',
+    'Law, Governance & Public Service': 'Law',
+    'Security, Safety & Investigations': 'Law enforcement and security',
+    'Sports, Fitness & Recreation': 'Leisure, Sport and Tourism',
+    'Marketing, Sales & Customer Experience': 'Marketing, advertising and PR',
+    'People, HR & Administration': 'Recruitment and HR',
+    'Science & Research': 'Science and Pharmaceuticals',
+    'Transport, Logistics & Vehicles': 'Transport and Logistics',
+    'Engineering, Manufacturing & Technical Trades': 'Engineering and manufacturing',
+    'Environment, Agriculture & Sustainability': 'Environment and agriculture',
+    'Hospitality, Events & Tourism': 'Hospitality and events management',
+    'Education & Training': 'Teacher Training and Education'
+  };
+
+  const getIndustry = (cluster: string) => CLUSTER_TO_INDUSTRY[cluster] || 'Information technology';
+
+  const buildPhase = (pool: Question[]) => {
+    const sections = Array.from(new Set(pool.map(q => q.sectionId)));
+    const share: Record<string, number> = {};
+    const served: Record<string, number> = {};
+    const remaining: Record<string, Question[]> = {};
+    
+    sections.forEach(s => {
+      remaining[s] = pool.filter(q => q.sectionId === s);
+      share[s] = remaining[s].length / pool.length;
+      served[s] = 0;
+    });
+
+    const out: Question[] = [];
+    const wgt: Record<string, number> = {};
+    Object.values(CLUSTER_TO_INDUSTRY).forEach(ind => wgt[ind] = 0);
+    const qInSeq = new Set<string>();
+
+    for (let k = 0; k < pool.length; k++) {
+      const validSections = sections.filter(s => remaining[s].length > 0);
+      let pick = validSections[0];
+      let maxSectionVal = -Infinity;
+      validSections.forEach(s => {
+        const val = share[s] * (k + 1) - served[s];
+        if (val > maxSectionVal) { maxSectionVal = val; pick = s; }
+      });
+
+      let bestQ = remaining[pick][0];
+      let maxGain = -Infinity;
+      
+      remaining[pick].forEach(q => {
+        const ind1 = getIndustry(q.primaryCluster);
+        const ind2 = getIndustry(q.secondaryCluster);
+        let gain = 0;
+        const calcW = (i: string, w: number) => {
+          const d = D_K_MAP[i]?.D || 3.5;
+          const currentWgt = wgt[i] || 0;
+          return w * Math.max(0, d - currentWgt) / d + 0.6 * w * Math.max(0, 3.0 - currentWgt);
+        };
+        
+        gain += calcW(ind1, 1.0) + calcW(ind2, 0.5);
+        // Approximation: a flat 26 careers linked since we lack the exact mapping in static data.
+        gain += 0.004 * 26; 
+        
+        if (gain > maxGain || (gain === maxGain && q.id < bestQ.id)) {
+          maxGain = gain;
+          bestQ = q;
+        }
+      });
+
+      out.push(bestQ);
+      served[pick] += 1;
+      qInSeq.add(bestQ.id);
+      
+      const i1 = getIndustry(bestQ.primaryCluster);
+      const i2 = getIndustry(bestQ.secondaryCluster);
+      wgt[i1] = (wgt[i1] || 0) + 1.0;
+      wgt[i2] = (wgt[i2] || 0) + 0.5;
+      
+      remaining[pick] = remaining[pick].filter(q => q.id !== bestQ.id);
+    }
+    return out;
+  };
+
+  const getOrInitializeState = () => {
+    const savedStr = localStorage.getItem('assessmentState');
+    let state = savedStr ? JSON.parse(savedStr) : null;
+    if (!state || !state.sequence) {
+      const core = INITIAL_QUESTIONS.filter(q => q.use === 'Core');
+      const opt = INITIAL_QUESTIONS.filter(q => q.use === 'Optional');
+      const sequence = [...buildPhase(core).map(q => q.id), ...buildPhase(opt).map(q => q.id)];
+      state = {
+        studentId: 'current-student',
+        bankVersion: '1.0',
+        sequence,
+        responses: {},
+        status: 'not_started'
+      };
+      localStorage.setItem('assessmentState', JSON.stringify(state));
+    }
+    return state;
+  };
+
+  const [assessmentState, setAssessmentState] = useState<any>(null);
+  const [orderedQuestions, setOrderedQuestions] = useState<Question[]>([]);
+
   useEffect(() => {
     const isContinue = searchParams.get('continue') === 'true' || searchParams.get('start') === 'true';
-    const saved = localStorage.getItem('studentAssessmentAnswers');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setAnswers(parsed);
-      const firstUnanswered = ORDERED_QUESTIONS.findIndex(q => !parsed[q.id]);
-      if (firstUnanswered !== -1) {
-        setCurrentIndex(firstUnanswered);
-      } else {
-        setCurrentIndex(ORDERED_QUESTIONS.length);
-      }
+    const state = getOrInitializeState();
+    setAssessmentState(state);
+    setAnswers(state.responses || {});
+    
+    const qMap = new Map(INITIAL_QUESTIONS.map(q => [q.id, q]));
+    const qs = state.sequence.map((id: string) => qMap.get(id)!).filter(Boolean);
+    setOrderedQuestions(qs);
+
+    if (state.status === 'complete') {
+      setCurrentIndex(qs.length);
+    } else {
+      const firstUnanswered = qs.findIndex((q: Question) => !state.responses[q.id]);
+      setCurrentIndex(firstUnanswered !== -1 ? firstUnanswered : qs.length);
       if (isContinue) {
         setStarted(true);
+        if (state.status === 'not_started') {
+          state.status = 'in_progress';
+          localStorage.setItem('assessmentState', JSON.stringify(state));
+        }
       }
-    } else if (isContinue) {
-      setStarted(true);
     }
   }, [searchParams]);
 
-  const currentQuestion = ORDERED_QUESTIONS[currentIndex] || ORDERED_QUESTIONS[0];
-  const progress = Math.round((currentIndex / ORDERED_QUESTIONS.length) * 100);
+  const currentQuestion = orderedQuestions[currentIndex] || INITIAL_QUESTIONS[0];
+  const progress = orderedQuestions.length ? Math.round((currentIndex / orderedQuestions.length) * 100) : 0;
   const answerCount = Object.keys(answers).length;
-  const canSaveAndExit = answerCount >= 20;
+  const canSaveAndExit = answerCount >= 25;
 
   const handleAnswer = (val: number) => {
     const updated = { ...answers, [currentQuestion.id]: val };
-    const newAnswerCount = Object.keys(updated).length;
     setAnswers(updated);
-    localStorage.setItem('studentAssessmentAnswers', JSON.stringify(updated));
     
-    if (newAnswerCount === 20 && answerCount === 19) {
+    if (assessmentState) {
+       const newState = { ...assessmentState, responses: updated };
+       if (Object.keys(updated).length >= orderedQuestions.length) {
+         newState.status = 'complete';
+       }
+       setAssessmentState(newState);
+       localStorage.setItem('assessmentState', JSON.stringify(newState));
+       // Also sync to legacy key for compatibility with other views if needed
+       localStorage.setItem('studentAssessmentAnswers', JSON.stringify(updated));
+    }
+
+    const newAnswerCount = Object.keys(updated).length;
+    if (newAnswerCount === 25 && answerCount === 24) {
       showToast('You can now save & exit to continue later, or keep going!', 'info');
     }
     
     setTimeout(() => {
-      if (currentIndex < ORDERED_QUESTIONS.length - 1) {
+      if (currentIndex < orderedQuestions.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else {
         // Allow it to increment to show the completion screen
         setCurrentIndex(currentIndex + 1);
+        
+        // Finalize state
+        if (assessmentState) {
+          const state = { ...assessmentState, status: 'complete' };
+          localStorage.setItem('assessmentState', JSON.stringify(state));
+        }
       }
     }, 300);
   };
@@ -171,7 +294,7 @@ export default function StudentOnboarding() {
     );
   }
 
-  if (currentIndex >= ORDERED_QUESTIONS.length) {
+  if (currentIndex >= orderedQuestions.length) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
         {/* Celebration Background Effects */}
@@ -267,13 +390,13 @@ export default function StudentOnboarding() {
       <div className="w-full max-w-5xl mx-auto px-6 relative z-10">
         <div className="flex justify-between text-xs font-bold text-slate-500 mb-3">
           <span className="uppercase tracking-widest">{currentQuestion.sectionId}</span>
-          <span>{currentIndex + 1} / {ORDERED_QUESTIONS.length}</span>
+          <span>{currentIndex + 1} / {orderedQuestions.length}</span>
         </div>
         <div className="h-2.5 w-full bg-slate-200/50 rounded-full overflow-hidden backdrop-blur-sm">
           <motion.div 
             className="h-full bg-gradient-to-r from-brand to-cyan-400 rounded-full"
             initial={{ width: `${progress}%` }}
-            animate={{ width: `${((currentIndex + 1) / ORDERED_QUESTIONS.length) * 100}%` }}
+            animate={{ width: `${((currentIndex + 1) / orderedQuestions.length) * 100}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>

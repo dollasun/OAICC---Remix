@@ -40,7 +40,7 @@ export default function CounselorStudentDetails() {
     notes: ''
   });
 
-  const recommendedCareers = getTopRecommendedCareers(10);
+  const recommendedCareers = getTopRecommendedCareers(5).slice(0, 6);
 
   useEffect(() => {
     const allStudents = studentsStorage.get();

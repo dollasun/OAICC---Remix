@@ -14,12 +14,13 @@ import {
   X,
   SlidersHorizontal,
   RotateCcw,
-  Sparkles,
+  Globe,
+  Compass,
   Layers
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { careersStorage, savedCareersStorage } from '../../../utils/storage';
-import { careerGlossary } from '../../../data/careers';
+import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function CareerLibrary() {
   const navigate = useNavigate();
@@ -32,6 +33,9 @@ export default function CareerLibrary() {
   const [savedIds, setSavedIds] = useState<number[]>([]);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Toggle state: false = top 5 recommendations only (default), true = all industries
+  const [seeAllIndustries, setSeeAllIndustries] = useState(false);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -47,58 +51,28 @@ export default function CareerLibrary() {
   }, []);
 
   useEffect(() => {
-    // Check if admin has added any careers
-    const adminCareers = careersStorage.get([]);
-    let allCareers: any[] = [];
-    
-    if (adminCareers.length > 0) {
-      allCareers = adminCareers.map((c: any) => ({
-        id: c.id,
-        title: c.name || c.title,
-        category: c.category || 'General',
-        salary: `$${c.salaryMin || '50k'} - $${c.salaryMax || '100k'}`,
-        growth: 'High',
-        education: "Bachelor's Degree",
-        match: c.match || `${Math.floor(Math.random() * 35) + 65}%`,
-        image: c.image || `https://picsum.photos/seed/${c.id}/600/400`,
-        description: c.description || `A professional role in the ${c.category} sector.`
-      }));
-    } else {
-      // Generate initial careers from the glossary
-      let idCounter = 1;
-      for (const [cluster, jobs] of Object.entries(careerGlossary)) {
-        // Pick a few jobs from each cluster to show initially if no admin careers exist
-        const sampleJobs = (jobs as string[]).slice(0, 5);
-        sampleJobs.forEach((job: string) => {
-          allCareers.push({
-            id: idCounter++,
-            title: job,
-            category: cluster,
-            salary: '$60k - $120k',
-            growth: 'Medium',
-            education: "Bachelor's Degree",
-            match: `${Math.floor(Math.random() * 30) + 68}%`,
-            image: `https://picsum.photos/seed/${idCounter * 7}/600/400`,
-            description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()} tasks, strategy, and daily operations.`
-          });
-        });
-      }
-    }
-
-    // Sort by match percentage (highest first)
-    const sorted = [...allCareers].sort((a, b) => {
-      const matchA = parseInt(a.match) || 0;
-      const matchB = parseInt(b.match) || 0;
-      return matchB - matchA;
-    });
-
-    setCareers(sorted);
+    // By default (seeAllIndustries=false), fetch flattened careers from the top 5 industries.
+    // When seeAllIndustries=true, fetch flattened careers from all 24 industries.
+    const targetIndustryCount = seeAllIndustries ? 24 : 5;
+    const flattened = getTopRecommendedCareers(targetIndustryCount);
+    setCareers(flattened);
 
     const saved = savedCareersStorage.get([]);
     setSavedIds(saved.map((c: any) => c.id));
-  }, []);
+  }, [seeAllIndustries]);
 
-  // Compute available unique industries from data
+  // Handle toggling "See all industries"
+  const handleToggleSeeAllIndustries = (enable: boolean) => {
+    setSeeAllIndustries(enable);
+    if (!enable) {
+      // When toggled off back to recommendations, prune selected industries that are not in top 5
+      const top5Careers = getTopRecommendedCareers(5);
+      const top5Industries = new Set(top5Careers.map(c => c.category).filter(Boolean));
+      setSelectedIndustries(prev => prev.filter(ind => top5Industries.has(ind)));
+    }
+  };
+
+  // Compute available unique industries from current data
   const availableIndustries = useMemo(() => {
     const list = Array.from(new Set(careers.map(c => c.category).filter(Boolean)));
     return list.sort();
@@ -207,7 +181,7 @@ export default function CareerLibrary() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand/10 text-brand border border-brand/15 mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
+            <Compass className="w-3.5 h-3.5" />
             <span>Interactive Exploration</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Career Library</h1>
@@ -221,7 +195,7 @@ export default function CareerLibrary() {
       <div className="bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-3.5">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
           {/* Expanded Search Input */}
-          <div className="relative flex-1">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             <input 
               type="text" 
@@ -241,12 +215,41 @@ export default function CareerLibrary() {
             )}
           </div>
 
+          {/* See All Industries Toggle Button */}
+          <div
+            id="toggle-see-all-industries"
+            onClick={() => handleToggleSeeAllIndustries(!seeAllIndustries)}
+            className={`px-4 py-3.5 rounded-2xl font-bold text-xs sm:text-sm border flex items-center justify-between gap-3 transition-all cursor-pointer select-none shrink-0 ${
+              seeAllIndustries
+                ? 'bg-brand/10 border-brand/40 text-brand shadow-xs hover:bg-brand/15'
+                : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200 text-slate-700'
+            }`}
+            title={seeAllIndustries ? 'Switch back to top 5 recommendations' : 'Show all 24 industries and careers'}
+          >
+            <div className="flex items-center gap-2">
+              <Globe className={`w-4 h-4 shrink-0 transition-colors ${seeAllIndustries ? 'text-brand' : 'text-slate-400'}`} />
+              <span className="whitespace-nowrap">See all industries</span>
+            </div>
+            <div
+              className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out ${
+                seeAllIndustries ? 'bg-brand' : 'bg-slate-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                  seeAllIndustries ? 'translate-x-4' : 'translate-x-1'
+                }`}
+              />
+            </div>
+          </div>
+
           {/* Industry Multi-Select Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
+              id="btn-industry-dropdown"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className={`w-full lg:w-auto min-w-[240px] px-4 py-3.5 rounded-2xl font-bold text-sm border flex items-center justify-between gap-3 transition-all ${
+              className={`w-full lg:w-auto min-w-[220px] px-4 py-3.5 rounded-2xl font-bold text-sm border flex items-center justify-between gap-3 transition-all ${
                 isDropdownOpen || !isAllSelected
                   ? 'bg-brand/5 border-brand/40 text-brand shadow-xs'
                   : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200 text-slate-700'
@@ -256,10 +259,10 @@ export default function CareerLibrary() {
                 <Briefcase className="w-4 h-4 text-brand shrink-0" />
                 <span className="truncate">
                   {isAllSelected 
-                    ? 'All Industries' 
+                    ? (seeAllIndustries ? 'All Industries' : 'Recommended') 
                     : selectedIndustries.length === 1 
                       ? selectedIndustries[0] 
-                      : `${selectedIndustries.length} Industries Selected`}
+                      : `${selectedIndustries.length} Selected`}
                 </span>
               </div>
 
@@ -267,7 +270,7 @@ export default function CareerLibrary() {
                 <span className={`px-2 py-0.5 rounded-full text-xs font-extrabold ${
                   isAllSelected ? 'bg-slate-200/70 text-slate-600' : 'bg-brand text-white'
                 }`}>
-                  {isAllSelected ? 'All' : selectedIndustries.length}
+                  {isAllSelected ? (seeAllIndustries ? 'All' : 'Top 5') : selectedIndustries.length}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-brand' : ''}`} />
               </div>
@@ -281,7 +284,7 @@ export default function CareerLibrary() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.98 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-2 w-full sm:w-96 bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-slate-900/10 z-50 p-3 flex flex-col max-h-[420px]"
+                  className="absolute right-0 top-full mt-2 w-full sm:w-96 bg-white border border-slate-200/90 rounded-2xl shadow-xl shadow-slate-900/10 z-50 p-3 flex flex-col max-h-[440px]"
                 >
                   {/* Dropdown Header & Quick Actions */}
                   <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 px-1">
@@ -311,8 +314,35 @@ export default function CareerLibrary() {
                     </div>
                   </div>
 
+                  {/* See All Industries Toggle inside Dropdown */}
+                  <div 
+                    onClick={() => handleToggleSeeAllIndustries(!seeAllIndustries)}
+                    className="flex items-center justify-between px-3 py-2 mt-2 mb-1 bg-slate-50 hover:bg-slate-100/80 rounded-xl border border-slate-200/70 cursor-pointer transition-colors select-none"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Globe className={`w-3.5 h-3.5 ${seeAllIndustries ? 'text-brand' : 'text-slate-400'}`} />
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-slate-800 leading-tight">See all industries</span>
+                        <span className="text-[10px] text-slate-500 font-medium">
+                          {seeAllIndustries ? 'Showing all 24 industries' : 'Showing top 5 recommendations'}
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 ease-in-out ${
+                        seeAllIndustries ? 'bg-brand' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition duration-200 ease-in-out ${
+                          seeAllIndustries ? 'translate-x-4' : 'translate-x-1'
+                        }`}
+                      />
+                    </div>
+                  </div>
+
                   {/* Search inside dropdown */}
-                  <div className="relative my-2.5">
+                  <div className="relative my-2">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                     <input
                       type="text"
@@ -348,7 +378,7 @@ export default function CareerLibrary() {
                         }`}>
                           {isAllSelected && <Check className="w-3 h-3 stroke-[3]" />}
                         </div>
-                        <span>All Industries</span>
+                        <span>{seeAllIndustries ? 'All Industries' : 'All Recommended Industries'}</span>
                       </div>
                       <span className={`text-[11px] font-semibold ${isAllSelected ? 'text-brand' : 'text-slate-400'}`}>
                         {careers.length}
@@ -393,15 +423,15 @@ export default function CareerLibrary() {
 
                   {/* Dropdown Footer summary */}
                   <div className="pt-2.5 mt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-medium px-1">
-                    <span>
+                    <span className="truncate mr-2">
                       {selectedIndustries.length === 0 
-                        ? 'Showing all industries' 
+                        ? (seeAllIndustries ? 'Showing all 24 industries' : 'Showing top 5 recommended') 
                         : `${selectedIndustries.length} of ${availableIndustries.length} chosen`}
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsDropdownOpen(false)}
-                      className="px-3 py-1 bg-brand text-white font-bold rounded-lg hover:bg-cyan-600 transition-colors"
+                      className="px-3 py-1 bg-brand text-white font-bold rounded-lg hover:bg-cyan-600 transition-colors shrink-0"
                     >
                       Done
                     </button>
@@ -474,6 +504,7 @@ export default function CareerLibrary() {
 
             <div className="text-xs font-bold text-slate-500">
               Showing <span className="text-brand font-extrabold">{filteredCareers.length}</span> of {careers.length} careers
+              {!seeAllIndustries && <span className="text-slate-400 font-normal ml-1">(Recommended)</span>}
             </div>
           </div>
         )}
@@ -482,7 +513,13 @@ export default function CareerLibrary() {
       {/* Results Header (when no active filter bar is shown) */}
       {isAllSelected && !searchQuery.trim() && (
         <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
-          <span>Showing all <span className="text-slate-900 font-extrabold">{filteredCareers.length}</span> career pathways</span>
+          <span>
+            Showing {seeAllIndustries ? 'all' : 'top recommended'}{' '}
+            <span className="text-slate-900 font-extrabold">{filteredCareers.length}</span> career pathways
+            {!seeAllIndustries && (
+              <span className="ml-1 text-slate-400 font-normal">(Top 5 matched industries)</span>
+            )}
+          </span>
           <span>Sorted by match score</span>
         </div>
       )}
@@ -577,6 +614,25 @@ export default function CareerLibrary() {
         ))}
       </div>
 
+      {/* Bottom Exploration Banner when seeing only recommendations */}
+      {!seeAllIndustries && filteredCareers.length > 0 && (
+        <div className="mt-12 flex flex-col items-center justify-center gap-2.5 p-6 rounded-3xl bg-slate-50/80 border border-slate-200/80 max-w-xl mx-auto text-center">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
+            <Globe className="w-3.5 h-3.5 text-brand" />
+            <span>Currently showing careers from your top 5 matched industries</span>
+          </div>
+          <button
+            type="button"
+            id="btn-bottom-see-all-industries"
+            onClick={() => handleToggleSeeAllIndustries(true)}
+            className="px-6 py-3 bg-white border border-slate-200 hover:border-brand/40 text-brand font-bold rounded-2xl shadow-xs hover:shadow-md hover:bg-brand/5 transition-all flex items-center gap-2 text-sm"
+          >
+            <span>See All Industries & Careers (24 Industries)</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Empty State */}
       {filteredCareers.length === 0 && (
         <div className="text-center py-16 px-4 bg-white rounded-3xl border border-slate-200/80 shadow-xs max-w-lg mx-auto">
@@ -589,7 +645,17 @@ export default function CareerLibrary() {
               ? `We couldn't find any careers matching "${searchQuery}" in the selected industries.`
               : 'No careers found for the selected industry filters.'}
           </p>
-          <div className="mt-5 flex items-center justify-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            {!seeAllIndustries && (
+              <button
+                type="button"
+                onClick={() => handleToggleSeeAllIndustries(true)}
+                className="px-4 py-2.5 bg-brand/10 border border-brand/20 text-brand font-bold text-xs sm:text-sm rounded-xl hover:bg-brand/20 transition-colors flex items-center gap-1.5"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Search All 24 Industries</span>
+              </button>
+            )}
             <button 
               onClick={handleResetAllFilters}
               className="px-5 py-2.5 bg-brand text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs hover:bg-cyan-600 transition-colors flex items-center gap-1.5"

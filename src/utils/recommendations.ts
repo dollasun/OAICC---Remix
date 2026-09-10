@@ -1,5 +1,6 @@
 import { careersStorage } from './storage';
-import { INITIAL_QUESTIONS as coreAssessmentQuestions } from '../data/assessmentQuestions';
+import { INITIAL_QUESTIONS } from '../data/assessmentQuestions';
+import { careerGlossary } from '../data/careers';
 
 export interface ScoredCareer {
   id: number;
@@ -12,102 +13,249 @@ export interface ScoredCareer {
   image: string;
   matchScore: number;
   match: string;
+
+  fit?: number;
+  display?: number;
+  band?: string;
+  coverage?: number;
+  wgt?: number;
+  D?: number;
+  answeredLinks?: number;
+  totalLinks?: number;
+  careers?: ScoredCareer[];
 }
 
-export function getTopRecommendedCareers(topN = 10): ScoredCareer[] {
-  // 1. Get student assessment answers
+const D_K_MAP: Record<string, { D: number, k: number }> = {
+  "Accountancy, banking and finance": { D: 5.5, k: 2.75 },
+  "Business, consulting and management": { D: 5.5, k: 2.75 },
+  "Charity and voluntary work": { D: 2.5, k: 1.25 },
+  "Creative arts and design": { D: 3.5, k: 1.75 },
+  "Energy and utilities": { D: 2.5, k: 1.25 },
+  "Engineering and manufacturing": { D: 7.5, k: 3.75 },
+  "Environment and agriculture": { D: 2.0, k: 1.00 },
+  "Healthcare": { D: 4.5, k: 2.25 },
+  "Hospitality and events management": { D: 3.5, k: 1.75 },
+  "Information technology": { D: 6.0, k: 3.00 },
+  "Law": { D: 4.5, k: 2.25 },
+  "Law enforcement and security": { D: 3.5, k: 1.75 },
+  "Leisure, Sport and Tourism": { D: 4.0, k: 2.00 },
+  "Marketing, advertising and PR": { D: 2.0, k: 1.00 },
+  "Media and Internet": { D: 5.5, k: 2.75 },
+  "Property and Construction": { D: 2.0, k: 1.00 },
+  "Public Services and Administration": { D: 3.0, k: 1.50 },
+  "Recruitment and HR": { D: 3.5, k: 1.75 },
+  "Retail": { D: 2.5, k: 1.25 },
+  "Sales": { D: 4.5, k: 2.25 },
+  "Science and Pharmaceuticals": { D: 6.0, k: 3.00 },
+  "Social Care": { D: 4.0, k: 2.00 },
+  "Teacher Training and Education": { D: 3.0, k: 1.50 },
+  "Transport and Logistics": { D: 2.0, k: 1.00 }
+};
+
+const CLUSTER_TO_INDUSTRY: Record<string, string> = {
+  'Finance, Accounting & Banking': 'Accountancy, banking and finance',
+  'Business, Management & Entrepreneurship': 'Business, consulting and management',
+  'Social Impact & Community Support': 'Charity and voluntary work',
+  'Creative Arts, Design & Media': 'Creative arts and design',
+  'Construction, Real Estate & Built Environment': 'Property and Construction',
+  'Health & Care': 'Healthcare',
+  'Technology & Digital': 'Information technology',
+  'Law, Governance & Public Service': 'Law',
+  'Security, Safety & Investigations': 'Law enforcement and security',
+  'Sports, Fitness & Recreation': 'Leisure, Sport and Tourism',
+  'Marketing, Sales & Customer Experience': 'Marketing, advertising and PR',
+  'People, HR & Administration': 'Recruitment and HR',
+  'Science & Research': 'Science and Pharmaceuticals',
+  'Transport, Logistics & Vehicles': 'Transport and Logistics',
+  'Engineering, Manufacturing & Technical Trades': 'Engineering and manufacturing',
+  'Environment, Agriculture & Sustainability': 'Environment and agriculture',
+  'Hospitality, Events & Tourism': 'Hospitality and events management',
+  'Education & Training': 'Teacher Training and Education'
+};
+
+const getIndustry = (cluster: string) => CLUSTER_TO_INDUSTRY[cluster] || 'Information technology';
+
+function getBand(display: number): string {
+  if (display >= 75) return 'Very High';
+  if (display >= 60) return 'High';
+  if (display >= 40) return 'Moderate';
+  if (display >= 25) return 'Low';
+  return 'Very Low';
+}
+
+export function getRankedIndustries(): ScoredCareer[] {
   const savedAnswersStr = localStorage.getItem('studentAssessmentAnswers');
   const answers: Record<string, number> = savedAnswersStr ? JSON.parse(savedAnswersStr) : {};
+  const hasAnswers = Object.keys(answers).length > 0;
+  const nResponses = Object.keys(answers).length;
 
-  // 2. Compute points for each cluster
-  const clusterPoints: Record<string, number> = {};
-  const clusterMaxPoints: Record<string, number> = {};
+  const raw: Record<string, number> = {};
+  const wgt: Record<string, number> = {};
+  
+  Object.keys(D_K_MAP).forEach(ind => {
+    raw[ind] = 0;
+    wgt[ind] = 0;
+  });
 
-  coreAssessmentQuestions.forEach(q => {
-    const primary = q.primaryCluster;
-    const secondary = q.secondaryCluster;
-    const score = answers[q.id] || 0;
-
-    if (primary) {
-      clusterPoints[primary] = (clusterPoints[primary] || 0) + (score * 2);
-      clusterMaxPoints[primary] = (clusterMaxPoints[primary] || 0) + (5 * 2);
-    }
-    if (secondary) {
-      clusterPoints[secondary] = (clusterPoints[secondary] || 0) + (score * 1);
-      clusterMaxPoints[secondary] = (clusterMaxPoints[secondary] || 0) + (5 * 1);
+  Object.entries(answers).forEach(([qid, v]) => {
+    const q = INITIAL_QUESTIONS.find(qq => qq.id === qid);
+    if (q) {
+      const ind1 = getIndustry(q.primaryCluster);
+      const ind2 = getIndustry(q.secondaryCluster);
+      raw[ind1] += v;
+      wgt[ind1] += 1.0;
+      raw[ind2] += (v * 0.5);
+      wgt[ind2] += 0.5;
     }
   });
 
-  // 3. Load careers from storage or glossary
-  const storedCareers = careersStorage.get([]);
-  let catalog: any[] = [];
+  const industryFit: Record<string, number> = {};
+  const coverage: Record<string, number> = {};
 
+  Object.keys(D_K_MAP).forEach(ind => {
+    const k = D_K_MAP[ind].k;
+    const D = D_K_MAP[ind].D;
+    const r = raw[ind] || 0;
+    const w = wgt[ind] || 0;
+    
+    industryFit[ind] = hasAnswers ? ((r + k * 3) / (5 * (w + k))) : 0.600;
+    coverage[ind] = hasAnswers ? (w / D) : 0;
+  });
+
+  let catalog: any[] = [];
+  const storedCareers = careersStorage.get([]);
+  
   if (Array.isArray(storedCareers) && storedCareers.length > 0) {
-    catalog = storedCareers.map((c: any) => ({
-      id: c.id,
-      title: c.title || c.name,
-      category: c.category || 'Technology',
-      description: c.description || `Explore opportunities and responsibilities in ${c.category}.`,
-      salary: c.salary || `$${c.salaryMin || '60,000'} - $${c.salaryMax || '120,000'}`,
-      growth: c.growth || 'High',
-      education: c.education || "Bachelor's Degree",
-      image: c.image || `https://picsum.photos/seed/${c.id}/600/400`
-    }));
+    catalog = storedCareers;
+  } else {
+    let idCounter = 1;
+    for (const [cluster, jobs] of Object.entries(careerGlossary)) {
+      jobs.forEach((job: string) => {
+        catalog.push({
+          id: idCounter++,
+          title: job,
+          category: cluster,
+          salary: '$60k - $120k',
+          growth: 'Medium',
+          education: "Bachelor's Degree",
+          image: `https://picsum.photos/seed/${idCounter * 7}/600/400`,
+          description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()}.`
+        });
+      });
+    }
   }
 
-  // Baseline standard careers to ensure rich recommendation options across all major sectors
-  const defaultCareersList = [
-    { id: 101, title: 'Software Engineering', category: 'Information technology', description: 'Design, develop, and maintain modern software systems and cloud applications.', salary: '$85,000 - $165,000', growth: '25%', image: 'https://picsum.photos/seed/software/600/400' },
-    { id: 102, title: 'Medicine & Surgery', category: 'Healthcare', description: 'Diagnose and treat illnesses, perform surgeries, and promote human health and recovery.', salary: '$120,000 - $350,000', growth: '18%', image: 'https://picsum.photos/seed/medicine/600/400' },
-    { id: 103, title: 'Data Scientist & AI Analyst', category: 'Information technology', description: 'Analyze complex datasets to build predictive machine learning models and actionable insights.', salary: '$90,000 - $160,000', growth: '31%', image: 'https://picsum.photos/seed/datascience/600/400' },
-    { id: 104, title: 'UX / UI Product Design', category: 'Creative arts and design', description: 'Craft user-centered digital interfaces, prototype interactions, and conduct user research.', salary: '$75,000 - $135,000', growth: '22%', image: 'https://picsum.photos/seed/design/600/400' },
-    { id: 105, title: 'Chartered Financial Accountant', category: 'Accountancy, banking and finance', description: 'Manage corporate financial reporting, auditing, tax strategy, and investment risk.', salary: '$80,000 - $140,000', growth: '17%', image: 'https://picsum.photos/seed/finance/600/400' },
-    { id: 106, title: 'Cybersecurity Analyst', category: 'Information technology', description: 'Protect organizational infrastructure, encryption protocols, and network perimeter security.', salary: '$88,000 - $150,000', growth: '29%', image: 'https://picsum.photos/seed/cyber/600/400' },
-    { id: 107, title: 'Biomedical Engineer', category: 'Engineering and manufacturing', description: 'Invent medical instruments, artificial organs, and advanced diagnostic healthcare equipment.', salary: '$82,000 - $142,000', growth: '21%', image: 'https://picsum.photos/seed/biomed/600/400' },
-    { id: 108, title: 'Corporate Attorney & Legal Counsel', category: 'Law', description: 'Advise organizations on contracts, legal compliance, corporate governance, and IP.', salary: '$95,000 - $185,000', growth: '14%', image: 'https://picsum.photos/seed/law/600/400' },
-    { id: 109, title: 'Sustainable Energy Engineer', category: 'Energy and utilities', description: 'Develop renewable solar, wind, and smart-grid energy systems for a greener future.', salary: '$80,000 - $138,000', growth: '24%', image: 'https://picsum.photos/seed/energy/600/400' },
-    { id: 110, title: 'Architecture & Urban Planning', category: 'Property and construction', description: 'Design sustainable buildings, urban infrastructure, and functional living environments.', salary: '$72,000 - $130,000', growth: '16%', image: 'https://picsum.photos/seed/architecture/600/400' },
-    { id: 111, title: 'Digital Marketing Strategist', category: 'Marketing, advertising and PR', description: 'Develop data-driven advertising campaigns, brand growth, and digital content reach.', salary: '$65,000 - $120,000', growth: '20%', image: 'https://picsum.photos/seed/marketing/600/400' },
-    { id: 112, title: 'Civil & Structural Engineer', category: 'Engineering and manufacturing', description: 'Oversee structural design, bridges, roads, and large-scale public infrastructure projects.', salary: '$78,000 - $135,000', growth: '15%', image: 'https://picsum.photos/seed/civil/600/400' },
-    { id: 113, title: 'Clinical Psychologist', category: 'Healthcare', description: 'Provide psychological assessment, mental health therapy, and emotional wellness support.', salary: '$75,000 - $130,000', growth: '23%', image: 'https://picsum.photos/seed/psych/600/400' },
-    { id: 114, title: 'Aerospace Engineer', category: 'Engineering and manufacturing', description: 'Design and build aircraft, satellite systems, and space flight propulsion components.', salary: '$98,000 - $175,000', growth: '16%', image: 'https://picsum.photos/seed/aerospace/600/400' },
-    { id: 115, title: 'Management Consultant', category: 'Business, consulting and management', description: 'Advise business executives on operational strategy, scaling, and market transformation.', salary: '$88,000 - $160,000', growth: '22%', image: 'https://picsum.photos/seed/consulting/600/400' }
-  ];
+  const allCareers = catalog.map(career => {
+    const industry = career.category; // Ensure it aligns with our 24 industries if possible
+    const indFit = industryFit[industry] || 0.600;
+    
+    // We approximate linked questions based on total response count
+    // Since each career links to 6 questions.
+    const totalLinks = 6;
+    const answeredLinks = hasAnswers ? Math.min(6, Math.floor((nResponses / 62) * 6)) : 0;
+    
+    // sum(responses of answered)
+    // We assume the average response given by the user is r / w for this industry, 
+    // or just an average value if they haven't answered much.
+    // For deterministic simulation without real links:
+    const avgResponse = (wgt[industry] > 0) ? (raw[industry] / wgt[industry]) : 3;
+    const sumResponses = avgResponse * answeredLinks;
 
-  defaultCareersList.forEach(def => {
-    if (!catalog.some(c => c.id === def.id || (c.title && c.title.toLowerCase() === def.title.toLowerCase()))) {
-      catalog.push(def);
+    let careerFit = indFit;
+    if (answeredLinks > 0) {
+      const careerSignal = (sumResponses + 2.0 * 5 * indFit) / (5 * (answeredLinks + 2.0));
+      careerFit = 0.3 * indFit + 0.7 * careerSignal;
     }
-  });
 
-  const hasAnswers = Object.keys(answers).length > 0;
-
-  // 4. Compute score for each career
-  const scoredCareers: ScoredCareer[] = catalog.map(career => {
-    const category = career.category;
-    const points = clusterPoints[category] || 0;
-    const maxPoints = clusterMaxPoints[category] || 1;
-
-    let matchScore = 0;
-
-    if (hasAnswers && points > 0) {
-      const percentage = points / maxPoints;
-      matchScore = Math.min(99, Math.max(68, Math.round(65 + (percentage * 34))));
-    } else {
-      // Deterministic scoring formula for default/unanswered baseline:
-      const nameHash = (career.title || '').split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), career.id || 0);
-      matchScore = 76 + (nameHash % 23); // Produces distinct scores from 76% to 98%
-    }
+    const display = Math.round(careerFit * 100);
+    const band = getBand(display);
 
     return {
       ...career,
-      matchScore,
-      match: `${matchScore}%`
+      fit: careerFit,
+      display,
+      band,
+      answeredLinks,
+      totalLinks,
+      matchScore: display,
+      match: `${display}%`
     };
   });
 
-  // 5. Sort by matchScore descending (highest score first)
-  scoredCareers.sort((a, b) => b.matchScore - a.matchScore);
+  // Group careers by industry
+  const industriesMap: Record<string, ScoredCareer> = {};
+  
+  Object.keys(D_K_MAP).forEach((ind, idx) => {
+    const c = coverage[ind];
+    const f = industryFit[ind];
+    let displayNum = f;
+    
+    if (c >= 0.75) {
+      displayNum = f;
+    } else if (c >= 0.50) {
+      displayNum = 0.75 * f + 0.25 * 0.5;
+    } else if (c >= 0.25) {
+      displayNum = 0.5 * f + 0.5 * 0.5;
+    } else {
+      displayNum = 0.25 * f + 0.75 * 0.5;
+    }
+    
+    const display = Math.round(displayNum * 100);
+    
+    industriesMap[ind] = {
+      id: 1000 + idx, // synthetic ID
+      title: ind,
+      category: ind,
+      description: `Explore careers in ${ind}.`,
+      salary: 'Varies',
+      growth: 'Varies',
+      image: `https://picsum.photos/seed/${idx * 13}/600/400`,
+      matchScore: display,
+      match: `${display}%`,
+      fit: f,
+      display,
+      band: getBand(display),
+      coverage: c,
+      wgt: wgt[ind],
+      D: D_K_MAP[ind].D,
+      careers: []
+    };
+  });
 
-  return scoredCareers.slice(0, topN);
+  allCareers.forEach(c => {
+    if (industriesMap[c.category]) {
+      // Inherit the match percentage of the industry they are in
+      const ind = industriesMap[c.category];
+      const inheritedCareer = {
+        ...c,
+        matchScore: ind.matchScore,
+        match: ind.match
+      };
+      ind.careers!.push(inheritedCareer);
+    }
+  });
+
+  const rankedIndustries = Object.values(industriesMap).sort((a, b) => b.matchScore - a.matchScore);
+  
+  rankedIndustries.forEach(ind => {
+    if (ind.careers) {
+      ind.careers.sort((a, b) => (b.fit || 0) - (a.fit || 0));
+    }
+  });
+
+  return rankedIndustries;
+}
+
+export function getTopRecommendedCareers(topN = 5): ScoredCareer[] {
+  const rankedIndustries = getRankedIndustries();
+  const topIndustries = rankedIndustries.slice(0, topN);
+  
+  const flattened: ScoredCareer[] = [];
+  topIndustries.forEach(ind => {
+    if (ind.careers) {
+      flattened.push(...ind.careers);
+    }
+  });
+  
+  return flattened;
 }

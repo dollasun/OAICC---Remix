@@ -71,7 +71,7 @@ export default function StudentHome() {
     setUpcomingSessions(studentSessions.slice(0, 2));
 
     // Get top 10 careers with highest recommendation scores
-    const topRecommended = getTopRecommendedCareers(10);
+    const topRecommended = getTopRecommendedCareers(5).slice(0, 4);
     setRecommendations(topRecommended);
 
     const allEvents = eventsStorage.get([]);

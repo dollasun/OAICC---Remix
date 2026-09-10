@@ -56,7 +56,7 @@ export default function CareerDetails() {
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
-    const topCareers = getTopRecommendedCareers(100);
+    const topCareers = getTopRecommendedCareers(24);
     let found: any = topCareers.find(c => c.id.toString() === id);
 
     if (!found) {

@@ -177,7 +177,7 @@ export default function AdminDashboard() {
       <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-72' : 'lg:ml-24'}`}>
         {/* Top Header */}
         <header className="sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800 z-40 px-8 py-4 transition-colors">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center justify-between max-w-[1600px] mx-auto">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
@@ -254,7 +254,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* Page Content */}
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 max-w-[1600px] mx-auto">
           <Routes>
             <Route path="dashboard" element={<AdminOverview />} />
             <Route path="careers" element={<AdminCareers />} />

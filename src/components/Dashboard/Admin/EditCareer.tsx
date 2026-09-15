@@ -24,12 +24,19 @@ export default function AdminEditCareer() {
   const [bgImage, setBgImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [newSkill, setNewSkill] = useState('');
+  const [newResponsibility, setNewResponsibility] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+  const [newMilestones, setNewMilestones] = useState<{ [key: number]: string }>({});
+
   const [formData, setFormData] = useState({
-    title: '',
+    step: '',
     category: 'Science',
     about: '',
     skills: [] as string[],
+    responsibilities: [] as string[],
     subjects: [] as string[],
+    pathway: [] as any[],
     salaries: [
       { country: 'United States', currency: '$', min: '100,000', max: '500,000' }
     ]
@@ -44,6 +51,60 @@ export default function AdminEditCareer() {
     { name: 'Kenya', currency: 'KSh' },
     { name: 'South Africa', currency: 'R' }
   ];
+
+
+  const handleAddArrayItem = (field: 'skills' | 'responsibilities' | 'subjects', value: string, setter: (val: string) => void) => {
+    if (value.trim() && !formData[field].includes(value.trim()) && formData[field].length < 10) {
+      setFormData({ ...formData, [field]: [...formData[field], value.trim()] });
+      setter('');
+    }
+  };
+
+  const handleRemoveArrayItem = (field: 'skills' | 'responsibilities' | 'subjects', index: number) => {
+    setFormData({
+      ...formData,
+      [field]: formData[field].filter((_, i) => i !== index)
+    });
+  };
+
+  const handleAddCareerPath = () => {
+    setFormData({
+      ...formData,
+      pathway: [
+        ...formData.pathway,
+        { type: 'education', duration: '', step: '', description: '', milestones: [] }
+      ]
+    });
+  };
+
+  const handleRemoveCareerPath = (index: number) => {
+    setFormData({
+      ...formData,
+      pathway: formData.pathway.filter((_, i) => i !== index)
+    });
+  };
+
+  const handleUpdateCareerPath = (index: number, field: string, value: string) => {
+    const newPaths = [...formData.pathway];
+    newPaths[index] = { ...newPaths[index], [field]: value };
+    setFormData({ ...formData, pathway: newPaths });
+  };
+
+  const handleAddMilestone = (pathIndex: number) => {
+    const milestone = newMilestones[pathIndex];
+    if (milestone && milestone.trim()) {
+      const newPaths = [...formData.pathway];
+      newPaths[pathIndex].milestones.push(milestone.trim());
+      setFormData({ ...formData, pathway: newPaths });
+      setNewMilestones({ ...newMilestones, [pathIndex]: '' });
+    }
+  };
+
+  const handleRemoveMilestone = (pathIndex: number, milestoneIndex: number) => {
+    const newPaths = [...formData.pathway];
+    newPaths[pathIndex].milestones = newPaths[pathIndex].milestones.filter((_, i) => i !== milestoneIndex);
+    setFormData({ ...formData, pathway: newPaths });
+  };
 
   const handleAddSalary = () => {
     setFormData({
@@ -87,7 +148,11 @@ export default function AdminEditCareer() {
         category: career.category,
         about: career.description || '',
         skills: career.skills || ['Software testing and quality assurance', 'Problem-solving skills'],
+        responsibilities: career.responsibilities || ['Design, build, and deploy scalable software and cloud system architectures.'],
         subjects: career.subjects || ['Computer Science', 'Mathematics'],
+        pathway: career.pathway || [
+          { type: 'education', duration: '1-4 years', step: 'Foundation & Preparation', description: 'Build strong foundational knowledge.', milestones: ['Complete relevant high school courses'] }
+        ],
         salaries: career.salaries || [
           { country: 'United States', currency: '$', min: career.salaryMin || '100,000', max: career.salaryMax || '500,000' }
         ]
@@ -110,7 +175,9 @@ export default function AdminEditCareer() {
           salaryMin: formData.salaries[0]?.min || '100,000',
           salaryMax: formData.salaries[0]?.max || '500,000',
           skills: formData.skills,
-          subjects: formData.subjects
+          responsibilities: formData.responsibilities,
+          subjects: formData.subjects,
+          pathway: formData.pathway
         };
       }
       return c;
@@ -147,7 +214,7 @@ export default function AdminEditCareer() {
     setModalType(type);
     setEditingItem(item);
     setModalData(item || {
-      title: '',
+      step: '',
       url: '',
       ownedBy: '',
       author: '',
@@ -199,7 +266,7 @@ export default function AdminEditCareer() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto pb-20">
+    <div className="w-full max-w-[1400px] mx-auto pb-20">
       <button 
         onClick={() => navigate('/admin/careers')}
         className="flex items-center gap-2 text-slate-400 font-bold hover:text-brand transition-colors mb-8"
@@ -272,6 +339,7 @@ export default function AdminEditCareer() {
 
             {/* Basic Details */}
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm space-y-8">
+              <h3 className="text-lg font-bold text-slate-900">Career details</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 ml-1">Career Title</label>
@@ -309,40 +377,242 @@ export default function AdminEditCareer() {
                 />
               </div>
 
+              
               {/* Skills */}
               <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-700 ml-1">Top Skills</label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <label className="text-sm font-bold text-slate-700 ml-1">Top Skills</label>
+                    <p className="text-xs text-slate-500 ml-1">Add up to 10 skills</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-2">
                   {formData.skills.map((skill, i) => (
                     <div key={i} className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
-                      {skill} <X className="w-3 h-3 cursor-pointer hover:text-red-500" />
+                      {skill} <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => handleRemoveArrayItem('skills', i)} />
                     </div>
                   ))}
-                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
-                    <Plus className="w-3 h-3" /> Add Skill
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSkill}
+                    onChange={(e) => setNewSkill(e.target.value)}
+                    placeholder="e.g. Project Management"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArrayItem('skills', newSkill, setNewSkill);
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => handleAddArrayItem('skills', newSkill, setNewSkill)}
+                    className="px-6 py-3 bg-brand text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/90 transition-all shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Add Skill
+                  </button>
+                </div>
+              </div>
+
+              {/* Duties */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <label className="text-sm font-bold text-slate-700 ml-1">Key Duties & Responsibilities</label>
+                    <p className="text-xs text-slate-500 ml-1">Add key responsibilities for this career</p>
+                  </div>
+                </div>
+                <div className="space-y-2 mb-2">
+                  {formData.responsibilities.map((duty, i) => (
+                    <div key={i} className="p-4 bg-slate-50 rounded-xl flex items-start justify-between gap-4 border border-slate-100">
+                      <p className="text-sm font-medium text-slate-700">{duty}</p>
+                      <button onClick={() => handleRemoveArrayItem('responsibilities', i)} className="text-slate-400 hover:text-red-500 shrink-0">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newResponsibility}
+                    onChange={(e) => setNewResponsibility(e.target.value)}
+                    placeholder="e.g. Design, build, and deploy scalable software..."
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArrayItem('responsibilities', newResponsibility, setNewResponsibility);
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => handleAddArrayItem('responsibilities', newResponsibility, setNewResponsibility)}
+                    className="px-6 py-3 bg-brand text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/90 transition-all shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Add Duty
                   </button>
                 </div>
               </div>
 
               {/* Subjects */}
-              <div className="space-y-4">
-                <label className="text-sm font-bold text-slate-700 ml-1">Top Subject Required</label>
-                <div className="flex flex-wrap gap-2">
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <label className="text-sm font-bold text-slate-700 ml-1">Top Subject Required</label>
+                    <p className="text-xs text-slate-500 ml-1">Add up to 10 subjects</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-2">
                   {formData.subjects.map((subject, i) => (
                     <div key={i} className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
-                      {subject} <X className="w-3 h-3 cursor-pointer hover:text-red-500" />
+                      {subject} <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => handleRemoveArrayItem('subjects', i)} />
                     </div>
                   ))}
-                  <button className="px-4 py-2 bg-brand/10 text-brand rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-brand/20 transition-all">
-                    <Plus className="w-3 h-3" /> Add Subject
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newSubject}
+                    onChange={(e) => setNewSubject(e.target.value)}
+                    placeholder="e.g. Mathematics"
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArrayItem('subjects', newSubject, setNewSubject);
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => handleAddArrayItem('subjects', newSubject, setNewSubject)}
+                    className="px-6 py-3 bg-brand text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/90 transition-all shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Add Subject
                   </button>
+                </div>
+              </div>
+
+              {/* Career Path Section */}
+              <div className="space-y-6 pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">Career Path Configuration</h3>
+                    <p className="text-xs text-slate-500">Add stages to the career path timeline</p>
+                  </div>
+                  <button 
+                    onClick={handleAddCareerPath}
+                    className="flex items-center gap-2 text-brand font-bold hover:bg-brand/5 px-4 py-2 rounded-lg transition-all"
+                  >
+                    <Plus className="w-5 h-5" /> Add Stage
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  {formData.pathway.map((path, index) => (
+                    <div key={index} className="bg-slate-50 p-6 rounded-2xl border border-slate-100 relative group">
+                      <button 
+                        onClick={() => handleRemoveCareerPath(index)}
+                        className="absolute -top-2 -right-2 w-8 h-8 bg-white text-slate-400 hover:text-red-500 rounded-full shadow-sm flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Tag</label>
+                          <select 
+                            value={path.type}
+                            onChange={(e) => handleUpdateCareerPath(index, 'type', e.target.value)}
+                            className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
+                          >
+                            <option value="education">Education</option>
+                            <option value="professional">Professional</option>
+                            <option value="vocation">Vocation</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Duration (e.g. 1-4 years)</label>
+                          <input 
+                            type="text" 
+                            value={path.duration}
+                            onChange={(e) => handleUpdateCareerPath(index, 'duration', e.target.value)}
+                            placeholder="e.g. 1-4 years"
+                            className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Stage Title</label>
+                          <input 
+                            type="text" 
+                            value={path.step}
+                            onChange={(e) => handleUpdateCareerPath(index, 'step', e.target.value)}
+                            placeholder="e.g. Foundation & Preparation"
+                            className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Stage Description</label>
+                          <textarea 
+                            value={path.description}
+                            onChange={(e) => handleUpdateCareerPath(index, 'description', e.target.value)}
+                            placeholder="Brief description of this stage..."
+                            rows={2}
+                            className="w-full px-4 py-3 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none" 
+                          />
+                        </div>
+                        
+                        {/* Milestones */}
+                        <div className="space-y-2 pt-2">
+                          <label className="text-sm font-bold text-slate-700 ml-1">Key Milestones</label>
+                          <div className="space-y-2 mb-2">
+                            {path.milestones.map((milestone, mIndex) => (
+                              <div key={mIndex} className="p-3 bg-white rounded-xl flex items-center justify-between gap-4 border border-slate-100">
+                                <p className="text-sm font-medium text-slate-700">{milestone}</p>
+                                <button onClick={() => handleRemoveMilestone(index, mIndex)} className="text-slate-400 hover:text-red-500 shrink-0">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={newMilestones[index] || ''}
+                              onChange={(e) => setNewMilestones({ ...newMilestones, [index]: e.target.value })}
+                              placeholder="e.g. Complete relevant high school courses"
+                              className="flex-1 px-4 py-3 bg-white border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 text-sm"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleAddMilestone(index);
+                                }
+                              }}
+                            />
+                            <button 
+                              onClick={() => handleAddMilestone(index)}
+                              className="px-4 py-3 bg-brand/10 text-brand rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/20 transition-all shrink-0"
+                            >
+                              <Plus className="w-4 h-4" /> Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               {/* Salary Section */}
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-slate-900">Average Salary</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">Average Salary</h3>
+                    <p className="text-xs text-slate-500">Add salary estimates across countries</p>
+                  </div>
                   <button 
                     onClick={handleAddSalary}
                     className="flex items-center gap-2 text-brand font-bold hover:bg-brand/5 px-4 py-2 rounded-lg transition-all"
@@ -401,6 +671,7 @@ export default function AdminEditCareer() {
                 </div>
               </div>
 
+
               <div className="flex justify-end gap-4 pt-8">
                 <button 
                   onClick={() => navigate('/admin/careers')}
@@ -429,7 +700,7 @@ export default function AdminEditCareer() {
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <Video className="w-6 h-6 text-brand" /> Videos
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Videos have to be based on the career you are creating.</p>
@@ -483,7 +754,7 @@ export default function AdminEditCareer() {
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <FileText className="w-6 h-6 text-indigo-500" /> Articles
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Articles have to be based on the career you are creating.</p>
@@ -537,7 +808,7 @@ export default function AdminEditCareer() {
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                     <LinkIcon className="w-6 h-6 text-emerald-500" /> Resources
                   </h3>
                   <p className="text-sm font-medium text-slate-500 mt-1">Resources have to be based on the career you are creating.</p>

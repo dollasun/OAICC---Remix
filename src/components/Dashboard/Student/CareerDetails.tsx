@@ -244,8 +244,7 @@ export default function CareerDetails() {
   const tabs = [
     { id: 'overview', label: 'Overview' },
     { id: 'skills', label: 'Skills & Duties' },
-    { id: 'pathway', label: 'Career Path' },
-    { id: 'market', label: 'Market Trends' }
+    { id: 'pathway', label: 'Career Path' }
   ];
 
   if (!career) {
@@ -253,7 +252,7 @@ export default function CareerDetails() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="w-full max-w-[1400px] mx-auto space-y-8">
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <button 
@@ -551,54 +550,6 @@ export default function CareerDetails() {
                           </div>
                         </div>
                       ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'market' && (
-                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-6 bg-emerald-50 rounded-2xl">
-                        <h4 className="text-emerald-900 font-bold mb-2">Salary Outlook</h4>
-                        <div className="space-y-3 mt-4">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-emerald-700">Entry Level</span>
-                            <span className="text-sm font-bold text-emerald-900">{career.salary.entry}</span>
-                          </div>
-                          <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 w-1/3"></div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-emerald-700">Mid Level</span>
-                            <span className="text-sm font-bold text-emerald-900">{career.salary.average}</span>
-                          </div>
-                          <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 w-2/3"></div>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-emerald-700">Senior Level</span>
-                            <span className="text-sm font-bold text-emerald-900">{career.salary.senior}</span>
-                          </div>
-                          <div className="h-2 bg-emerald-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 w-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-6 bg-blue-50 rounded-2xl">
-                        <h4 className="text-blue-900 font-bold mb-2">Job Availability</h4>
-                        <p className="text-blue-700 text-sm font-medium mt-4">
-                          The demand for {career.title}s is expected to grow significantly over the next decade as more industries undergo digital transformation.
-                        </p>
-                        <div className="mt-6 p-4 bg-white/50 rounded-xl border border-blue-100">
-                          <div className="flex items-center gap-3">
-                            <TrendingUp className="w-8 h-8 text-blue-500" />
-                            <div>
-                              <p className="text-2xl font-bold text-blue-900">{career.growth}</p>
-                              <p className="text-xs font-bold text-blue-500 uppercase">Projected Growth</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 )}

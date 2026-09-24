@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Phone, ArrowLeft, Check, AlertCircle } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
 import GoogleAuthModal from './GoogleAuthModal';
+import { useToast } from '../../context/ToastContext';
 
 export default function SignUp() {
   const [searchParams] = useSearchParams();
   const role = searchParams.get('role') || 'student';
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  
+  // T&C Acceptance State
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   React.useEffect(() => {
     if (role === 'school') {
@@ -21,6 +27,13 @@ export default function SignUp() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      setTermsError(true);
+      showToast('You must accept the Terms and Conditions and Privacy Policy to complete registration.', 'error');
+      return;
+    }
+    setTermsError(false);
+    showToast('Account created successfully! Welcome to OAICC.', 'success');
     navigate(`/onboarding/${role}`);
   };
 
@@ -32,23 +45,28 @@ export default function SignUp() {
       />
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white overflow-y-auto relative">
-        <button 
-          onClick={() => navigate('/')}
-          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-brand transition-colors font-bold group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </button>
+      <div className="flex-1 flex flex-col justify-between p-6 sm:p-8 md:p-12 bg-white dark:bg-slate-900 overflow-y-auto relative">
+        <div className="flex items-center justify-between w-full mb-6">
+          <button 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-slate-500 hover:text-brand transition-colors font-bold group text-sm"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </button>
+        </div>
+
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md py-8"
+          className="w-full max-w-md mx-auto my-auto py-4"
         >
-          <div className="mb-10">
+          <div className="mb-8">
             <Logo size="lg" className="mb-6" />
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Sign Up as a {role === 'parent' ? 'Sponsor' : role.charAt(0).toUpperCase() + role.slice(1)}</h1>
-            <p className="text-slate-500">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              Sign Up as a {role === 'parent' ? 'Sponsor' : role.charAt(0).toUpperCase() + role.slice(1)}
+            </h1>
+            <p className="text-slate-500 text-sm">
               Already have an account? {' '}
               <button 
                 onClick={() => navigate(`/auth/signin?role=${role}`)}
@@ -59,70 +77,126 @@ export default function SignUp() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">First Name</label>
-                <input type="text" placeholder="John" className="input-field" required />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">First Name</label>
+                <input type="text" placeholder="John" className="input-field py-3 text-sm" required />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Last Name</label>
-                <input type="text" placeholder="Doe" className="input-field" required />
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Last Name</label>
+                <input type="text" placeholder="Doe" className="input-field py-3 text-sm" required />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Email Address</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Email Address</label>
               <div className="input-with-icon">
                 <div className="icon-wrapper">
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4" />
                 </div>
-                <input type="email" placeholder="name@example.com" className="input-field" required />
+                <input type="email" placeholder="name@example.com" className="input-field py-3 text-sm" required />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Phone Number</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Phone Number</label>
               <div className="input-with-icon">
                 <div className="icon-wrapper">
-                  <Phone className="w-5 h-5" />
+                  <Phone className="w-4 h-4" />
                 </div>
-                <input type="tel" placeholder="(555) 000-0000" className="input-field" required />
+                <input type="tel" placeholder="(555) 000-0000" className="input-field py-3 text-sm" required />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Password</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Password</label>
               <div className="input-with-icon">
                 <div className="icon-wrapper">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••" 
-                  className="input-field pr-14"
+                  className="input-field pr-12 py-3 text-sm"
                   required
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" className="btn-primary w-full">
+            {/* Simple, Clean Policy Acceptance Session */}
+            <div className="pt-2">
+              <label className="flex items-start gap-3 cursor-pointer group select-none">
+                <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => {
+                      setTermsAccepted(e.target.checked);
+                      if (e.target.checked) setTermsError(false);
+                    }}
+                    className="sr-only peer"
+                    id="terms-checkbox"
+                  />
+                  <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                    termsAccepted 
+                      ? 'bg-brand border-brand text-white shadow-sm' 
+                      : termsError
+                        ? 'border-red-400 bg-red-50/50 dark:bg-red-950/20'
+                        : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-brand'
+                  }`}>
+                    {termsAccepted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </div>
+                </div>
+
+                <span className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  I agree to the{' '}
+                  <Link 
+                    to={`/policies/terms?role=${role}`} 
+                    target="_blank" 
+                    className="text-brand font-bold hover:underline"
+                  >
+                    Terms & Conditions
+                  </Link>{' '}
+                  and{' '}
+                  <Link 
+                    to={`/policies/privacy?role=${role}`} 
+                    target="_blank" 
+                    className="text-brand font-bold hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>.
+                </span>
+              </label>
+
+              {termsError && (
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-red-500 font-medium pl-8">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>Please accept the Terms & Conditions and Privacy Policy to continue.</span>
+                </div>
+              )}
+            </div>
+
+            <button type="submit" className="btn-primary w-full py-3.5 mt-2">
               Sign Up
             </button>
 
             <button 
               type="button" 
-              onClick={() => setShowGoogleModal(true)}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-brand/40 transition-all font-medium text-slate-700 shadow-sm"
+              onClick={() => {
+                setTermsAccepted(true);
+                setShowGoogleModal(true);
+              }}
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium text-slate-700 dark:text-slate-200 text-sm shadow-sm"
             >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
               Sign up with Google
             </button>
           </form>
@@ -134,6 +208,17 @@ export default function SignUp() {
             mode="signup"
           />
         </motion.div>
+
+        {/* Clean, Simple Footer Legal Links */}
+        <div className="w-full max-w-md mx-auto pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-3 text-xs text-slate-400">
+          <Link to={`/policies/terms?role=${role}`} className="hover:text-brand transition-colors">
+            Terms & Conditions
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link to={`/policies/privacy?role=${role}`} className="hover:text-brand transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { CookieProvider } from './context/CookieContext';
 import LandingPage from './components/LandingPage';
 import SignIn from './components/Auth/SignIn';
 import SignUp from './components/Auth/SignUp';
@@ -23,49 +24,73 @@ import CounselorSignIn from './components/Auth/CounselorSignIn';
 import CounselorOnboarding from './components/Auth/CounselorOnboarding';
 import CounselorDashboard from './components/Dashboard/CounselorDashboard';
 
+// Legal & Role-Aware Policy Center
+import PolicyViewer from './components/Legal/PolicyViewer';
+import CookieConsentBanner from './components/Legal/CookieConsentBanner';
+
 export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ToastProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-            
-            {/* Auth Routes */}
-            <Route path="/auth/signin" element={<SignIn />} />
-            <Route path="/auth/signup" element={<SignUp />} />
-            <Route path="/auth/signup/school" element={<SchoolSignUp />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
-            
-            {/* Onboarding Routes */}
-            <Route path="/onboarding/parent" element={<ParentOnboarding />} />
-            <Route path="/onboarding/teacher" element={<TeacherOnboarding />} />
-            <Route path="/onboarding/student" element={<StudentOnboarding />} />
-            
-            {/* Dashboard Routes */}
-            <Route path="/parent/*" element={<ParentDashboard />} />
-            <Route path="/teacher/*" element={<TeacherDashboard />} />
-            <Route path="/school/*" element={<SchoolDashboard />} />
-            <Route path="/student/*" element={<StudentDashboard />} />
+        <CookieProvider>
+          <ToastProvider>
+            <Router>
+              <CookieConsentBanner />
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+              
+                {/* Auth Routes */}
+                <Route path="/auth/signin" element={<SignIn />} />
+                <Route path="/auth/signup" element={<SignUp />} />
+                <Route path="/auth/signup/school" element={<SchoolSignUp />} />
+                <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+                
+                {/* Onboarding Routes */}
+                <Route path="/onboarding/parent" element={<ParentOnboarding />} />
+                <Route path="/onboarding/teacher" element={<TeacherOnboarding />} />
+                <Route path="/onboarding/student" element={<StudentOnboarding />} />
+                
+                {/* Dashboard Routes */}
+                <Route path="/parent/*" element={<ParentDashboard />} />
+                <Route path="/teacher/*" element={<TeacherDashboard />} />
+                <Route path="/school/*" element={<SchoolDashboard />} />
+                <Route path="/student/*" element={<StudentDashboard />} />
 
-            {/* Admin Routes */}
-            <Route path="/admin/signin" element={<AdminSignIn />} />
-            <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-            <Route path="/admin/check-email" element={<AdminCheckEmail />} />
-            <Route path="/admin/set-password" element={<AdminSetPassword />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
+                {/* Admin Routes */}
+                <Route path="/admin/signin" element={<AdminSignIn />} />
+                <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+                <Route path="/admin/check-email" element={<AdminCheckEmail />} />
+                <Route path="/admin/set-password" element={<AdminSetPassword />} />
+                <Route path="/admin/*" element={<AdminDashboard />} />
 
-            {/* Counselor Routes */}
-            <Route path="/counselor/signin" element={<CounselorSignIn />} />
-            <Route path="/counselor/onboarding" element={<CounselorOnboarding />} />
-            <Route path="/counselor/*" element={<CounselorDashboard />} />
-            
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </ToastProvider>
+                {/* Counselor Routes */}
+                <Route path="/counselor/signin" element={<CounselorSignIn />} />
+                <Route path="/counselor/onboarding" element={<CounselorOnboarding />} />
+                <Route path="/counselor/*" element={<CounselorDashboard />} />
+
+                {/* Role-Aware Policies & Legal Hub Routes */}
+                <Route path="/policies" element={<PolicyViewer />} />
+                <Route path="/policies/:slug" element={<PolicyViewer />} />
+                <Route path="/terms" element={<PolicyViewer />} />
+                <Route path="/terms-and-conditions" element={<PolicyViewer />} />
+                <Route path="/privacy" element={<PolicyViewer />} />
+                <Route path="/privacy-policy" element={<PolicyViewer />} />
+                <Route path="/cookies" element={<PolicyViewer />} />
+                <Route path="/cookie-policy" element={<PolicyViewer />} />
+                <Route path="/safeguarding" element={<PolicyViewer />} />
+                <Route path="/acceptable-use" element={<PolicyViewer />} />
+                <Route path="/counselor-code" element={<PolicyViewer />} />
+                <Route path="/parent-consent" element={<PolicyViewer />} />
+                <Route path="/school-authority" element={<PolicyViewer />} />
+                <Route path="/student-privacy" element={<PolicyViewer />} />
+                <Route path="/complaints-refunds" element={<PolicyViewer />} />
+                
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </ToastProvider>
+        </CookieProvider>
       </AuthProvider>
     </ThemeProvider>
   );

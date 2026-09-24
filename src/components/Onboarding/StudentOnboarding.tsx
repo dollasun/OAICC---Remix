@@ -15,6 +15,7 @@ import Logo from '../Logo';
 import { INITIAL_QUESTIONS } from '../../data/assessmentQuestions';
 import { Question } from '../../data/assessmentData';
 import { useToast } from '../../context/ToastContext';
+import TermsModal from '../Legal/TermsModal';
 
 const sectionIcons: Record<string, React.ReactNode> = {
   'interests': <Lightbulb className="w-8 h-8 text-white" />,
@@ -31,6 +32,8 @@ export default function StudentOnboarding() {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [termsModalTab, setTermsModalTab] = useState<'terms' | 'privacy'>('terms');
 
   // 1. D & k constants and mappings for Industry Fit
   const D_K_MAP: Record<string, { D: number, k: number }> = {
@@ -286,10 +289,41 @@ export default function StudentOnboarding() {
             Start Assessment <ArrowRight className="w-6 h-6" />
           </button>
           
-          <p className="text-sm text-slate-500 mt-6 font-medium">
+          <div className="mt-6 text-xs text-slate-500">
+            By starting the assessment, you agree to OAICC's{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setTermsModalTab('terms');
+                setIsTermsModalOpen(true);
+              }}
+              className="text-brand font-semibold hover:underline"
+            >
+              Terms of Use
+            </button>{' '}
+            and{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setTermsModalTab('privacy');
+                setIsTermsModalOpen(true);
+              }}
+              className="text-brand font-semibold hover:underline"
+            >
+              Privacy Policy
+            </button>.
+          </div>
+
+          <p className="text-xs text-slate-400 mt-2 font-medium">
             You don't have to finish it all at once. Your progress is saved automatically.
           </p>
         </motion.div>
+
+        <TermsModal
+          isOpen={isTermsModalOpen}
+          onClose={() => setIsTermsModalOpen(false)}
+          defaultTab={termsModalTab}
+        />
       </div>
     );
   }

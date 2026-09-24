@@ -182,6 +182,25 @@ export default function CounselorSignIn() {
               Sign In <ArrowRight className="w-5 h-5" />
             </button>
           </form>
+
+          {/* Legal hyperlinks at the bottom */}
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center space-y-1.5">
+            <p className="text-xs text-slate-500">
+              By accessing the portal, you adhere to OAICC's{' '}
+              <Link to="/policies/terms?role=counselor" className="text-brand font-semibold hover:underline">Terms</Link>{' '}
+              and{' '}
+              <Link to="/policies/counselor-code?role=counselor" className="text-brand font-semibold hover:underline">Code of Conduct</Link>.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+              <Link to="/policies/terms?role=counselor" className="hover:text-brand transition-colors">Terms of Use</Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/policies/privacy?role=counselor" className="hover:text-brand transition-colors">Privacy Policy</Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/policies/counselor-code?role=counselor" className="hover:text-brand transition-colors">Code of Conduct</Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/policies/safeguarding?role=counselor" className="hover:text-brand transition-colors">Safeguarding</Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

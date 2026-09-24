@@ -17,6 +17,7 @@ const STORAGE_KEY_STRENGTH_QUIZ = 'app_strength_quiz';
 const STORAGE_KEY_COUNSELING_SESSIONS = 'app_counseling_sessions';
 const STORAGE_KEY_MESSAGES = 'app_messages';
 const STORAGE_KEY_STUDENT_MESSAGES = 'app_student_messages';
+const STORAGE_KEY_COUNSELOR_PROFILE = 'app_counselor_personal_profile';
 
 export const getStoredData = (key: string, initialData: any) => {
   const stored = localStorage.getItem(key);
@@ -576,3 +577,103 @@ export const studentMessagesStorage = {
   },
   save: (data: any) => saveStoredData(STORAGE_KEY_STUDENT_MESSAGES, data),
 };
+
+export interface CounselorService {
+  id?: number | string;
+  name: string;
+  price: string;
+}
+
+export interface CounselorEducation {
+  id?: number | string;
+  degree: string;
+  school: string;
+  year: string;
+}
+
+export interface CounselorExperience {
+  id?: number | string;
+  role: string;
+  school: string;
+  period: string;
+}
+
+export interface CounselorProfileData {
+  id: number;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  role?: string;
+  title?: string;
+  school?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  rating?: number;
+  reviews?: number;
+  isVerified?: boolean;
+  image?: string;
+  availability?: string;
+  aboutMe?: string;
+  expertise?: string[];
+  services?: CounselorService[];
+  education?: CounselorEducation[];
+  experience?: CounselorExperience[];
+  activityTree?: {
+    id: number | string;
+    title: string;
+    date: string;
+    status: string;
+    type: string;
+  }[];
+}
+
+export const counselorProfileStorage = {
+  get: (initialData: any = {
+    id: 1,
+    firstName: 'Alfred',
+    lastName: 'Funmbi',
+    name: 'Mr. Alfred Funmbi',
+    role: 'Senior Academic Counselor',
+    school: 'Lagos City College',
+    email: 'alfred.funmbi@oaicc.com',
+    phone: '+234 803 456 7890',
+    location: 'Lagos, Nigeria',
+    rating: 4.9,
+    reviews: 86,
+    isVerified: true,
+    image: 'https://picsum.photos/seed/counselor1/600/600',
+    availability: 'Mon - Fri, 9:00 AM - 4:00 PM',
+    aboutMe: 'With over 15 years of experience in academic counseling, I have helped thousands of students navigate their educational paths. My expertise lies in university admissions processes, both locally and internationally, and I am dedicated to helping students find the right scholarships to fund their dreams.',
+    expertise: [
+      'University Admissions',
+      'Scholarships',
+      'Subject Selection',
+      'Career Mapping',
+      'Study Abroad'
+    ],
+    services: [
+      { id: 1, name: 'University Application Review', price: 'FREE FOR STUDENTS' },
+      { id: 2, name: 'Scholarship Guidance', price: 'FREE FOR STUDENTS' },
+      { id: 3, name: 'Subject Selection Consultation', price: 'FREE FOR STUDENTS' }
+    ],
+    education: [
+      { id: 1, degree: 'M.Ed. in Guidance and Counseling', school: 'University of Lagos', year: '2007' },
+      { id: 2, degree: 'B.A. in Education', school: 'Obafemi Awolowo University', year: '2004' }
+    ],
+    experience: [
+      { id: 1, role: 'Senior Academic Counselor', school: 'Lagos City College', period: '2015 - Present' },
+      { id: 2, role: 'Guidance Counselor', school: 'Queens College', period: '2008 - 2015' }
+    ],
+    activityTree: [
+      { id: 1, title: 'Initial Consultation', date: 'Oct 01, 2024', status: 'Completed', type: 'session' },
+      { id: 2, title: 'Career Interest Quiz Review', date: 'Oct 10, 2024', status: 'Completed', type: 'quiz' },
+      { id: 3, title: 'University Selection Consultation', date: 'Oct 25, 2024', status: 'Upcoming', type: 'session' },
+    ]
+  }) => {
+    const data = getStoredData(STORAGE_KEY_COUNSELOR_PROFILE, initialData);
+    return (!data || typeof data !== 'object' || Array.isArray(data)) ? initialData : data;
+  },
+  save: (data: any) => saveStoredData(STORAGE_KEY_COUNSELOR_PROFILE, data),
+};
+

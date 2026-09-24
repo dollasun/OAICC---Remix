@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import Logo from '../Logo';
@@ -39,23 +39,26 @@ export default function SignIn() {
       />
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white relative">
-        <button 
-          onClick={() => navigate('/')}
-          className="absolute top-8 left-8 flex items-center gap-2 text-slate-500 hover:text-brand transition-colors font-bold group"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
-        </button>
+      <div className="flex-1 flex flex-col justify-between p-6 sm:p-8 md:p-12 bg-white dark:bg-slate-900 overflow-y-auto relative">
+        <div className="flex items-center justify-between w-full mb-6">
+          <button 
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-slate-500 hover:text-brand transition-colors font-bold group text-sm"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            Back to Home
+          </button>
+        </div>
+
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md mx-auto my-auto py-4"
         >
-          <div className="mb-10">
+          <div className="mb-8">
             <Logo size="lg" className="mb-6" />
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Sign In</h1>
-            <p className="text-slate-500">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Sign In</h1>
+            <p className="text-slate-500 text-sm">
               Don't have an account? {' '}
               <button 
                 onClick={() => navigate(`/auth/signup?role=${role}`)}
@@ -66,72 +69,72 @@ export default function SignIn() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Email Address</label>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Email Address</label>
               <div className="input-with-icon">
                 <div className="icon-wrapper">
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4" />
                 </div>
                 <input 
                   type="email" 
                   placeholder="name@example.com" 
-                  className="input-field"
+                  className="input-field py-3 text-sm"
                   required
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-slate-700">Password</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Password</label>
                 <button 
                   type="button"
                   onClick={() => navigate('/auth/forgot-password')}
-                  className="text-sm text-brand font-bold hover:underline"
+                  className="text-xs text-brand font-bold hover:underline"
                 >
                   Forgot password?
                 </button>
               </div>
               <div className="input-with-icon">
                 <div className="icon-wrapper">
-                  <Lock className="w-5 h-5" />
+                  <Lock className="w-4 h-4" />
                 </div>
                 <input 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••" 
-                  className="input-field pr-14"
+                  className="input-field pr-12 py-3 text-sm"
                   required
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" className="btn-primary w-full">
+            <button type="submit" className="btn-primary w-full py-3.5">
               Sign In
             </button>
 
-            <div className="relative my-8">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200"></div>
+                <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-slate-500 uppercase tracking-wider">Or continue with</span>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-white dark:bg-slate-900 text-slate-400 uppercase tracking-wider font-semibold">Or continue with</span>
               </div>
             </div>
 
             <button 
               type="button" 
               onClick={() => setShowGoogleModal(true)}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-brand/40 transition-all font-medium text-slate-700 shadow-sm"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium text-slate-700 dark:text-slate-200 text-sm shadow-sm"
             >
-              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
+              <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
               Sign in with Google
             </button>
           </form>
@@ -143,6 +146,25 @@ export default function SignIn() {
             mode="signin"
           />
         </motion.div>
+
+        {/* Legal hyperlinks at the bottom of login */}
+        <div className="w-full max-w-md mx-auto pt-6 border-t border-slate-100 dark:border-slate-800 text-center space-y-2">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            By signing in, you acknowledge OAICC's{' '}
+            <Link to={`/policies/terms?role=${role}`} className="text-brand font-semibold hover:underline">Terms of Service</Link>{' '}
+            and{' '}
+            <Link to={`/policies/privacy?role=${role}`} className="text-brand font-semibold hover:underline">Privacy Policy</Link>.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs text-slate-400">
+            <Link to={`/policies/terms?role=${role}`} className="hover:text-brand transition-colors">Terms & Conditions</Link>
+            <span aria-hidden="true">·</span>
+            <Link to={`/policies/privacy?role=${role}`} className="hover:text-brand transition-colors">Privacy Policy</Link>
+            <span aria-hidden="true">·</span>
+            <Link to={`/policies/safeguarding?role=${role}`} className="hover:text-brand transition-colors">Child Safeguarding</Link>
+            <span aria-hidden="true">·</span>
+            <Link to={`/policies/cookies?role=${role}`} className="hover:text-brand transition-colors">Cookie Notice</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

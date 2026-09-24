@@ -27,14 +27,18 @@ import {
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
 import { intakeQuestions, clusters } from '../../../data/questionnaire';
+import PlatformPoliciesSection from '../PlatformPoliciesSection';
 
 export default function StudentProfile() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { showToast } = useToast();
-  const initialAccordion = searchParams.get('tab') === 'intake' || searchParams.get('tab') === 'assessment' 
+  const tabParam = searchParams.get('tab');
+  const initialAccordion = tabParam === 'intake' || tabParam === 'assessment' 
     ? 'assessment' 
-    : 'personal';
+    : tabParam === 'policies' 
+      ? 'policies' 
+      : 'personal';
   const [activeAccordion, setActiveAccordion] = useState<string | null>(initialAccordion);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
@@ -541,6 +545,13 @@ export default function StudentProfile() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Platform Policies */}
+        <PlatformPoliciesSection 
+          userRole="student"
+          isOpen={activeAccordion === 'policies'}
+          onToggle={() => toggleAccordion('policies')}
+        />
       </div>
 
       {/* Danger Zone */}

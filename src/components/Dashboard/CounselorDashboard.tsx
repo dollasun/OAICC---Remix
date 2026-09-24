@@ -13,11 +13,12 @@ import {
   Bell,
   Search,
   UserCircle,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../Logo';
-import { messagesStorage } from '../../utils/storage';
+import { messagesStorage, counselorProfileStorage } from '../../utils/storage';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 // Import Counselor Pages
@@ -38,6 +39,16 @@ export default function CounselorDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const { totalUnread } = useCrossPortalMessaging('counselor-1', 'counselor');
+  const [profileData, setProfileData] = useState(() => counselorProfileStorage.get());
+
+  useEffect(() => {
+    // Listen for storage changes to keep header in sync
+    const handleStorage = () => {
+      setProfileData(counselorProfileStorage.get());
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   useEffect(() => {
     const isCounselor = localStorage.getItem('counselor_auth') === 'true';
@@ -203,11 +214,11 @@ export default function CounselorDashboard() {
                   className="flex items-center gap-3 pl-4 border-l border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-all"
                 >
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Mr. Alfred Funmbi</p>
-                    <p className="text-[10px] font-bold text-brand uppercase tracking-widest">Counselor</p>
+                    <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{profileData?.name || 'Mr. Alfred Funmbi'}</p>
+                    <p className="text-[10px] font-bold text-brand uppercase tracking-widest">{profileData?.title || 'Counselor'}</p>
                   </div>
                   <img 
-                    src="https://picsum.photos/seed/counselor/100/100" 
+                    src={profileData?.image || "https://picsum.photos/seed/counselor/100/100"} 
                     alt="Counselor" 
                     className="w-10 h-10 rounded-lg object-cover border-2 border-slate-50 dark:border-slate-800 shadow-sm"
                   />
@@ -228,7 +239,13 @@ export default function CounselorDashboard() {
                           onClick={() => { navigate('/counselor/settings'); setIsProfileDropdownOpen(false); }}
                           className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                         >
-                          <UserCircle className="w-4 h-4" /> My profile
+                          <UserCircle className="w-4 h-4" /> My profile & Settings
+                        </button>
+                        <button 
+                          onClick={() => { navigate('/policies?role=counselor'); setIsProfileDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        >
+                          <FileText className="w-4 h-4" /> Code & Policies
                         </button>
                         <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
                         <button 
@@ -255,6 +272,7 @@ export default function CounselorDashboard() {
             <Route path="sessions" element={<Sessions />} />
             <Route path="messages" element={<Messages />} />
             <Route path="careers/:id" element={<CareerDetails />} />
+            <Route path="profile" element={<Navigate to="/counselor/settings" replace />} />
             <Route path="settings" element={<CounselorProfile />} />
             <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />

@@ -16,7 +16,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Scale,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../../Logo';
@@ -236,6 +237,12 @@ export default function AdminDashboard() {
                           className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                         >
                           <Settings className="w-4 h-4" /> Settings
+                        </button>
+                        <button 
+                          onClick={() => { navigate('/policies?role=admin'); setIsProfileDropdownOpen(false); }}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        >
+                          <FileText className="w-4 h-4" /> Policies Hub
                         </button>
                         <div className="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
                         <button 

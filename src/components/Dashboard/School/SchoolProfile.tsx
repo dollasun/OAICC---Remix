@@ -20,13 +20,16 @@ import {
   Briefcase,
   School
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
+import PlatformPoliciesSection from '../PlatformPoliciesSection';
 
 export default function SchoolProfile() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { showToast } = useToast();
-  const [activeAccordion, setActiveAccordion] = useState<string | null>('personal');
+  const initialAccordion = searchParams.get('tab') === 'policies' ? 'policies' : 'personal';
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(initialAccordion);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -295,6 +298,13 @@ export default function SchoolProfile() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Platform Policies */}
+        <PlatformPoliciesSection 
+          userRole="school"
+          isOpen={activeAccordion === 'policies'}
+          onToggle={() => toggleAccordion('policies')}
+        />
       </div>
 
       {/* Danger Zone */}

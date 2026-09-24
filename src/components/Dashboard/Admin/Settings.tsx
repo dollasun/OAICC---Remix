@@ -14,12 +14,16 @@ import {
   LogOut,
   ChevronDown
 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import PlatformPoliciesSection from '../PlatformPoliciesSection';
 
 export default function AdminSettings() {
+  const [searchParams] = useSearchParams();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [activeAccordion, setActiveAccordion] = useState<string | null>('personal');
+  const initialAccordion = searchParams.get('tab') === 'policies' ? 'policies' : 'personal';
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(initialAccordion);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [notifications, setNotifications] = useState({
     'New Forum Posts': true,
@@ -255,6 +259,13 @@ export default function AdminSettings() {
             )}
           </AnimatePresence>
         </div>
+
+        {/* Platform Policies */}
+        <PlatformPoliciesSection 
+          userRole="admin"
+          isOpen={activeAccordion === 'policies'}
+          onToggle={() => toggleAccordion('policies')}
+        />
       </div>
 
       {/* Password Modal */}

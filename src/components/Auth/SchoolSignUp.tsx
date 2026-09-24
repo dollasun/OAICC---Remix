@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, User, MapPin, School, Users, ChevronLeft, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { Mail, Lock, User, MapPin, School, Users, ChevronLeft, Eye, EyeOff, CheckCircle2, ArrowLeft, ShieldCheck, AlertCircle, Check } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from '../Auth/AuthSlider';
 
@@ -24,6 +24,9 @@ export default function SchoolSignUp() {
     numStudents: ''
   });
 
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
+
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     setStep(s => s + 1);
@@ -31,6 +34,11 @@ export default function SchoolSignUp() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsAccepted) {
+      setTermsError(true);
+      return;
+    }
+    setTermsError(false);
     setStep(4); // Check email step
   };
 
@@ -239,6 +247,51 @@ export default function SchoolSignUp() {
                   <option value="100 - 400">100 - 400</option>
                   <option value="400 - 1000">400 - 1000</option>
                 </select>
+              </div>
+
+              {/* Simple Policy Acceptance Session */}
+              <div className="pt-2">
+                <label className="flex items-start gap-3 cursor-pointer group select-none">
+                  <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => {
+                        setTermsAccepted(e.target.checked);
+                        if (e.target.checked) setTermsError(false);
+                      }}
+                      className="sr-only peer"
+                      id="school-terms-checkbox"
+                    />
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                      termsAccepted 
+                        ? 'bg-brand border-brand text-white shadow-sm' 
+                        : termsError 
+                          ? 'border-red-400 bg-red-50/50' 
+                          : 'border-slate-300 bg-white group-hover:border-brand'
+                    }`}>
+                      {termsAccepted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                  </div>
+
+                  <span className="text-xs leading-relaxed text-slate-600">
+                    I agree to the{' '}
+                    <Link to="/policies/terms?role=school" target="_blank" className="text-brand font-bold hover:underline">
+                      Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/policies/privacy?role=school" target="_blank" className="text-brand font-bold hover:underline">
+                      Privacy Policy
+                    </Link>.
+                  </span>
+                </label>
+
+                {termsError && (
+                  <div className="mt-1.5 flex items-center gap-1.5 text-xs text-red-500 font-medium pl-8">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span>Please accept the Terms & Conditions and Privacy Policy to continue.</span>
+                  </div>
+                )}
               </div>
 
               <button type="submit" className="btn-primary w-full py-4">

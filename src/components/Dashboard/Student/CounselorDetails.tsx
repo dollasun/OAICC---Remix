@@ -18,7 +18,7 @@ import {
   Info,
   Video
 } from 'lucide-react';
-import { counselingSessionsStorage } from '../../../utils/storage';
+import { counselingSessionsStorage, counselorProfileStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 
 export default function CounselorDetails() {
@@ -29,34 +29,36 @@ export default function CounselorDetails() {
   const [activeTab, setActiveTab] = useState<'about' | 'activity'>('about');
   const [bookingData, setBookingData] = useState({ date: '', time: '09:00 AM', reason: '' });
 
-  // Mock data for a single counselor
+  const storedProfile = counselorProfileStorage.get();
+
+  // Mock data for counselor, merged with storedProfile
   const counselor = {
     id: Number(id) || 1,
-    name: 'Mrs. Adebayo Funke',
-    role: 'Senior Academic Counselor',
-    school: 'Lagos City College',
-    image: 'https://picsum.photos/seed/counselor1/600/600',
-    location: 'Lagos, Nigeria',
-    rating: 4.9,
-    reviews: 86,
-    isVerified: true,
-    expertise: ['University Admissions', 'Scholarships', 'Subject Selection', 'Career Mapping', 'Study Abroad'],
-    bio: 'With over 15 years of experience in academic counseling, I have helped thousands of students navigate their educational paths. My expertise lies in university admissions processes, both locally and internationally, and I am dedicated to helping students find the right scholarships to fund their dreams.',
-    experience: [
+    name: storedProfile.name || `${storedProfile.firstName} ${storedProfile.lastName}`,
+    role: storedProfile.title || storedProfile.role || 'Senior Academic Counselor',
+    school: storedProfile.school || 'Lagos City College',
+    image: storedProfile.image || 'https://picsum.photos/seed/counselor1/600/600',
+    location: storedProfile.location || 'Lagos, Nigeria',
+    rating: storedProfile.rating || 4.9,
+    reviews: storedProfile.reviews || 86,
+    isVerified: storedProfile.isVerified !== undefined ? storedProfile.isVerified : true,
+    expertise: storedProfile.expertise || ['University Admissions', 'Scholarships', 'Subject Selection', 'Career Mapping', 'Study Abroad'],
+    bio: storedProfile.aboutMe || 'With over 15 years of experience in academic counseling, I have helped thousands of students navigate their educational paths. My expertise lies in university admissions processes, both locally and internationally, and I am dedicated to helping students find the right scholarships to fund their dreams.',
+    experience: storedProfile.experience || [
       { role: 'Senior Academic Counselor', school: 'Lagos City College', period: '2015 - Present' },
       { role: 'Guidance Counselor', school: 'Queens College', period: '2008 - 2015' }
     ],
-    education: [
+    education: storedProfile.education || [
       { degree: 'M.Ed. in Guidance and Counseling', school: 'University of Lagos', year: '2007' },
       { degree: 'B.A. in Education', school: 'Obafemi Awolowo University', year: '2004' }
     ],
-    availability: 'Mon - Fri, 9:00 AM - 4:00 PM',
-    services: [
+    availability: storedProfile.availability || 'Mon - Fri, 9:00 AM - 4:00 PM',
+    services: storedProfile.services || [
       { name: 'University Application Review', price: 'Free for students' },
       { name: 'Scholarship Guidance', price: 'Free for students' },
       { name: 'Subject Selection Consultation', price: 'Free for students' }
     ],
-    activityTree: [
+    activityTree: storedProfile.activityTree || [
       { id: 1, title: 'Initial Consultation', date: 'Oct 01, 2024', status: 'Completed', type: 'session' },
       { id: 2, title: 'Career Interest Quiz Review', date: 'Oct 10, 2024', status: 'Completed', type: 'quiz' },
       { id: 3, title: 'University Selection', date: 'Oct 25, 2024', status: 'Upcoming', type: 'session' },

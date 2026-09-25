@@ -82,7 +82,7 @@ export default function AdminSetPassword() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 ml-1">Confirm password</label>
+              <label className="text-sm font-bold text-slate-700 ml-1">Confirm Password</label>
               <div className="relative group">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-focus-within:text-brand transition-colors">
                   <Lock className="w-5 h-5" />

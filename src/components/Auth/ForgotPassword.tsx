@@ -167,7 +167,7 @@ export default function ForgotPassword() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Confirm password</label>
+                <label className="text-sm font-bold text-slate-700">Confirm Password</label>
                 <div className="input-with-icon">
                   <div className="icon-wrapper">
                     <Lock className="w-5 h-5" />

@@ -146,7 +146,7 @@ export default function SchoolSignUp() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Confirm password</label>
+                <label className="text-sm font-bold text-slate-700">Confirm Password</label>
                 <div className="input-with-icon">
                   <div className="icon-wrapper"><Lock className="w-5 h-5" /></div>
                   <input 
@@ -276,49 +276,76 @@ export default function SchoolSignUp() {
                 </select>
               </div>
 
-              {/* Simple Policy Acceptance Session */}
+              {/* School Mandatory Policy Acceptance */}
               <div className="pt-2">
-                <label className="flex items-start gap-3 cursor-pointer group select-none">
-                  <div className="relative flex items-center justify-center mt-0.5 shrink-0">
-                    <input
-                      type="checkbox"
-                      checked={termsAccepted}
-                      onChange={(e) => {
-                        setTermsAccepted(e.target.checked);
-                        if (e.target.checked) setTermsError(false);
-                      }}
-                      className="sr-only peer"
-                      id="school-terms-checkbox"
-                    />
-                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
-                      termsAccepted 
-                        ? 'bg-brand border-brand text-white shadow-sm' 
-                        : termsError 
-                          ? 'border-red-400 bg-red-50/50' 
-                          : 'border-slate-300 bg-white group-hover:border-brand'
-                    }`}>
-                      {termsAccepted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                    </div>
+                <div className={`p-4 rounded-2xl border transition-all ${
+                  termsError 
+                    ? 'border-red-400 bg-red-50/50' 
+                    : 'border-slate-200 bg-slate-50/80'
+                }`}>
+                  <div className="flex items-center gap-2 mb-2.5">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-100 text-cyan-800">
+                      School — Mandatory
+                    </span>
                   </div>
+                  <label className="flex items-start gap-3 cursor-pointer group select-none">
+                    <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={termsAccepted}
+                        onChange={(e) => {
+                          setTermsAccepted(e.target.checked);
+                          if (e.target.checked) setTermsError(false);
+                        }}
+                        className="sr-only peer"
+                        id="school-terms-checkbox"
+                      />
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                        termsAccepted 
+                          ? 'bg-brand border-brand text-white shadow-sm' 
+                          : termsError 
+                            ? 'border-red-400 bg-white' 
+                            : 'border-slate-300 bg-white group-hover:border-brand'
+                      }`}>
+                        {termsAccepted && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                      </div>
+                    </div>
 
-                  <span className="text-xs leading-relaxed text-slate-600">
-                    I agree to the{' '}
-                    <Link to="/policies/terms?role=school" target="_blank" className="text-brand font-bold hover:underline">
-                      Terms & Conditions
-                    </Link>,{' '}
-                    <Link to="/policies/privacy?role=school" target="_blank" className="text-brand font-bold hover:underline">
-                      Privacy Policy
-                    </Link>, and{' '}
-                    <Link to="/policies/school-authority?role=school" target="_blank" className="text-brand font-bold hover:underline">
-                      School Authority Terms
-                    </Link>.
-                  </span>
-                </label>
+                    <span className="text-xs leading-relaxed text-slate-700 font-normal">
+                      I confirm that I am authorised to act for this school. I agree to the{' '}
+                      <Link 
+                        to="/policies/terms?role=school" 
+                        target="_blank" 
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-brand font-bold hover:underline"
+                      >
+                        OAICC Terms of Use
+                      </Link>, acknowledge the{' '}
+                      <Link 
+                        to="/policies/privacy?role=school" 
+                        target="_blank" 
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Privacy
+                      </Link>{' '}
+                      and{' '}
+                      <Link 
+                        to="/policies/safeguarding?role=school" 
+                        target="_blank" 
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Safeguarding Policies
+                      </Link>, and confirm that the school has lawful authority to enrol the student and provide their information, including any required parent/guardian consent.
+                    </span>
+                  </label>
+                </div>
 
                 {termsError && (
-                  <div className="mt-1.5 flex items-center gap-1.5 text-xs text-red-500 font-medium pl-8">
+                  <div className="mt-2 flex items-center gap-1.5 text-xs text-red-500 font-medium pl-1">
                     <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>Please accept the Terms & Conditions and Privacy Policy to continue.</span>
+                    <span>Please confirm the mandatory school policy declaration to proceed.</span>
                   </div>
                 )}
               </div>

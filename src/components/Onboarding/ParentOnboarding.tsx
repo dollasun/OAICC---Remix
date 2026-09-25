@@ -74,7 +74,16 @@ export default function ParentOnboarding() {
                 <option value="Guardian">Guardian/Sponsor</option>
               </select>
             </div>
-            <button onClick={nextStep} disabled={!formData.relationship} className="btn-primary w-full">
+            <button 
+              type="button"
+              onClick={nextStep} 
+              disabled={!formData.relationship} 
+              className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-sm ${
+                formData.relationship
+                  ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+              }`}
+            >
               Next <ChevronRight className="w-5 h-5" />
             </button>
           </motion.div>
@@ -146,7 +155,13 @@ export default function ParentOnboarding() {
                 <div className="icon-wrapper">
                   <MapPin className="w-5 h-5" />
                 </div>
-                <input type="text" placeholder="Enter your location" className="input-field" />
+                <input 
+                  type="text" 
+                  placeholder="Enter your location" 
+                  className="input-field" 
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                />
               </div>
             </div>
 
@@ -156,7 +171,13 @@ export default function ParentOnboarding() {
                 <div className="icon-wrapper">
                   <Phone className="w-5 h-5" />
                 </div>
-                <input type="tel" placeholder="Enter your phone number" className="input-field" />
+                <input 
+                  type="tel" 
+                  placeholder="Enter your phone number" 
+                  className="input-field" 
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                />
               </div>
             </div>
 
@@ -164,7 +185,16 @@ export default function ParentOnboarding() {
               <button onClick={prevStep} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50">
                 Back
               </button>
-              <button onClick={nextStep} className="flex-[2] btn-primary">
+              <button 
+                type="button"
+                onClick={nextStep} 
+                disabled={!formData.title || !formData.profession}
+                className={`flex-[2] py-3.5 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                  formData.title && formData.profession
+                    ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                }`}
+              >
                 Continue
               </button>
             </div>

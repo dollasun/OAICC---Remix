@@ -15,6 +15,14 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: ''
+  });
+
   // T&C Acceptance State
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
@@ -25,11 +33,25 @@ export default function SignUp() {
     }
   }, [role, navigate]);
 
+  const isFormValid = Boolean(
+    formData.firstName.trim() &&
+    formData.lastName.trim() &&
+    formData.email.trim() &&
+    formData.email.includes('@') &&
+    formData.phone.trim() &&
+    formData.password.length >= 6 &&
+    termsAccepted
+  );
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(true);
-      showToast('You must accept the Terms and Conditions and Privacy Policy to complete registration.', 'error');
+    if (!isFormValid) {
+      if (!termsAccepted) {
+        setTermsError(true);
+        showToast('You must accept the Terms and Conditions and Privacy Policy to complete registration.', 'error');
+      } else {
+        showToast('Please complete all required fields correctly.', 'error');
+      }
       return;
     }
     setTermsError(false);
@@ -81,11 +103,25 @@ export default function SignUp() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">First Name</label>
-                <input type="text" placeholder="John" className="input-field py-3 text-sm" required />
+                <input 
+                  type="text" 
+                  placeholder="John" 
+                  className="input-field py-3 text-sm" 
+                  required 
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Last Name</label>
-                <input type="text" placeholder="Doe" className="input-field py-3 text-sm" required />
+                <input 
+                  type="text" 
+                  placeholder="Doe" 
+                  className="input-field py-3 text-sm" 
+                  required 
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                />
               </div>
             </div>
 
@@ -95,7 +131,14 @@ export default function SignUp() {
                 <div className="icon-wrapper">
                   <Mail className="w-4 h-4" />
                 </div>
-                <input type="email" placeholder="name@example.com" className="input-field py-3 text-sm" required />
+                <input 
+                  type="email" 
+                  placeholder="name@example.com" 
+                  className="input-field py-3 text-sm" 
+                  required 
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                />
               </div>
             </div>
 
@@ -105,7 +148,14 @@ export default function SignUp() {
                 <div className="icon-wrapper">
                   <Phone className="w-4 h-4" />
                 </div>
-                <input type="tel" placeholder="(555) 000-0000" className="input-field py-3 text-sm" required />
+                <input 
+                  type="tel" 
+                  placeholder="(555) 000-0000" 
+                  className="input-field py-3 text-sm" 
+                  required 
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
               </div>
             </div>
 
@@ -120,9 +170,11 @@ export default function SignUp() {
                   placeholder="••••••••" 
                   className="input-field pr-12 py-3 text-sm"
                   required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
                 <button 
-                  type="button"
+                  type="button" 
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
@@ -157,22 +209,98 @@ export default function SignUp() {
                 </div>
 
                 <span className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                  I agree to the{' '}
-                  <Link 
-                    to={`/policies/terms?role=${role}`} 
-                    target="_blank" 
-                    className="text-brand font-bold hover:underline"
-                  >
-                    Terms & Conditions
-                  </Link>{' '}
-                  and{' '}
-                  <Link 
-                    to={`/policies/privacy?role=${role}`} 
-                    target="_blank" 
-                    className="text-brand font-bold hover:underline"
-                  >
-                    Privacy Policy
-                  </Link>.
+                  {role === 'counselor' && (
+                    <>
+                      I agree to the{' '}
+                      <Link 
+                        to={`/policies/terms?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Terms of Use
+                      </Link>{' '}
+                      and accept the{' '}
+                      <Link 
+                        to={`/policies/counselor-code?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Counselor & Mentor Code of Conduct
+                      </Link>.
+                    </>
+                  )}
+                  {role === 'parent' && (
+                    <>
+                      I agree to the{' '}
+                      <Link 
+                        to={`/policies/terms?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Terms & Conditions
+                      </Link>,{' '}
+                      <Link 
+                        to={`/policies/privacy?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>, and{' '}
+                      <Link 
+                        to={`/policies/parent-consent?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Parent & Guardian Consent
+                      </Link>.
+                    </>
+                  )}
+                  {role === 'teacher' && (
+                    <>
+                      I agree to the{' '}
+                      <Link 
+                        to={`/policies/terms?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Terms & Conditions
+                      </Link>,{' '}
+                      <Link 
+                        to={`/policies/privacy?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>, and{' '}
+                      <Link 
+                        to={`/policies/acceptable-use?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Acceptable Use Policy
+                      </Link>.
+                    </>
+                  )}
+                  {role !== 'counselor' && role !== 'parent' && role !== 'teacher' && (
+                    <>
+                      I agree to the{' '}
+                      <Link 
+                        to={`/policies/terms?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Terms & Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link 
+                        to={`/policies/privacy?role=${role}`} 
+                        target="_blank" 
+                        className="text-brand font-bold hover:underline"
+                      >
+                        Privacy Policy
+                      </Link>.
+                    </>
+                  )}
                 </span>
               </label>
 
@@ -184,17 +312,29 @@ export default function SignUp() {
               )}
             </div>
 
-            <button type="submit" className="btn-primary w-full py-3.5 mt-2">
+            <button 
+              type="submit" 
+              disabled={!isFormValid}
+              className={`w-full py-3.5 mt-2 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                isFormValid 
+                  ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer active:scale-[0.99]' 
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60'
+              }`}
+            >
               Sign Up
             </button>
 
             <button 
               type="button" 
+              disabled={!termsAccepted}
               onClick={() => {
-                setTermsAccepted(true);
                 setShowGoogleModal(true);
               }}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium text-slate-700 dark:text-slate-200 text-sm shadow-sm"
+              className={`w-full flex items-center justify-center gap-3 px-4 py-3 border rounded-xl transition-all font-medium text-sm shadow-sm ${
+                termsAccepted
+                  ? 'border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer'
+                  : 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600 opacity-50 cursor-not-allowed'
+              }`}
             >
               <img src="https://www.google.com/favicon.ico" alt="Google" className="w-4 h-4" />
               Sign up with Google

@@ -38,6 +38,7 @@ export default function GoogleAuthModal({
       showToast(mode === 'signin' ? `Welcome back!` : `Signed up successfully!`, 'success');
       
       // If sign-in, skip onboarding and navigate directly to dashboard
+      localStorage.setItem('user_role', targetRole);
       if (mode === 'signin') {
         if (targetRole === 'school') {
           navigate('/school/dashboard');
@@ -46,7 +47,11 @@ export default function GoogleAuthModal({
         } else if (targetRole === 'parent') {
           navigate('/parent/dashboard');
         } else if (targetRole === 'counselor') {
+          localStorage.setItem('counselor_auth', 'true');
           navigate('/counselor/dashboard');
+        } else if (targetRole === 'admin') {
+          localStorage.setItem('admin_auth', 'true');
+          navigate('/admin/dashboard');
         } else {
           navigate('/student/dashboard');
         }
@@ -54,6 +59,8 @@ export default function GoogleAuthModal({
         // Sign-up flow: take student or user through onboarding
         if (targetRole === 'school') {
           navigate('/school/dashboard');
+        } else if (targetRole === 'admin') {
+          navigate('/admin/dashboard');
         } else {
           navigate(`/onboarding/${targetRole}`);
         }

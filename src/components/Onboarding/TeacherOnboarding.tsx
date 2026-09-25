@@ -31,7 +31,9 @@ export default function TeacherOnboarding() {
     phone: '08055888444',
     bio: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore.',
     location: '34, Wuse II, Abuja, Nigeria',
-    avatar: 'https://picsum.photos/seed/teacher/200/200'
+    avatar: 'https://picsum.photos/seed/teacher/200/200',
+    password: '',
+    confirmPassword: ''
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +144,16 @@ export default function TeacherOnboarding() {
               </div>
             </div>
 
-            <button onClick={nextStep} className="btn-primary w-full py-4">
+            <button 
+              type="button"
+              onClick={nextStep} 
+              disabled={!formData.firstName.trim() || !formData.lastName.trim()}
+              className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                formData.firstName.trim() && formData.lastName.trim()
+                  ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+              }`}
+            >
               Continue
             </button>
           </motion.div>
@@ -164,7 +175,13 @@ export default function TeacherOnboarding() {
                 <label className="text-sm font-bold text-slate-700">Password</label>
                 <div className="input-with-icon">
                   <div className="icon-wrapper"><Lock className="w-5 h-5" /></div>
-                  <input type={showPassword ? "text" : "password"} className="input-field pr-14" placeholder="••••••••••••" />
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    className="input-field pr-14" 
+                    placeholder="••••••••••••" 
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -175,7 +192,13 @@ export default function TeacherOnboarding() {
                 <label className="text-sm font-bold text-slate-700">Confirm Password</label>
                 <div className="input-with-icon">
                   <div className="icon-wrapper"><Lock className="w-5 h-5" /></div>
-                  <input type={showConfirmPassword ? "text" : "password"} className="input-field pr-14" placeholder="••••••••••••" />
+                  <input 
+                    type={showConfirmPassword ? "text" : "password"} 
+                    className="input-field pr-14" 
+                    placeholder="••••••••••••" 
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -183,7 +206,16 @@ export default function TeacherOnboarding() {
               </div>
             </div>
 
-            <button onClick={nextStep} className="btn-primary w-full py-4">
+            <button 
+              type="button"
+              onClick={nextStep} 
+              disabled={!formData.password || formData.password.length < 6 || formData.password !== formData.confirmPassword}
+              className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                formData.password && formData.password.length >= 6 && formData.password === formData.confirmPassword
+                  ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+              }`}
+            >
               Set your Password
             </button>
           </motion.div>

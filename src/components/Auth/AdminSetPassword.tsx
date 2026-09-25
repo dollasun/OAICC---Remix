@@ -100,7 +100,12 @@ export default function AdminSetPassword() {
 
             <button 
               type="submit"
-              className="w-full py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-8"
+              disabled={!formData.password || formData.password.length < 6 || formData.password !== formData.confirmPassword}
+              className={`w-full py-4 font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 mt-8 ${
+                formData.password && formData.password.length >= 6 && formData.password === formData.confirmPassword
+                  ? 'bg-brand hover:bg-brand-hover text-white hover:scale-[1.02] active:scale-[0.98] cursor-pointer'
+                  : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+              }`}
             >
               Reset password <ArrowRight className="w-5 h-5" />
             </button>

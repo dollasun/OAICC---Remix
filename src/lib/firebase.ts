@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   projectId: "gen-lang-client-0931219066",
@@ -13,11 +13,20 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+
+const databaseId = "ai-studio-remixoaicccareer-d01a87a8-80f3-4131-bded-a3ea1c731873";
+
 let db: any;
 try {
-  db = getFirestore(app, "ai-studio-remixoaicccareer-d01a87a8-80f3-4131-bded-a3ea1c731873");
+  db = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  }, databaseId);
 } catch (e) {
-  db = getFirestore(app);
+  try {
+    db = getFirestore(app, databaseId);
+  } catch (err) {
+    db = getFirestore(app);
+  }
 }
 
 export { app, auth, db };

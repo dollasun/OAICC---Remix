@@ -13,6 +13,7 @@ import {
   Globe,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   FileText,
   Users,
@@ -23,7 +24,8 @@ import {
   AlertCircle,
   X,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  Check
 } from 'lucide-react';
 import Logo from '../Logo';
 import { POLICIES, PolicyDocument } from '../../data/policiesData';
@@ -87,6 +89,7 @@ export default function CounselorOnboarding() {
     counselorType: 'school_counselor',
     password: '',
     confirmPassword: '',
+    agreedToPolicies: false,
     acceptedPrivacy: false,
     acceptedCodeOfConduct: false,
     acceptedTerms: false
@@ -98,6 +101,9 @@ export default function CounselorOnboarding() {
   
   // In-page modal preview for reading policies
   const [previewPolicy, setPreviewPolicy] = useState<PolicyDocument | null>(null);
+
+  const isPasswordValid = formData.password.length >= 8 && formData.password === formData.confirmPassword;
+  const isStep3Valid = isPasswordValid && formData.agreedToPolicies;
 
   const handleNext = () => {
     if (step === 'personal') {
@@ -114,10 +120,6 @@ export default function CounselorOnboarding() {
   const handleCompleteSetup = () => {
     const errors: Record<string, string> = {};
 
-    if (!formData.counselorType) {
-      errors.counselorType = 'Please select your counselor user type.';
-    }
-
     if (!formData.password) {
       errors.password = 'Password is required.';
     } else if (formData.password.length < 8) {
@@ -128,16 +130,8 @@ export default function CounselorOnboarding() {
       errors.confirmPassword = 'Passwords do not match.';
     }
 
-    if (!formData.acceptedPrivacy) {
-      errors.privacy = 'You must accept the Privacy Policy to proceed.';
-    }
-
-    if (!formData.acceptedCodeOfConduct) {
-      errors.codeOfConduct = 'You must accept the Counselor Code of Conduct to proceed.';
-    }
-
-    if (!formData.acceptedTerms) {
-      errors.terms = 'You must accept the Terms & Conditions to proceed.';
+    if (!formData.agreedToPolicies) {
+      errors.policies = 'You must accept the Terms of Use, Privacy Policy, and Counselor Code of Conduct to proceed.';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -151,7 +145,7 @@ export default function CounselorOnboarding() {
     // Persist verified counselor setup
     localStorage.setItem('counselor_auth', 'true');
     localStorage.setItem('user_role', 'counselor');
-    localStorage.setItem('counselor_user_type', formData.counselorType);
+    localStorage.setItem('counselor_user_type', formData.counselorType || 'school_counselor');
     localStorage.setItem('counselor_name', `${formData.firstName} ${formData.lastName}`.trim() || 'Counselor');
     localStorage.setItem('counselor_accepted_privacy', 'true');
     localStorage.setItem('counselor_accepted_code_of_conduct', 'true');
@@ -170,18 +164,16 @@ export default function CounselorOnboarding() {
   };
 
   const handleModalAccept = () => {
-    if (!previewPolicy) return;
-    if (previewPolicy.id === 'privacy') {
-      setFormData(prev => ({ ...prev, acceptedPrivacy: true }));
-      setValidationErrors(prev => ({ ...prev, privacy: '' }));
-    } else if (previewPolicy.id === 'counselor-code') {
-      setFormData(prev => ({ ...prev, acceptedCodeOfConduct: true }));
-      setValidationErrors(prev => ({ ...prev, codeOfConduct: '' }));
-    } else if (previewPolicy.id === 'terms') {
-      setFormData(prev => ({ ...prev, acceptedTerms: true }));
-      setValidationErrors(prev => ({ ...prev, terms: '' }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      agreedToPolicies: true,
+      acceptedPrivacy: true,
+      acceptedCodeOfConduct: true,
+      acceptedTerms: true
+    }));
+    setValidationErrors(prev => ({ ...prev, policies: '', privacy: '', codeOfConduct: '', terms: '' }));
     setPreviewPolicy(null);
+    showToast('Agreements confirmed!', 'success');
   };
 
   const steps = [
@@ -312,8 +304,14 @@ export default function CounselorOnboarding() {
                   </div>
 
                   <button 
+                    type="button"
                     onClick={handleNext}
-                    className="w-full py-4 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-4"
+                    disabled={!formData.firstName.trim() || !formData.lastName.trim()}
+                    className={`w-full py-4 font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 mt-4 text-sm ${
+                      formData.firstName.trim() && formData.lastName.trim()
+                        ? 'bg-brand hover:bg-brand-hover text-white hover:scale-[1.01] active:scale-[0.99] cursor-pointer'
+                        : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                    }`}
                   >
                     Continue to Professional Info <ArrowRight className="w-5 h-5" />
                   </button>
@@ -423,62 +421,26 @@ export default function CounselorOnboarding() {
                   </p>
                 </div>
 
-                <div className="space-y-8">
-                  {/* 1. Counselor User Type Selection */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-brand" /> Select Counselor User Type <span className="text-red-500">*</span>
-                      </label>
-                      <span className="text-[11px] text-brand font-semibold">Required</span>
+                <div className="space-y-6">
+                  {/* 1. Counselor User Type Selection (Optional & Simplified) */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
+                      <span>Select Counselor Type</span>
+                      <span className="text-[11px] font-normal text-slate-400">Optional</span>
+                    </label>
+                    <div className="relative">
+                      <select 
+                        value={formData.counselorType}
+                        onChange={(e) => setFormData({ ...formData, counselorType: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-brand/10 focus:border-brand font-medium text-slate-700 text-sm appearance-none cursor-pointer"
+                      >
+                        <option value="school_counselor">School Counselor</option>
+                        <option value="independent_counselor">Independent Career Counselor</option>
+                        <option value="admissions_advisor">College Admissions Specialist</option>
+                        <option value="industry_mentor">Career Mentor & Industry Advisor</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {COUNSELOR_TYPES.map((type) => {
-                        const isSelected = formData.counselorType === type.id;
-                        return (
-                          <div
-                            key={type.id}
-                            onClick={() => {
-                              setFormData({ ...formData, counselorType: type.id });
-                              setValidationErrors(prev => ({ ...prev, counselorType: '' }));
-                            }}
-                            className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between text-left ${
-                              isSelected
-                                ? 'border-brand bg-brand/5 shadow-sm shadow-brand/5'
-                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                                isSelected ? 'bg-brand text-white' : 'bg-slate-100 text-slate-600'
-                              }`}>
-                                {type.icon}
-                              </div>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                isSelected ? 'bg-brand/15 text-brand' : 'bg-slate-100 text-slate-500'
-                              }`}>
-                                {type.badge}
-                              </span>
-                            </div>
-                            
-                            <div>
-                              <div className="text-xs font-bold text-slate-900 leading-tight mb-1">
-                                {type.title}
-                              </div>
-                              <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
-                                {type.description}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    {validationErrors.counselorType && (
-                      <p className="text-xs text-red-500 flex items-center gap-1 mt-1">
-                        <AlertCircle className="w-3.5 h-3.5" /> {validationErrors.counselorType}
-                      </p>
-                    )}
                   </div>
 
                   {/* 2. Password Creation */}
@@ -546,151 +508,84 @@ export default function CounselorOnboarding() {
                     </div>
                   </div>
 
-                  {/* 3. Mandatory Policy Agreements */}
-                  <div className="space-y-4 pt-4 border-t border-slate-100">
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-brand" /> Mandatory Policy Agreements <span className="text-red-500">*</span>
-                        </label>
-                        <span className="text-[11px] text-slate-400">Required before setup</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Counselors must accept OAICC's Privacy Policy, Code of Conduct, and Terms of Use.
-                      </p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {/* Agreement 1: Privacy Policy */}
-                      <div className={`p-4 rounded-2xl border transition-all ${
-                        formData.acceptedPrivacy ? 'border-emerald-300 bg-emerald-50/40' : validationErrors.privacy ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-slate-50/60'
-                      }`}>
-                        <div className="flex items-start justify-between gap-3">
-                          <label className="flex items-start gap-3 cursor-pointer flex-1 select-none">
-                            <input 
-                              type="checkbox"
-                              checked={formData.acceptedPrivacy}
-                              onChange={(e) => {
-                                setFormData({ ...formData, acceptedPrivacy: e.target.checked });
-                                if (e.target.checked) setValidationErrors(prev => ({ ...prev, privacy: '' }));
-                              }}
-                              className="mt-1 w-4 h-4 rounded text-brand focus:ring-brand accent-brand cursor-pointer"
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-slate-800 block">
-                                Accept Privacy Policy <span className="text-red-500">*</span>
-                              </span>
-                              <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
-                                I have read and agree to the OAICC Privacy Policy regarding data protection and student privacy.
-                              </span>
-                            </div>
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => openPolicyReader('privacy')}
-                            className="text-xs font-bold text-brand hover:underline shrink-0 flex items-center gap-1 ml-2 pt-0.5"
-                          >
-                            Read Policy <ExternalLink className="w-3 h-3" />
-                          </button>
+                  {/* 3. Mandatory Policy Agreement (Single line & single checkbox, clean like student) */}
+                  <div className="pt-2 border-t border-slate-100">
+                    <label className="flex items-start gap-3 cursor-pointer group select-none">
+                      <div className="relative flex items-center justify-center mt-0.5 shrink-0">
+                        <input
+                          type="checkbox"
+                          checked={formData.agreedToPolicies}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setFormData(prev => ({
+                              ...prev,
+                              agreedToPolicies: checked,
+                              acceptedPrivacy: checked,
+                              acceptedCodeOfConduct: checked,
+                              acceptedTerms: checked
+                            }));
+                            if (checked) setValidationErrors(prev => ({ ...prev, policies: '' }));
+                          }}
+                          className="sr-only peer"
+                          id="counselor-agreements-checkbox"
+                        />
+                        <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
+                          formData.agreedToPolicies 
+                            ? 'bg-brand border-brand text-white shadow-sm' 
+                            : validationErrors.policies
+                              ? 'border-red-400 bg-red-50/50'
+                              : 'border-slate-300 bg-white group-hover:border-brand'
+                        }`}>
+                          {formData.agreedToPolicies && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </div>
-                        {validationErrors.privacy && (
-                          <p className="text-[11px] text-red-500 mt-2 pl-7 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {validationErrors.privacy}
-                          </p>
-                        )}
                       </div>
 
-                      {/* Agreement 2: Counselor Code of Conduct */}
-                      <div className={`p-4 rounded-2xl border transition-all ${
-                        formData.acceptedCodeOfConduct ? 'border-emerald-300 bg-emerald-50/40' : validationErrors.codeOfConduct ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-slate-50/60'
-                      }`}>
-                        <div className="flex items-start justify-between gap-3">
-                          <label className="flex items-start gap-3 cursor-pointer flex-1 select-none">
-                            <input 
-                              type="checkbox"
-                              checked={formData.acceptedCodeOfConduct}
-                              onChange={(e) => {
-                                setFormData({ ...formData, acceptedCodeOfConduct: e.target.checked });
-                                if (e.target.checked) setValidationErrors(prev => ({ ...prev, codeOfConduct: '' }));
-                              }}
-                              className="mt-1 w-4 h-4 rounded text-brand focus:ring-brand accent-brand cursor-pointer"
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-slate-800 block">
-                                Accept Counselor & Mentor Code of Conduct <span className="text-red-500">*</span>
-                              </span>
-                              <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
-                                I agree to strictly adhere to professional boundaries, ethics, and child safeguarding standards.
-                              </span>
-                            </div>
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => openPolicyReader('counselor-code')}
-                            className="text-xs font-bold text-brand hover:underline shrink-0 flex items-center gap-1 ml-2 pt-0.5"
-                          >
-                            Read Code <ExternalLink className="w-3 h-3" />
-                          </button>
-                        </div>
-                        {validationErrors.codeOfConduct && (
-                          <p className="text-[11px] text-red-500 mt-2 pl-7 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {validationErrors.codeOfConduct}
-                          </p>
-                        )}
-                      </div>
+                      <span className="text-xs leading-relaxed text-slate-600">
+                        I agree to the{' '}
+                        <button 
+                          type="button" 
+                          onClick={(e) => { e.preventDefault(); openPolicyReader('terms'); }}
+                          className="text-brand font-bold hover:underline inline"
+                        >
+                          Terms of Use
+                        </button>{' '}
+                        and accept the{' '}
+                        <button 
+                          type="button" 
+                          onClick={(e) => { e.preventDefault(); openPolicyReader('counselor-code'); }}
+                          className="text-brand font-bold hover:underline inline"
+                        >
+                          Counselor and Mentor Code of Conduct
+                        </button>.
+                      </span>
+                    </label>
 
-                      {/* Agreement 3: Terms & Conditions */}
-                      <div className={`p-4 rounded-2xl border transition-all ${
-                        formData.acceptedTerms ? 'border-emerald-300 bg-emerald-50/40' : validationErrors.terms ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-slate-50/60'
-                      }`}>
-                        <div className="flex items-start justify-between gap-3">
-                          <label className="flex items-start gap-3 cursor-pointer flex-1 select-none">
-                            <input 
-                              type="checkbox"
-                              checked={formData.acceptedTerms}
-                              onChange={(e) => {
-                                setFormData({ ...formData, acceptedTerms: e.target.checked });
-                                if (e.target.checked) setValidationErrors(prev => ({ ...prev, terms: '' }));
-                              }}
-                              className="mt-1 w-4 h-4 rounded text-brand focus:ring-brand accent-brand cursor-pointer"
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-slate-800 block">
-                                Accept Platform Terms of Use <span className="text-red-500">*</span>
-                              </span>
-                              <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
-                                I agree to the Website and Platform Terms of Use and User Agreement.
-                              </span>
-                            </div>
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => openPolicyReader('terms')}
-                            className="text-xs font-bold text-brand hover:underline shrink-0 flex items-center gap-1 ml-2 pt-0.5"
-                          >
-                            Read Terms <ExternalLink className="w-3 h-3" />
-                          </button>
-                        </div>
-                        {validationErrors.terms && (
-                          <p className="text-[11px] text-red-500 mt-2 pl-7 flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3" /> {validationErrors.terms}
-                          </p>
-                        )}
+                    {validationErrors.policies && (
+                      <div className="mt-1.5 flex items-center gap-1.5 text-xs text-red-500 font-medium pl-8">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>{validationErrors.policies}</span>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Actions */}
                   <div className="flex gap-4 pt-2">
                     <button 
+                      type="button"
                       onClick={() => setStep('professional')}
-                      className="flex-1 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-sm"
+                      className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-sm"
                     >
                       Back
                     </button>
                     <button 
+                      type="button"
+                      disabled={!isStep3Valid}
                       onClick={handleCompleteSetup}
-                      className="flex-[2] py-4 bg-brand hover:bg-brand-hover text-white font-bold rounded-xl shadow-sm hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm"
+                      className={`flex-[2] py-3.5 font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-sm ${
+                        isStep3Valid 
+                          ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
+                          : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                      }`}
                     >
                       Complete Setup <ArrowRight className="w-5 h-5" />
                     </button>

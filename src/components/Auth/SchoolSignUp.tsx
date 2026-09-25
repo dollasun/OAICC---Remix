@@ -27,15 +27,34 @@ export default function SchoolSignUp() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
 
+  const isStep1Valid = Boolean(
+    formData.firstName.trim() &&
+    formData.lastName.trim() &&
+    formData.email.trim() &&
+    formData.email.includes('@') &&
+    formData.password.length >= 6 &&
+    formData.password === formData.confirmPassword
+  );
+
+  const isStep2Valid = Boolean(
+    formData.schoolName.trim() &&
+    formData.location.trim() &&
+    formData.schoolTypes.length > 0 &&
+    formData.numClasses &&
+    formData.numStudents &&
+    termsAccepted
+  );
+
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isStep1Valid) return;
     setStep(s => s + 1);
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      setTermsError(true);
+    if (!isStep2Valid) {
+      if (!termsAccepted) setTermsError(true);
       return;
     }
     setTermsError(false);
@@ -144,7 +163,15 @@ export default function SchoolSignUp() {
                 </div>
               </div>
 
-              <button type="submit" className="btn-primary w-full py-4">
+              <button 
+                type="submit" 
+                disabled={!isStep1Valid}
+                className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                  isStep1Valid 
+                    ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                }`}
+              >
                 Next
               </button>
             </form>
@@ -278,10 +305,12 @@ export default function SchoolSignUp() {
                     I agree to the{' '}
                     <Link to="/policies/terms?role=school" target="_blank" className="text-brand font-bold hover:underline">
                       Terms & Conditions
-                    </Link>{' '}
-                    and{' '}
+                    </Link>,{' '}
                     <Link to="/policies/privacy?role=school" target="_blank" className="text-brand font-bold hover:underline">
                       Privacy Policy
+                    </Link>, and{' '}
+                    <Link to="/policies/school-authority?role=school" target="_blank" className="text-brand font-bold hover:underline">
+                      School Authority Terms
                     </Link>.
                   </span>
                 </label>
@@ -294,7 +323,15 @@ export default function SchoolSignUp() {
                 )}
               </div>
 
-              <button type="submit" className="btn-primary w-full py-4">
+              <button 
+                type="submit" 
+                disabled={!isStep2Valid}
+                className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                  isStep2Valid 
+                    ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                }`}
+              >
                 Register
               </button>
             </form>

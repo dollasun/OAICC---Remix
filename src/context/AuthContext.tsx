@@ -33,20 +33,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (currentUser) {
         try {
-          const fetchDocPromise = getDoc(doc(db, 'users', currentUser.uid));
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Firestore fetch timeout')), 3000)
-          );
-          
-          const userDoc = (await Promise.race([fetchDocPromise, timeoutPromise])) as any;
+          let userDoc: any = null;
+          try {
+            const fetchDocPromise = getDoc(doc(db, 'users', currentUser.uid));
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Firestore fetch timeout')), 4000)
+            );
+            userDoc = (await Promise.race([fetchDocPromise, timeoutPromise])) as any;
+          } catch (fetchErr) {
+            console.warn("Firestore fetch error or timeout, will use fallback:", fetchErr);
+          }
+
           if (userDoc && userDoc.exists && userDoc.exists()) {
             setUserData(userDoc.data() as UserData);
           } else {
-            // If it's a new user and they sign in via Google, we might not know their role initially.
-            // But we will create a default record.
+            // Check if we have role in localStorage or default to student
+            const savedRole = localStorage.getItem('user_role') || 'student';
             const newUserData: UserData = {
               id: currentUser.uid,
-              role: 'student', // default role, they can be redirected to onboarding
+              role: savedRole,
               email: currentUser.email || '',
               firstName: currentUser.displayName?.split(' ')[0] || '',
               lastName: currentUser.displayName?.split(' ').slice(1).join(' ') || '',
@@ -60,10 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUserData(newUserData);
           }
         } catch (error) {
-          console.warn("Firestore user data fetch failed or timed out, using fallback user profile:", error);
+          console.warn("Firestore user data handling error, using fallback profile:", error);
           const fallbackUserData: UserData = {
             id: currentUser.uid,
-            role: 'student',
+            role: localStorage.getItem('user_role') || 'student',
             email: currentUser.email || '',
             firstName: currentUser.displayName?.split(' ')[0] || 'User',
             lastName: currentUser.displayName?.split(' ').slice(1).join(' ') || '',

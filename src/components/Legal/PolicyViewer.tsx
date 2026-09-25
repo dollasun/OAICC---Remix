@@ -66,17 +66,18 @@ export default function PolicyViewer() {
   // Detect if user has a locked/known role
   const hasUserAccount = Boolean(storedRole);
   
-  const inferredRole: UserRole | null = useMemo(() => {
+  const inferredRole: UserRole = useMemo(() => {
     if (roleFromQuery && ROLES.some(r => r.id === roleFromQuery)) return roleFromQuery;
-    if (storedRole && ROLES.some(r => r.id === storedRole)) return storedRole;
-    if (requestedPolicy && requestedPolicy.applicableRoles.length === 2 && requestedPolicy.applicableRoles.includes('admin')) {
-      const specificRole = requestedPolicy.applicableRoles.find(r => r !== 'admin');
-      if (specificRole) return specificRole;
+    if (requestedPolicy) {
+      if (storedRole && requestedPolicy.applicableRoles.includes(storedRole)) return storedRole;
+      const nonAdmin = requestedPolicy.applicableRoles.find(r => r !== 'admin');
+      if (nonAdmin) return nonAdmin;
     }
-    return null;
+    if (storedRole && ROLES.some(r => r.id === storedRole)) return storedRole;
+    return 'student';
   }, [roleFromQuery, storedRole, requestedPolicy]);
 
-  const [activeRole, setActiveRole] = useState<UserRole>(inferredRole || 'student');
+  const [activeRole, setActiveRole] = useState<UserRole>(inferredRole);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSectionId, setActiveSectionId] = useState<string>('');
 
@@ -85,6 +86,21 @@ export default function PolicyViewer() {
       setActiveRole(inferredRole);
     }
   }, [inferredRole]);
+
+  // Deep linking to section anchors (e.g., #terms-sec-2)
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setActiveSectionId(id);
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, requestedPolicy]);
 
   // STRICT ACCESS: Only policies that concern the active user type
   const visiblePolicies = useMemo(() => {

@@ -27,11 +27,13 @@ import {
   ThumbsUp,
   ThumbsDown,
   MessageCircle,
-  Settings
+  Settings,
+  Sparkles
 } from 'lucide-react';
 import { careersStorage } from '../../../utils/storage';
 import { careerGlossary } from '../../../data/careers';
 import { getTopRecommendedCareers } from '../../../utils/recommendations';
+import { getArticleReaction, voteArticle, ArticleFeedback } from '../../../utils/articleReactions';
 
 export default function CareerDetails() {
   const { id } = useParams();
@@ -48,12 +50,28 @@ export default function CareerDetails() {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Comments state
-  const [comments, setComments] = useState<any[]>([
-    { id: 'c1', author: 'Sarah Miller', text: 'This is so helpful! I never knew product design involved so much research.', time: '2h ago', avatar: 'https://picsum.photos/seed/s1/100/100' },
-    { id: 'c2', author: 'Alex Chen', text: 'Great article. The part about Maxwell\'s equations was a bit unexpected but interesting.', time: '1h ago', avatar: 'https://picsum.photos/seed/s2/100/100' }
-  ]);
-  const [newComment, setNewComment] = useState('');
+  // Article Feedback State (Likes & Dislikes)
+  const [articleFeedback, setArticleFeedback] = useState<ArticleFeedback>({ likes: 0, dislikes: 0, userVote: null });
+
+  useEffect(() => {
+    if (selectedArticle) {
+      setArticleFeedback(getArticleReaction(selectedArticle.id));
+    }
+  }, [selectedArticle]);
+
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      if (selectedArticle && String(e.detail?.articleId) === String(selectedArticle.id)) {
+        setArticleFeedback({
+          likes: e.detail.likes,
+          dislikes: e.detail.dislikes,
+          userVote: e.detail.userVote
+        });
+      }
+    };
+    window.addEventListener('article_reactions_updated', handleSync);
+    return () => window.removeEventListener('article_reactions_updated', handleSync);
+  }, [selectedArticle]);
 
   useEffect(() => {
     const topCareers = getTopRecommendedCareers(24);
@@ -205,10 +223,36 @@ export default function CareerDetails() {
           { id: 'v1', title: `A Day in the Life of a ${found.title}`, author: 'Career Spotlight', category: found.category, thumbnail: `https://picsum.photos/seed/v1-${found.id}/400/225`, duration: '10:15' },
           { id: 'v2', title: `Top Skills Required for ${found.title}`, author: 'Industry Experts', category: found.category, thumbnail: `https://picsum.photos/seed/v2-${found.id}/400/225`, duration: '14:30' }
         ],
-        articles: [
-          { id: 'a1', title: `Industry Trends & Outlook for ${found.title}`, author: 'Career Insights', category: found.category, readTime: '5 mins read', image: `https://picsum.photos/seed/a1-${found.id}/400/250` },
-          { id: 'a2', title: `How to Build a Portfolio as a ${found.title}`, author: 'Mentor Network', category: found.category, readTime: '7 mins read', image: `https://picsum.photos/seed/a2-${found.id}/400/250` }
-        ],
+        articles: (found.articleItems && found.articleItems.length > 0)
+          ? found.articleItems.map((a: any) => ({
+              id: a.id,
+              title: a.title,
+              author: a.author || 'Career Insights',
+              category: found.category,
+              readTime: a.readTime || (a.readTimeMinutes ? `${a.readTimeMinutes} mins read` : '5 mins read'),
+              image: a.thumbnail || `https://picsum.photos/seed/${a.id}/400/250`,
+              about: a.about
+            }))
+          : [
+              { 
+                id: 'a1', 
+                title: `Industry Trends & Outlook for ${found.title}`, 
+                author: 'Career Insights', 
+                category: found.category, 
+                readTime: '5 mins read', 
+                image: `https://picsum.photos/seed/a1-${found.id}/400/250`,
+                about: `<p>Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves with a characteristic velocity. The modern view is that light needs no medium of transmission, but Maxwell and his contemporaries were convinced that light waves were propagated in a medium, analogous to sound propagating in air, and ripples propagating on the surface of a pond.</p><p class="mt-4">This hypothetical medium was called the luminiferous aether, at rest relative to the "fixed stars" and through which the Earth moves. In this comprehensive guide, we delve into how emerging technological trends, automated tools, and digital transformation are reshaping workflows and creating new frontiers of opportunity for aspiring professionals.</p><h3 class="text-xl font-bold text-slate-900 mt-6 mb-3">Key Industry Takeaways</h3><ul class="list-disc list-inside space-y-2 text-slate-600"><li><strong>Automation and Intelligence:</strong> Modern tooling streamlines repetitive tasks, shifting the focus towards creative strategy and analytical depth.</li><li><strong>Interdisciplinary Versatility:</strong> Employers strongly favour candidates who blend deep domain expertise with solid communication and problem-solving skills.</li><li><strong>Continuous Professional Growth:</strong> Engaging with active communities, mentorship networks, and relevant industry publications helps you stay ahead of technological curves.</li></ul>`
+              },
+              { 
+                id: 'a2', 
+                title: `How to Build a Portfolio as a ${found.title}`, 
+                author: 'Mentor Network', 
+                category: found.category, 
+                readTime: '7 mins read', 
+                image: `https://picsum.photos/seed/a2-${found.id}/400/250`,
+                about: `<p>A high-impact portfolio is one of your most valuable assets when seeking internships, entry-level opportunities, or academic sponsorships.</p><p class="mt-4">Highlight 3-5 well-documented case studies rather than a long list of unfinished demos. Explain the context, your specific contributions, and the measurable results achieved.</p>`
+              }
+            ],
         resources: [
           { id: 'r1', title: `${found.title} Starter Career Roadmap`, author: 'OAICC Learning', thumbnail: `https://picsum.photos/seed/r1-${found.id}/400/250` }
         ]
@@ -216,18 +260,15 @@ export default function CareerDetails() {
     }
   }, [id]);
 
-  const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    const comment = {
-      id: `c-${Date.now()}`,
-      author: 'Bolu Ahmed',
-      text: newComment,
-      time: 'Just now',
-      avatar: 'https://picsum.photos/seed/student/100/100'
-    };
-    setComments([comment, ...comments]);
-    setNewComment('');
-    showToast('Comment posted successfully!');
+  const handleVote = (voteType: 'like' | 'dislike') => {
+    if (!selectedArticle) return;
+    const res = voteArticle(selectedArticle.id, voteType);
+    setArticleFeedback(res);
+    if (res.userVote === 'like') {
+      showToast('Liked! Thanks for your feedback.');
+    } else if (res.userVote === 'dislike') {
+      showToast('Feedback noted.');
+    }
   };
 
   const togglePlay = () => {
@@ -433,21 +474,34 @@ export default function CareerDetails() {
                         <button onClick={() => setViewMode('articles')} className="text-sm text-brand hover:underline">View all</button>
                       </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {career.articles.map((article) => (
-                          <motion.div 
-                            key={article.id}
-                            whileHover={{ y: -5 }}
-                            onClick={() => setSelectedArticle(article)}
-                            className="group cursor-pointer flex gap-4 p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-brand/20 transition-all"
-                          >
-                            <img src={article.image} alt={article.title} className="w-24 h-24 rounded-xl object-cover" />
-                            <div className="flex-1 py-1">
-                              <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors mb-1">{article.title}</h4>
-                              <p className="text-xs text-slate-500 font-medium mb-2">{article.author} • {article.category}</p>
-                              <span className="text-[10px] font-bold text-brand uppercase tracking-wider">{article.readTime}</span>
-                            </div>
-                          </motion.div>
-                        ))}
+                        {career.articles.map((article: any) => {
+                          const rx = getArticleReaction(article.id);
+                          return (
+                            <motion.div 
+                              key={article.id}
+                              whileHover={{ y: -5 }}
+                              onClick={() => setSelectedArticle(article)}
+                              className="group cursor-pointer flex gap-4 p-4 bg-slate-50 rounded-2xl border border-transparent hover:border-brand/20 transition-all"
+                            >
+                              <img src={article.image} alt={article.title} className="w-24 h-24 rounded-xl object-cover" />
+                              <div className="flex-1 py-1 flex flex-col justify-between">
+                                <div>
+                                  <h4 className="font-bold text-slate-900 group-hover:text-brand transition-colors mb-1 line-clamp-1">{article.title}</h4>
+                                  <p className="text-xs text-slate-500 font-medium mb-2">{article.author} • {article.category}</p>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-[10px] font-bold text-brand uppercase tracking-wider">{article.readTime}</span>
+                                  <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                                    <ThumbsUp className="w-3 h-3 fill-emerald-500 text-emerald-600" /> {rx.likes}
+                                  </span>
+                                  <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-200/50 px-2 py-0.5 rounded-md">
+                                    <ThumbsDown className="w-3 h-3" /> {rx.dislikes}
+                                  </span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -635,26 +689,41 @@ export default function CareerDetails() {
             <h2 className="text-3xl font-bold text-slate-900">All Articles</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {career.articles.map((article) => (
-              <motion.div 
-                key={article.id}
-                whileHover={{ y: -5 }}
-                onClick={() => setSelectedArticle(article)}
-                className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group cursor-pointer flex gap-6"
-              >
-                <img src={article.image} alt={article.title} className="w-32 h-32 rounded-2xl object-cover" />
-                <div className="flex-1 py-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-3 py-1 bg-brand/10 text-brand text-[10px] font-bold uppercase tracking-wider rounded-full">
-                      {article.category}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">• {article.readTime}</span>
+            {career.articles.map((article: any) => {
+              const rx = getArticleReaction(article.id);
+              return (
+                <motion.div 
+                  key={article.id}
+                  whileHover={{ y: -5 }}
+                  onClick={() => setSelectedArticle(article)}
+                  className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-sm transition-all group cursor-pointer flex gap-6"
+                >
+                  <img src={article.image} alt={article.title} className="w-32 h-32 rounded-2xl object-cover" />
+                  <div className="flex-1 py-2 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-3 py-1 bg-brand/10 text-brand text-[10px] font-bold uppercase tracking-wider rounded-full">
+                          {article.category}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-brand" /> {article.readTime}
+                        </span>
+                      </div>
+                      <h4 className="text-xl font-bold text-slate-900 group-hover:text-brand transition-colors mb-1">{article.title}</h4>
+                      <p className="text-sm text-slate-500 font-medium">By {article.author}</p>
+                    </div>
+                    <div className="flex items-center gap-3 mt-3">
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">
+                        <ThumbsUp className="w-3 h-3 fill-emerald-500 text-emerald-600" /> {rx.likes} Likes
+                      </span>
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                        <ThumbsDown className="w-3 h-3" /> {rx.dislikes}
+                      </span>
+                    </div>
                   </div>
-                  <h4 className="text-xl font-bold text-slate-900 group-hover:text-brand transition-colors mb-2">{article.title}</h4>
-                  <p className="text-sm text-slate-500 font-medium">By {article.author}</p>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       ) : (
@@ -770,117 +839,163 @@ export default function CareerDetails() {
         {selectedArticle && (
           <div className="fixed inset-0 z-[100] bg-white flex overflow-hidden">
             <div className="flex-1 flex flex-col overflow-y-auto">
-              <header className="h-20 px-8 flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white z-10">
+              <header className="h-20 px-6 sm:px-10 flex items-center justify-between border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10">
                 <button 
                   onClick={() => setSelectedArticle(null)}
-                  className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all"
+                  className="flex items-center gap-2 p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
+                  title="Back to Career"
                 >
-                  <ArrowLeft className="w-6 h-6" />
+                  <ArrowLeft className="w-5 h-5" />
+                  <span className="text-xs font-bold hidden sm:inline">Back</span>
                 </button>
-                <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-brand/10 text-brand font-bold rounded-lg">
-                    <CheckCircle2 className="w-4 h-4" /> Saved
+
+                <div className="flex items-center gap-2 sm:gap-3">
+                  {/* Thumbs Up (Like) */}
+                  <button 
+                    onClick={() => handleVote('like')}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      articleFeedback.userVote === 'like'
+                        ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200/80'
+                    }`}
+                    title="Like this article"
+                  >
+                    <ThumbsUp className={`w-4 h-4 ${articleFeedback.userVote === 'like' ? 'fill-emerald-500 text-emerald-600' : ''}`} />
+                    <span>{articleFeedback.likes}</span>
+                    <span className="hidden sm:inline font-medium">Likes</span>
                   </button>
-                  <button className="p-2 text-slate-400 hover:text-slate-900">
+
+                  {/* Thumbs Down (Dislike) */}
+                  <button 
+                    onClick={() => handleVote('dislike')}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      articleFeedback.userVote === 'dislike'
+                        ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-slate-200/80'
+                    }`}
+                    title="Dislike this article"
+                  >
+                    <ThumbsDown className={`w-4 h-4 ${articleFeedback.userVote === 'dislike' ? 'fill-rose-500 text-rose-600' : ''}`} />
+                    <span>{articleFeedback.dislikes}</span>
+                  </button>
+
+                  <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block" />
+
+                  <button 
+                    onClick={() => setIsSaved(!isSaved)}
+                    className={`flex items-center gap-2 px-4 py-2 font-bold rounded-xl text-xs transition-all ${
+                      isSaved ? 'bg-brand text-white shadow-sm' : 'bg-brand/10 text-brand hover:bg-brand/20'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> {isSaved ? 'Saved' : 'Save'}
+                  </button>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard?.writeText(window.location.href);
+                      showToast('Article link copied to clipboard!');
+                    }}
+                    className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-colors"
+                    title="Share article"
+                  >
                     <Share2 className="w-5 h-5" />
                   </button>
                 </div>
               </header>
 
-              <div className="max-w-3xl mx-auto py-12 px-8 space-y-8">
+              {/* Main Reading Canvas (Distraction-Free) */}
+              <div className="max-w-4xl mx-auto w-full py-12 px-6 sm:px-10 space-y-8">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="px-3 py-1 bg-brand/10 text-brand text-[10px] font-bold uppercase tracking-wider rounded-full">
-                      {selectedArticle.category}
+                      {selectedArticle.category || career.category}
                     </span>
-                    <span className="text-xs text-slate-400 font-bold">• {selectedArticle.readTime}</span>
+                    <span className="text-xs text-slate-400 font-bold flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" /> {selectedArticle.readTime || '5 mins read'}
+                    </span>
                   </div>
-                  <h1 className="text-4xl font-bold text-slate-900 mb-6">{selectedArticle.title}</h1>
-                  <div className="flex items-center gap-4">
-                    <img src="https://picsum.photos/seed/author/100/100" className="w-10 h-10 rounded-full" alt="Author" />
+                  <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight mb-6">
+                    {selectedArticle.title}
+                  </h1>
+                  <div className="flex items-center gap-4 py-2 border-y border-slate-100">
+                    <img 
+                      src={`https://picsum.photos/seed/${selectedArticle.author || 'author'}/100/100`} 
+                      className="w-11 h-11 rounded-full object-cover border-2 border-slate-100" 
+                      alt={selectedArticle.author} 
+                    />
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{selectedArticle.author}</p>
-                      <p className="text-xs text-slate-500 font-medium">Software development • 5 mins read</p>
+                      <p className="text-sm font-bold text-slate-900">{selectedArticle.author || 'Career Insights'}</p>
+                      <p className="text-xs text-slate-500 font-medium">
+                        {career.title} • {selectedArticle.readTime || '5 mins read'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <img src={selectedArticle.image} className="w-full aspect-video rounded-2xl object-cover shadow-sm" alt="Article" />
-
-                <div className="prose prose-slate max-w-none">
-                  <p className="text-lg text-slate-600 leading-relaxed font-medium">
-                    Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves with a characteristic velocity. The modern view is that light needs no medium of transmission, but Maxwell and his contemporaries were convinced that light waves were propagated in a medium, analogous to sound propagating in air, and ripples propagating on the surface of a pond. This hypothetical medium was called the luminiferous aether, at rest relative to the "fixed stars" and through which the Earth moves. Fresnel's partial ether dragging hypothesis ruled out the measurement of first-order (v/c) effects, and although observations of second-order effects (v2/c2) were possible in principle, Maxwell thought they were too small to be detected with then-current technology.
-                  </p>
-                  <p className="text-lg text-slate-600 leading-relaxed font-medium mt-6">
-                    Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves with a characteristic velocity. The modern view is that light needs no medium of transmission, but Maxwell and his contemporaries were convinced that light waves were propagated in a medium, analogous to sound propagating in air, and ripples propagating on the surface of a pond. This hypothetical medium was called the luminiferous aether, at rest relative to the "fixed stars" and through which the Earth moves. Fresnel's partial ether dragging hypothesis ruled out the measurement of first-order (v/c) effects, and although observations of second-order effects (v2/c2) were possible in principle, Maxwell thought they were too small to be detected with then-current technology.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Comments Sidebar */}
-            <div className="w-96 border-l border-slate-100 bg-slate-50 flex flex-col hidden xl:flex">
-              <div className="p-8 border-b border-slate-100 bg-white flex items-center justify-between">
-                <h3 className="text-xl font-bold text-slate-900">Comments</h3>
-                <span className="px-2.5 py-1 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold">{comments.length}</span>
-              </div>
-              <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-                {comments.length > 0 ? (
-                  comments.map((comment) => (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      key={comment.id} 
-                      className="space-y-2"
-                    >
-                      <div className="flex items-center gap-3">
-                        <img src={comment.avatar} className="w-8 h-8 rounded-full" alt={comment.author} />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900">{comment.author}</p>
-                          <p className="text-[10px] text-slate-400 font-bold">{comment.time}</p>
-                        </div>
-                      </div>
-                      <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-                        <p className="text-sm text-slate-600 leading-relaxed">{comment.text}</p>
-                      </div>
-                      <div className="flex items-center gap-4 px-2">
-                        <button className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-brand transition-colors">
-                          <ThumbsUp className="w-3 h-3" /> Like
-                        </button>
-                        <button className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 hover:text-red-500 transition-colors">
-                          <ThumbsDown className="w-3 h-3" /> Dislike
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="text-center py-12">
-                    <MessageCircle className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                    <p className="text-sm font-bold text-slate-400">Be the first to leave a comment</p>
-                  </div>
-                )}
-              </div>
-              <div className="p-6 bg-white border-t border-slate-100">
-                <div className="relative">
-                  <textarea 
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Leave a comment..." 
-                    className="w-full p-4 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none h-24"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAddComment();
-                      }
-                    }}
+                <div className="rounded-2xl overflow-hidden shadow-sm border border-slate-100">
+                  <img 
+                    src={selectedArticle.image || selectedArticle.thumbnail} 
+                    className="w-full max-h-[480px] object-cover" 
+                    alt={selectedArticle.title} 
                   />
-                  <button 
-                    onClick={handleAddComment}
-                    disabled={!newComment.trim()}
-                    className="absolute bottom-3 right-3 p-2 bg-brand text-white rounded-lg shadow-sm shadow-brand/5 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
+                </div>
+
+                {/* Article Content / Rich Text */}
+                <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base sm:text-lg">
+                  {selectedArticle.about ? (
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: selectedArticle.about }} 
+                      className="space-y-4"
+                    />
+                  ) : (
+                    <>
+                      <p className="font-medium text-slate-600 leading-relaxed">
+                        Maxwell's equations—the foundation of classical electromagnetism—describe light as a wave that moves with a characteristic velocity. The modern view is that light needs no medium of transmission, but Maxwell and his contemporaries were convinced that light waves were propagated in a medium, analogous to sound propagating in air, and ripples propagating on the surface of a pond.
+                      </p>
+                      <p className="font-medium text-slate-600 leading-relaxed mt-4">
+                        This hypothetical medium was called the luminiferous aether, at rest relative to the "fixed stars" and through which the Earth moves. In this comprehensive guide, we delve into how emerging technological trends, automated tools, and digital transformation are reshaping workflows and creating new frontiers of opportunity for aspiring professionals.
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {/* Article Interactive Feedback Section */}
+                <div className="mt-12 pt-8 border-t border-slate-200/80">
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div>
+                      <h4 className="text-base sm:text-lg font-bold text-slate-900">
+                        Was this article helpful?
+                      </h4>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                        Your feedback helps us curate higher-quality guidance for future careers.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleVote('like')}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm ${
+                          articleFeedback.userVote === 'like'
+                            ? 'bg-emerald-600 text-white shadow-emerald-600/20 scale-105'
+                            : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-emerald-700 border border-slate-200'
+                        }`}
+                      >
+                        <ThumbsUp className={`w-4 h-4 ${articleFeedback.userVote === 'like' ? 'fill-white' : ''}`} />
+                        <span>Helpful ({articleFeedback.likes})</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleVote('dislike')}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm ${
+                          articleFeedback.userVote === 'dislike'
+                            ? 'bg-rose-600 text-white shadow-rose-600/20 scale-105'
+                            : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-rose-700 border border-slate-200'
+                        }`}
+                      >
+                        <ThumbsDown className={`w-4 h-4 ${articleFeedback.userVote === 'dislike' ? 'fill-white' : ''}`} />
+                        <span>Not helpful ({articleFeedback.dislikes})</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

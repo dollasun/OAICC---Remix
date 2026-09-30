@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { counselorsStorage, counselorRequestsStorage, studentsStorage, counselingSessionsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import BulkActionBar from '../../Common/BulkActionBar';
+import BulkDeleteModal from '../../Common/BulkDeleteModal';
 
 const initialCounselors = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Counselor', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/c1/100/100', assignedStudents: 7 },
@@ -143,12 +145,53 @@ export default function AdminCounselors() {
     setIsInviteModalOpen(true);
   };
 
-  const handleDeleteCounselor = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this counselor?')) {
-      const updated = counselors.filter(c => c.id !== id);
+  const [selectedCounselorIds, setSelectedCounselorIds] = useState<number[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isAllSelected = filteredCounselors.length > 0 && filteredCounselors.every(c => selectedCounselorIds.includes(c.id));
+  const isIndeterminate = selectedCounselorIds.length > 0 && !isAllSelected;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedCounselorIds([]);
+    } else {
+      setSelectedCounselorIds(filteredCounselors.map(c => c.id));
+    }
+  };
+
+  const toggleSelectCounselor = (id: number) => {
+    setSelectedCounselorIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handlePromptSingleDelete = (counselor: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setItemsToDelete([counselor]);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDelete = () => {
+    const selected = counselors.filter(c => selectedCounselorIds.includes(c.id));
+    setItemsToDelete(selected);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setIsDeleting(true);
+    try {
+      const idsToDelete = new Set(itemsToDelete.map(c => c.id));
+      const updated = counselors.filter(c => !idsToDelete.has(c.id));
       setCounselors(updated);
       counselorsStorage.save(updated);
-      showToast('Counselor deleted successfully!');
+      setSelectedCounselorIds(prev => prev.filter(id => !idsToDelete.has(id)));
+      showToast(`Successfully deleted ${itemsToDelete.length} counselor${itemsToDelete.length === 1 ? '' : 's'}!`);
+      setIsDeleteModalOpen(false);
+      setItemsToDelete([]);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -156,7 +199,14 @@ export default function AdminCounselors() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Counselor Management</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">Counselor Management</h1>
+            {selectedCounselorIds.length > 0 && (
+              <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
+                {selectedCounselorIds.length} selected
+              </span>
+            )}
+          </div>
           <p className="text-slate-500 font-medium mt-1">Manage academic counselors and invite new team members.</p>
         </div>
         <button 
@@ -217,61 +267,97 @@ export default function AdminCounselors() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50">
-                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
-                    <th className="px-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                    <th className="px-6 py-4 w-12 text-center">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all visible counselors"
+                        checked={isAllSelected}
+                        ref={(el) => {
+                          if (el) el.indeterminate = isIndeterminate;
+                        }}
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                      />
+                    </th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Assigned</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
+                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {filteredCounselors.map((counselor) => (
-                    <tr 
-                      key={counselor.id} 
-                      onClick={() => setSelectedCounselor(counselor)}
-                      className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                    >
-                      <td className="px-8 py-4">
-                        <div className="flex items-center gap-3">
-                          <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-lg object-cover" />
-                          <span className="font-bold text-slate-900">{counselor.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.email}</td>
-                      <td className="px-8 py-4">
-                        <div className="flex items-center gap-3">
-                          <span className="font-bold text-slate-700">{counselor.assignedStudents || 0}</span>
-                          <button 
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedCounselor(counselor);
-                              setIsAssignModalOpen(true);
-                            }}
-                            className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-100 rounded-lg text-[10px] font-bold hover:bg-brand hover:text-white hover:border-brand transition-all"
-                          >
-                            + Assign Student
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-8 py-4 text-sm font-medium text-slate-500">{counselor.date.split(',')[0]}</td>
-                      <td className="px-8 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button 
-                            onClick={(e) => handleEditCounselor(counselor, e)}
-                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); handleDeleteCounselor(counselor.id); }}
-                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                  {filteredCounselors.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                        No counselors found matching your search.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredCounselors.map((counselor) => {
+                      const isSelected = selectedCounselorIds.includes(counselor.id);
+                      return (
+                        <tr 
+                          key={counselor.id} 
+                          onClick={() => setSelectedCounselor(counselor)}
+                          className={`hover:bg-slate-50/70 transition-colors group cursor-pointer ${
+                            isSelected ? 'bg-brand/[0.04]' : ''
+                          }`}
+                        >
+                          <td className="px-6 py-4 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${counselor.name}`}
+                              checked={isSelected}
+                              onChange={() => toggleSelectCounselor(counselor.id)}
+                              className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <img src={counselor.avatar} alt={counselor.name} className="w-10 h-10 rounded-lg object-cover" />
+                              <span className="font-bold text-slate-900">{counselor.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-500">{counselor.email}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <span className="font-bold text-slate-700">{counselor.assignedStudents || 0}</span>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCounselor(counselor);
+                                  setIsAssignModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 bg-slate-50 text-slate-600 border border-slate-100 rounded-lg text-[10px] font-bold hover:bg-brand hover:text-white hover:border-brand transition-all"
+                              >
+                                + Assign Student
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-500">{counselor.date.split(',')[0]}</td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={(e) => handleEditCounselor(counselor, e)}
+                                title="Edit counselor"
+                                className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button 
+                                onClick={(e) => handlePromptSingleDelete(counselor, e)}
+                                title="Delete counselor"
+                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -594,6 +680,39 @@ export default function AdminCounselors() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating Bulk Action Bar */}
+      <BulkActionBar
+        selectedCount={selectedCounselorIds.length}
+        totalCount={filteredCounselors.length}
+        itemLabel="counselor"
+        onClearSelection={() => setSelectedCounselorIds([])}
+        onSelectAll={() => setSelectedCounselorIds(filteredCounselors.map(c => c.id))}
+        onDeleteSelected={handlePromptBulkDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setItemsToDelete([]);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        itemCount={itemsToDelete.length}
+        itemType="Counselor"
+        items={itemsToDelete.map(c => ({
+          id: c.id,
+          name: c.name,
+          role: c.role,
+          email: c.email,
+          avatar: c.avatar
+        }))}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

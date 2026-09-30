@@ -23,6 +23,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { mentorsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import BulkActionBar from '../../Common/BulkActionBar';
+import BulkDeleteModal from '../../Common/BulkDeleteModal';
 
 const initialMentors = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Design', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/m1/100/100' },
@@ -65,6 +67,11 @@ export default function AdminMentors() {
   const [searchColumn, setSearchColumn] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
 
+  const [selectedMentorIds, setSelectedMentorIds] = useState<number[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     setMentors(mentorsStorage.get(initialMentors));
   }, []);
@@ -88,6 +95,51 @@ export default function AdminMentors() {
     return 0; // Default to initial order for 'newest'
   });
 
+  const isAllSelected = filteredMentors.length > 0 && filteredMentors.every(m => selectedMentorIds.includes(m.id));
+  const isIndeterminate = selectedMentorIds.length > 0 && !isAllSelected;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedMentorIds([]);
+    } else {
+      setSelectedMentorIds(filteredMentors.map(m => m.id));
+    }
+  };
+
+  const toggleSelectMentor = (id: number) => {
+    setSelectedMentorIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handlePromptSingleDelete = (mentor: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setItemsToDelete([mentor]);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDelete = () => {
+    const selected = mentors.filter(m => selectedMentorIds.includes(m.id));
+    setItemsToDelete(selected);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setIsDeleting(true);
+    try {
+      const idsToDelete = new Set(itemsToDelete.map(m => m.id));
+      const updated = mentors.filter(m => !idsToDelete.has(m.id));
+      setMentors(updated);
+      mentorsStorage.save(updated);
+      setSelectedMentorIds(prev => prev.filter(id => !idsToDelete.has(id)));
+      showToast(`Successfully deleted ${itemsToDelete.length} mentor${itemsToDelete.length === 1 ? '' : 's'}!`);
+      setIsDeleteModalOpen(false);
+      setItemsToDelete([]);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getSearchPlaceholder = () => {
     switch (searchColumn) {
       case 'Mentors Name':
@@ -99,21 +151,18 @@ export default function AdminMentors() {
     }
   };
 
-  const handleDeleteMentor = (id: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this mentor? This action cannot be undone.')) {
-      const updated = mentors.filter(m => m.id !== id);
-      setMentors(updated);
-      mentorsStorage.save(updated);
-      showToast('Mentor deleted successfully!');
-    }
-  };
-
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Mentor Management</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">Mentor Management</h1>
+            {selectedMentorIds.length > 0 && (
+              <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
+                {selectedMentorIds.length} selected
+              </span>
+            )}
+          </div>
           <p className="text-slate-500 font-medium mt-1">Manage professional mentors and their profiles.</p>
         </div>
         <button 
@@ -182,55 +231,124 @@ export default function AdminMentors() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Career</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all visible mentors"
+                    checked={isAllSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isIndeterminate;
+                    }}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                  />
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Career</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filteredMentors.map((mentor) => (
-                <tr 
-                  key={mentor.id} 
-                  onClick={() => navigate(`/admin/mentors/${mentor.id}`)}
-                  className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                >
-                  <td className="px-8 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={mentor.avatar} alt={mentor.name} className="w-10 h-10 rounded-lg object-cover" />
-                      <span className="font-bold text-slate-900">{mentor.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{mentor.email}</td>
-                  <td className="px-8 py-4">
-                    <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                      {mentor.role}
-                    </span>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{mentor.date}</td>
-                  <td className="px-8 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); navigate(`/admin/mentors/edit/${mentor.id}`); }}
-                        className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
-                      >
-                        <Edit2 className="w-5 h-5" />
-                      </button>
-                      <button 
-                        onClick={(e) => handleDeleteMentor(mentor.id, e)}
-                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
+              {filteredMentors.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                    No mentors found matching your search.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredMentors.map((mentor) => {
+                  const isSelected = selectedMentorIds.includes(mentor.id);
+                  return (
+                    <tr 
+                      key={mentor.id} 
+                      onClick={() => navigate(`/admin/mentors/${mentor.id}`)}
+                      className={`hover:bg-slate-50/70 transition-colors group cursor-pointer ${
+                        isSelected ? 'bg-brand/[0.04]' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${mentor.name}`}
+                          checked={isSelected}
+                          onChange={() => toggleSelectMentor(mentor.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img src={mentor.avatar} alt={mentor.name} className="w-10 h-10 rounded-lg object-cover" />
+                          <span className="font-bold text-slate-900">{mentor.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{mentor.email}</td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                          {mentor.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{mentor.date}</td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); navigate(`/admin/mentors/edit/${mentor.id}`); }}
+                            title="Edit mentor"
+                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={(e) => handlePromptSingleDelete(mentor, e)}
+                            title="Delete mentor"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Floating Bulk Action Bar */}
+      <BulkActionBar
+        selectedCount={selectedMentorIds.length}
+        totalCount={filteredMentors.length}
+        itemLabel="mentor"
+        onClearSelection={() => setSelectedMentorIds([])}
+        onSelectAll={() => setSelectedMentorIds(filteredMentors.map(m => m.id))}
+        onDeleteSelected={handlePromptBulkDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setItemsToDelete([]);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        itemCount={itemsToDelete.length}
+        itemType="Mentor"
+        items={itemsToDelete.map(m => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          email: m.email,
+          avatar: m.avatar
+        }))}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

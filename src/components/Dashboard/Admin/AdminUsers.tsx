@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { adminUsersStorage, adminRolesStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import BulkActionBar from '../../Common/BulkActionBar';
+import BulkDeleteModal from '../../Common/BulkDeleteModal';
 
 const initialAdminUsers = [
   { id: 1, name: 'Mason Elpi', email: 'elpi@example.com', role: 'Super Admin', status: 'Accepted', date: 'Jan 6, 2022 4:26 PM', avatar: 'https://picsum.photos/seed/a1/100/100' },
@@ -59,6 +61,19 @@ export default function AdminUsers() {
   const [roles, setRoles] = useState<any[]>([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', role: 'Admin' });
   const [newRole, setNewRole] = useState({ name: '', permissions: 'Limited Access' });
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Selection states
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [selectedRoleIds, setSelectedRoleIds] = useState<number[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{
+    count: number;
+    type: string;
+    items: any[];
+    onConfirm: () => void;
+  } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setUsers(adminUsersStorage.get(initialAdminUsers));
@@ -98,22 +113,139 @@ export default function AdminUsers() {
     showToast('Admin role created successfully!');
   };
 
-  const handleDeleteUser = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this admin user?')) {
-      const updated = users.filter(u => u.id !== id);
-      setUsers(updated);
-      adminUsersStorage.save(updated);
-      showToast('Admin user deleted successfully!');
+  // Filtered users
+  const filteredUsers = users.filter(u =>
+    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.role.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Users selection logic
+  const isAllUsersSelected = filteredUsers.length > 0 && filteredUsers.every(u => selectedUserIds.includes(u.id));
+  const isUsersIndeterminate = selectedUserIds.length > 0 && !isAllUsersSelected;
+
+  const toggleSelectAllUsers = () => {
+    if (isAllUsersSelected) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(filteredUsers.map(u => u.id));
     }
   };
 
-  const handleDeleteRole = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this role?')) {
-      const updated = roles.filter(r => r.id !== id);
-      setRoles(updated);
-      adminRolesStorage.save(updated);
-      showToast('Admin role deleted successfully!');
+  const toggleSelectUser = (id: number) => {
+    setSelectedUserIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handlePromptSingleDeleteUser = (user: any) => {
+    setModalConfig({
+      count: 1,
+      type: 'Admin User',
+      items: [{ id: user.id, name: user.name, role: user.role, email: user.email, avatar: user.avatar }],
+      onConfirm: () => {
+        setIsDeleting(true);
+        try {
+          const updated = users.filter(u => u.id !== user.id);
+          setUsers(updated);
+          adminUsersStorage.save(updated);
+          setSelectedUserIds(prev => prev.filter(id => id !== user.id));
+          showToast('Admin user deleted successfully!');
+          setIsDeleteModalOpen(false);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDeleteUsers = () => {
+    const selected = users.filter(u => selectedUserIds.includes(u.id));
+    setModalConfig({
+      count: selected.length,
+      type: 'Admin User',
+      items: selected.map(u => ({ id: u.id, name: u.name, role: u.role, email: u.email, avatar: u.avatar })),
+      onConfirm: () => {
+        setIsDeleting(true);
+        try {
+          const idsToDelete = new Set(selectedUserIds);
+          const updated = users.filter(u => !idsToDelete.has(u.id));
+          setUsers(updated);
+          adminUsersStorage.save(updated);
+          setSelectedUserIds([]);
+          showToast(`Successfully deleted ${selected.length} admin user${selected.length === 1 ? '' : 's'}!`);
+          setIsDeleteModalOpen(false);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    });
+    setIsDeleteModalOpen(true);
+  };
+
+  // Roles selection logic
+  const isAllRolesSelected = roles.length > 0 && roles.every(r => selectedRoleIds.includes(r.id));
+  const isRolesIndeterminate = selectedRoleIds.length > 0 && !isAllRolesSelected;
+
+  const toggleSelectAllRoles = () => {
+    if (isAllRolesSelected) {
+      setSelectedRoleIds([]);
+    } else {
+      setSelectedRoleIds(roles.map(r => r.id));
     }
+  };
+
+  const toggleSelectRole = (id: number) => {
+    setSelectedRoleIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handlePromptSingleDeleteRole = (role: any) => {
+    setModalConfig({
+      count: 1,
+      type: 'Role',
+      items: [{ id: role.id, name: role.name, role: role.permissions }],
+      onConfirm: () => {
+        setIsDeleting(true);
+        try {
+          const updated = roles.filter(r => r.id !== role.id);
+          setRoles(updated);
+          adminRolesStorage.save(updated);
+          setSelectedRoleIds(prev => prev.filter(id => id !== role.id));
+          showToast('Role deleted successfully!');
+          setIsDeleteModalOpen(false);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDeleteRoles = () => {
+    const selected = roles.filter(r => selectedRoleIds.includes(r.id));
+    setModalConfig({
+      count: selected.length,
+      type: 'Role',
+      items: selected.map(r => ({ id: r.id, name: r.name, role: r.permissions })),
+      onConfirm: () => {
+        setIsDeleting(true);
+        try {
+          const idsToDelete = new Set(selectedRoleIds);
+          const updated = roles.filter(r => !idsToDelete.has(r.id));
+          setRoles(updated);
+          adminRolesStorage.save(updated);
+          setSelectedRoleIds([]);
+          showToast(`Successfully deleted ${selected.length} role${selected.length === 1 ? '' : 's'}!`);
+          setIsDeleteModalOpen(false);
+        } finally {
+          setIsDeleting(false);
+        }
+      }
+    });
+    setIsDeleteModalOpen(true);
   };
 
   return (
@@ -164,13 +296,22 @@ export default function AdminUsers() {
       {activeTab === 'users' ? (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search admin users..." 
-                className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
-              />
+            <div className="flex items-center gap-4 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search admin users..." 
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-sm"
+                />
+              </div>
+              {selectedUserIds.length > 0 && (
+                <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg shrink-0">
+                  {selectedUserIds.length} selected
+                </span>
+              )}
             </div>
             <button 
               onClick={() => setIsAddUserModalOpen(true)}
@@ -183,52 +324,90 @@ export default function AdminUsers() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  <th className="px-6 py-4 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all visible admin users"
+                      checked={isAllUsersSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = isUsersIndeterminate;
+                      }}
+                      onChange={toggleSelectAllUsers}
+                      className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                    />
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Name</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Status</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-8 py-4">
-                      <div className="flex items-center gap-3">
-                        <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
-                        <span className="font-bold text-slate-900">{user.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-4 text-sm font-medium text-slate-500">{user.email}</td>
-                    <td className="px-8 py-4">
-                      <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-8 py-4 text-center">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                        user.status === 'Accepted' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'
-                      }`}>
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="px-8 py-4 text-sm font-medium text-slate-500">{user.date}</td>
-                    <td className="px-8 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
-                          <Edit2 className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                      No admin users found matching your search.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredUsers.map((user) => {
+                    const isSelected = selectedUserIds.includes(user.id);
+                    return (
+                      <tr 
+                        key={user.id} 
+                        className={`hover:bg-slate-50/70 transition-colors group ${
+                          isSelected ? 'bg-brand/[0.04]' : ''
+                        }`}
+                      >
+                        <td className="px-6 py-4 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${user.name}`}
+                            checked={isSelected}
+                            onChange={() => toggleSelectUser(user.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                          />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
+                            <span className="font-bold text-slate-900">{user.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.email}</td>
+                        <td className="px-6 py-4">
+                          <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-wider">
+                            {user.role}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            user.status === 'Accepted' ? 'bg-emerald-50 text-emerald-500' : 'bg-amber-50 text-amber-500'
+                          }`}>
+                            {user.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.date}</td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
+                              <Edit2 className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={() => handlePromptSingleDeleteUser(user)}
+                              title="Delete admin user"
+                              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -236,7 +415,14 @@ export default function AdminUsers() {
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900">Admin Roles</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold text-slate-900">Admin Roles</h2>
+              {selectedRoleIds.length > 0 && (
+                <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
+                  {selectedRoleIds.length} selected
+                </span>
+              )}
+            </div>
             <button 
               onClick={() => setIsAddRoleModalOpen(true)}
               className="flex items-center gap-2 px-6 py-3 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all"
@@ -248,44 +434,82 @@ export default function AdminUsers() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50">
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role Name</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Admin Users</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Permissions</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
-                  <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                  <th className="px-6 py-4 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all visible roles"
+                      checked={isAllRolesSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = isRolesIndeterminate;
+                      }}
+                      onChange={toggleSelectAllRoles}
+                      className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                    />
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role Name</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Admin Users</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Permissions</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Added</th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {roles.map((role) => (
-                  <tr key={role.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-8 py-6 font-bold text-slate-900">{role.name}</td>
-                    <td className="px-8 py-6 text-center">
-                      <div className="flex items-center justify-center -space-x-2">
-                        {[1, 2, 3].map(i => (
-                          <img key={i} src={`https://picsum.photos/seed/user${i}/100/100`} className="w-8 h-8 rounded-full border-2 border-white" alt="User" />
-                        ))}
-                        <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">+{role.users - 3}</div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <button className="text-xs font-bold text-brand hover:underline">View Permissions</button>
-                    </td>
-                    <td className="px-8 py-6 text-sm font-medium text-slate-500">{role.date}</td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
-                          <Settings2 className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleDeleteRole(role.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
+                {roles.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                      No admin roles found.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  roles.map((role) => {
+                    const isSelected = selectedRoleIds.includes(role.id);
+                    return (
+                      <tr 
+                        key={role.id} 
+                        className={`hover:bg-slate-50/70 transition-colors group ${
+                          isSelected ? 'bg-brand/[0.04]' : ''
+                        }`}
+                      >
+                        <td className="px-6 py-6 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${role.name}`}
+                            checked={isSelected}
+                            onChange={() => toggleSelectRole(role.id)}
+                            className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                          />
+                        </td>
+                        <td className="px-6 py-6 font-bold text-slate-900">{role.name}</td>
+                        <td className="px-6 py-6 text-center">
+                          <div className="flex items-center justify-center -space-x-2">
+                            {[1, 2, 3].map(i => (
+                              <img key={i} src={`https://picsum.photos/seed/user${i}/100/100`} className="w-8 h-8 rounded-full border-2 border-white" alt="User" />
+                            ))}
+                            <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">+{Math.max(0, role.users - 3)}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-6">
+                          <button className="text-xs font-bold text-brand hover:underline">View Permissions</button>
+                        </td>
+                        <td className="px-6 py-6 text-sm font-medium text-slate-500">{role.date}</td>
+                        <td className="px-6 py-6 text-right">
+                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all">
+                              <Settings2 className="w-5 h-5" />
+                            </button>
+                            <button 
+                              onClick={() => handlePromptSingleDeleteRole(role)}
+                              title="Delete role"
+                              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -427,6 +651,45 @@ export default function AdminUsers() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating Bulk Action Bar */}
+      {activeTab === 'users' ? (
+        <BulkActionBar
+          selectedCount={selectedUserIds.length}
+          totalCount={filteredUsers.length}
+          itemLabel="admin user"
+          onClearSelection={() => setSelectedUserIds([])}
+          onSelectAll={() => setSelectedUserIds(filteredUsers.map(u => u.id))}
+          onDeleteSelected={handlePromptBulkDeleteUsers}
+          isDeleting={isDeleting}
+        />
+      ) : (
+        <BulkActionBar
+          selectedCount={selectedRoleIds.length}
+          totalCount={roles.length}
+          itemLabel="role"
+          onClearSelection={() => setSelectedRoleIds([])}
+          onSelectAll={() => setSelectedRoleIds(roles.map(r => r.id))}
+          onDeleteSelected={handlePromptBulkDeleteRoles}
+          isDeleting={isDeleting}
+        />
+      )}
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setModalConfig(null);
+          }
+        }}
+        onConfirm={modalConfig?.onConfirm || (() => {})}
+        itemCount={modalConfig?.count || 0}
+        itemType={modalConfig?.type || 'Item'}
+        items={modalConfig?.items || []}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

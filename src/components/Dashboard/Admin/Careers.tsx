@@ -17,6 +17,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { careersStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import BulkActionBar from '../../Common/BulkActionBar';
+import BulkDeleteModal from '../../Common/BulkDeleteModal';
 
 const initialCareers = [
   { 
@@ -209,6 +211,11 @@ export default function AdminCareers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchColumn, setSearchColumn] = useState('All');
 
+  const [selectedCareerIds, setSelectedCareerIds] = useState<number[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     const data = careersStorage.get(initialCareers);
     setCareers(data);
@@ -236,12 +243,47 @@ export default function AdminCareers() {
            skills.some(skill => skill.toLowerCase().includes(query));
   });
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this career?')) {
-      const updated = careers.filter(c => c.id !== id);
+  const isAllSelected = filteredCareers.length > 0 && filteredCareers.every(c => selectedCareerIds.includes(c.id));
+  const isIndeterminate = selectedCareerIds.length > 0 && !isAllSelected;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedCareerIds([]);
+    } else {
+      setSelectedCareerIds(filteredCareers.map(c => c.id));
+    }
+  };
+
+  const toggleSelectCareer = (id: number) => {
+    setSelectedCareerIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handlePromptSingleDelete = (career: any) => {
+    setItemsToDelete([career]);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDelete = () => {
+    const selected = careers.filter(c => selectedCareerIds.includes(c.id));
+    setItemsToDelete(selected);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setIsDeleting(true);
+    try {
+      const idsToDelete = new Set(itemsToDelete.map(c => c.id));
+      const updated = careers.filter(c => !idsToDelete.has(c.id));
       setCareers(updated);
       careersStorage.save(updated);
-      showToast('Career deleted successfully!');
+      setSelectedCareerIds(prev => prev.filter(id => !idsToDelete.has(id)));
+      showToast(`Successfully deleted ${itemsToDelete.length} career${itemsToDelete.length === 1 ? '' : 's'}!`);
+      setIsDeleteModalOpen(false);
+      setItemsToDelete([]);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -262,7 +304,14 @@ export default function AdminCareers() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Career Library</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900">Career Library</h1>
+            {selectedCareerIds.length > 0 && (
+              <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
+                {selectedCareerIds.length} selected
+              </span>
+            )}
+          </div>
           <p className="text-slate-500 font-medium mt-1">Manage career paths, resources, and educational content.</p>
         </div>
         <button 
@@ -326,81 +375,150 @@ export default function AdminCareers() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CAREER</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">TOP SKILLS</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CATEGORY</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">MENTORS</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">DATE CREATED</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all visible careers"
+                    checked={isAllSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isIndeterminate;
+                    }}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                  />
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CAREER</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">TOP SKILLS</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">CATEGORY</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">MENTORS</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">DATE CREATED</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filteredCareers.map((career) => {
-                const skillsList = getSkillsForCareer(career);
-                return (
-                  <tr key={career.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
-                        <div>
-                          <p className="font-bold text-slate-900">{career.name}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                              <Video className="w-3 h-3" /> {career.videos || 0}
-                            </span>
-                            <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                              <FileText className="w-3 h-3" /> {career.articles || 0}
-                            </span>
+              {filteredCareers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                    No careers found matching your search.
+                  </td>
+                </tr>
+              ) : (
+                filteredCareers.map((career) => {
+                  const skillsList = getSkillsForCareer(career);
+                  const isSelected = selectedCareerIds.includes(career.id);
+                  return (
+                    <tr 
+                      key={career.id} 
+                      className={`hover:bg-slate-50/70 transition-colors group ${
+                        isSelected ? 'bg-brand/[0.04]' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-6 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${career.name}`}
+                          checked={isSelected}
+                          onChange={() => toggleSelectCareer(career.id)}
+                          className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                        />
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="flex items-center gap-4">
+                          <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
+                          <div>
+                            <p className="font-bold text-slate-900">{career.name}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <Video className="w-3 h-3" /> {career.videos || 0}
+                              </span>
+                              <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <FileText className="w-3 h-3" /> {career.articles || 0}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      {skillsList && skillsList.length > 0 ? (
-                        <div className="flex items-center gap-2">
-                          <span className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium text-slate-700">
-                            {skillsList[0]}
-                          </span>
-                          {skillsList.length > 1 && (
-                            <span className="px-2.5 py-1.5 bg-slate-100 text-xs font-bold text-slate-600 rounded-lg">
-                              +{skillsList.length - 1}
+                      </td>
+                      <td className="px-6 py-6">
+                        {skillsList && skillsList.length > 0 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-medium text-slate-700">
+                              {skillsList[0]}
                             </span>
-                          )}
+                            {skillsList.length > 1 && (
+                              <span className="px-2.5 py-1.5 bg-slate-100 text-xs font-bold text-slate-600 rounded-lg">
+                                +{skillsList.length - 1}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-6">
+                        <span className="text-sm font-medium text-slate-500">{career.category}</span>
+                      </td>
+                      <td className="px-6 py-6">
+                        <span className="text-sm font-medium text-slate-500">{career.mentors || 0}</span>
+                      </td>
+                      <td className="px-6 py-6 text-sm font-medium text-slate-500">{formatDate(career.date)}</td>
+                      <td className="px-6 py-6 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => navigate(`/admin/careers/edit/${career.id}`)}
+                            title="Edit career"
+                            className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                          <button 
+                            onClick={() => handlePromptSingleDelete(career)}
+                            title="Delete career"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
                         </div>
-                      ) : (
-                        <span className="text-xs text-slate-400 font-medium">-</span>
-                      )}
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-medium text-slate-500">{career.category}</span>
-                    </td>
-                    <td className="px-8 py-6">
-                      <span className="text-sm font-medium text-slate-500">{career.mentors || 0}</span>
-                    </td>
-                    <td className="px-8 py-6 text-sm font-medium text-slate-500">{formatDate(career.date)}</td>
-                    <td className="px-8 py-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button 
-                          onClick={() => navigate(`/admin/careers/edit/${career.id}`)}
-                          className="p-2 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-all"
-                        >
-                          <Edit2 className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(career.id)}
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Floating Bulk Action Bar */}
+      <BulkActionBar
+        selectedCount={selectedCareerIds.length}
+        totalCount={filteredCareers.length}
+        itemLabel="career"
+        onClearSelection={() => setSelectedCareerIds([])}
+        onSelectAll={() => setSelectedCareerIds(filteredCareers.map(c => c.id))}
+        onDeleteSelected={handlePromptBulkDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setItemsToDelete([]);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        itemCount={itemsToDelete.length}
+        itemType="Career"
+        items={itemsToDelete.map(c => ({
+          id: c.id,
+          name: c.name,
+          category: c.category,
+          image: c.image
+        }))}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

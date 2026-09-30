@@ -12,17 +12,25 @@ import {
   ChevronRight,
   CheckCircle2,
   Trash2,
-  Edit2
+  Edit2,
+  Eye,
+  ThumbsUp,
+  ThumbsDown,
+  Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { careersStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
+import RichTextEditor from '../../Common/RichTextEditor';
+import AdminArticleViewModal from './AdminArticleViewModal';
+import { getArticleReaction } from '../../../utils/articleReactions';
 
 export default function AdminCreateCareer() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'basic' | 'resources'>('basic');
   const [bgImage, setBgImage] = useState<string | null>(null);
+  const [viewingArticle, setViewingArticle] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newSkill, setNewSkill] = useState('');
@@ -158,9 +166,9 @@ export default function AdminCreateCareer() {
       { id: 'v3', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v3/400/200', url: 'https://youtube.com/watch?v=3' }
     ],
     articles: [
-      { id: 'a1', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200', about: 'Detailed summary about this article...' },
-      { id: 'a2', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200', about: 'Detailed summary about this article...' },
-      { id: 'a3', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200', about: 'Detailed summary about this article...' }
+      { id: 'a1', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 5, readTime: '5 mins read' },
+      { id: 'a2', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 8, readTime: '8 mins read' },
+      { id: 'a3', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 12, readTime: '12 mins read' }
     ],
     links: [
       { id: 'l1', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l1/400/200', type: 'Opportunity', from: 'Coursera' },
@@ -178,12 +186,18 @@ export default function AdminCreateCareer() {
   const handleOpenModal = (type: 'video' | 'article' | 'resource', item: any = null) => {
     setModalType(type);
     setEditingItem(item);
-    setModalData(item || {
+    setModalData(item ? {
+      ...item,
+      readTimeMinutes: item.readTimeMinutes || (item.readTime ? parseInt(item.readTime) : 5),
+      readTime: item.readTime || `${item.readTimeMinutes || 5} mins read`
+    } : {
       step: '',
       url: '',
       ownedBy: '',
       author: '',
       about: '',
+      readTimeMinutes: 5,
+      readTime: '5 mins read',
       type: 'Opportunity',
       from: '',
       thumbnail: null
@@ -193,8 +207,19 @@ export default function AdminCreateCareer() {
 
   const handleSaveResource = () => {
     const typeKey = modalType === 'video' ? 'videos' : modalType === 'article' ? 'articles' : 'links';
+    
+    let processedData = { ...modalData };
+    if (modalType === 'article') {
+      const minutes = modalData.readTimeMinutes ? Number(modalData.readTimeMinutes) : 5;
+      processedData = {
+        ...processedData,
+        readTimeMinutes: minutes,
+        readTime: modalData.readTime || `${minutes} mins read`
+      };
+    }
+
     const newResource = {
-      ...modalData,
+      ...processedData,
       id: editingItem ? editingItem.id : `${modalType}-${Date.now()}`,
       thumbnail: modalData.thumbnail || `https://picsum.photos/seed/${Date.now()}/400/200`
     };
@@ -246,6 +271,8 @@ export default function AdminCreateCareer() {
       videos: resources.videos.length,
       articles: resources.articles.length,
       resources: resources.links.length,
+      articleItems: resources.articles,
+      articlesList: resources.articles,
       image: bgImage || 'https://picsum.photos/seed/new/100/100',
       description: formData.about,
       salaries: formData.salaries,
@@ -767,29 +794,64 @@ export default function AdminCreateCareer() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {resources.articles.map((article) => (
-                  <div key={article.id} className="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden">
-                    <img src={article.thumbnail} alt={article.title} className="w-full h-32 object-cover" />
-                    <div className="p-4">
-                      <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{article.title}</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Author - {article.author}</p>
+                {resources.articles.map((article) => {
+                  const rx = getArticleReaction(article.id);
+                  const readTimeLabel = article.readTime || (article.readTimeMinutes ? `${article.readTimeMinutes} mins read` : '5 mins read');
+                  return (
+                    <div key={article.id} className="group relative bg-slate-50 rounded-2xl border border-slate-100 overflow-hidden hover:border-slate-200 transition-all flex flex-col justify-between">
+                      <div className="relative">
+                        <img src={article.thumbnail} alt={article.title} className="w-full h-32 object-cover" />
+                        <span className="absolute bottom-2 left-2 px-2.5 py-0.5 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded-md flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-brand" /> {readTimeLabel}
+                        </span>
+                      </div>
+                      <div className="p-4 flex-1 flex flex-col justify-between">
+                        <div>
+                          <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{article.title}</h4>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Author - {article.author}</p>
+                        </div>
+                        {/* Student Feedback (Likes & Dislikes) */}
+                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-200/60">
+                          <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100" title="Student Likes (Thumbs Up)">
+                            <ThumbsUp className="w-3 h-3 fill-emerald-500 text-emerald-600" /> {rx.likes}
+                          </span>
+                          <span className="flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-100" title="Student Dislikes (Thumbs Down)">
+                            <ThumbsDown className="w-3 h-3 fill-rose-500 text-rose-600" /> {rx.dislikes}
+                          </span>
+                          <span className="ml-auto text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            {rx.likes + rx.dislikes} votes
+                          </span>
+                        </div>
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          type="button"
+                          onClick={() => setViewingArticle(article)}
+                          className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
+                          title="View Article & Reactions"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => handleOpenModal('article', article)}
+                          className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
+                          title="Edit Article"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => handleDeleteResource('articles', article.id)}
+                          className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm"
+                          title="Delete Article"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={() => handleOpenModal('article', article)}
-                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-brand transition-colors shadow-sm"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteResource('articles', article.id)}
-                        className="p-2 bg-white/90 backdrop-blur-sm text-slate-600 rounded-lg hover:text-red-500 transition-colors shadow-sm"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div 
                   onClick={() => handleOpenModal('article')}
                   className="border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center p-8 hover:bg-slate-50 transition-all cursor-pointer group"
@@ -890,15 +952,17 @@ export default function AdminCreateCareer() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-2xl shadow-sm overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-h-[90vh] flex flex-col"
             >
-              <div className="p-8 sm:p-10">
-                <div className="flex items-center justify-between mb-8">
+              <div className="p-6 sm:p-8 overflow-y-auto">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
                   <div>
-                    <h3 className="text-2xl font-bold text-slate-900">
+                    <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
                       {editingItem ? 'Edit' : 'Add'} {modalType === 'video' ? 'Video URL' : modalType === 'article' ? 'Article' : 'Resources'}
                     </h3>
-                    <p className="text-slate-500 font-medium mt-1">Fill in the details</p>
+                    <p className="text-slate-500 font-medium text-xs sm:text-sm mt-0.5">
+                      {modalType === 'article' ? 'Provide article details, rich-text overview, and reading time.' : 'Fill in the details'}
+                    </p>
                   </div>
                   <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-50 rounded-lg transition-colors">
                     <X className="w-6 h-6 text-slate-400" />
@@ -945,15 +1009,18 @@ export default function AdminCreateCareer() {
                     </div>
                   )}
 
+                  {/* About Section - Rich Text Input Field for Articles */}
                   {modalType === 'article' && (
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700 ml-1">About</label>
-                      <textarea 
-                        rows={4}
-                        value={modalData.about}
-                        onChange={(e) => setModalData({ ...modalData, about: e.target.value })}
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold text-slate-700 ml-1">About</label>
+                        <span className="text-xs text-slate-400 font-medium">Rich text formatting</span>
+                      </div>
+                      <RichTextEditor 
+                        value={modalData.about || ''}
+                        onChange={(val) => setModalData({ ...modalData, about: val })}
                         placeholder="Write a detailed summary about this article..."
-                        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                        minHeight="150px"
                       />
                     </div>
                   )}
@@ -1017,6 +1084,68 @@ export default function AdminCreateCareer() {
                     />
                   </div>
 
+                  {/* Estimated time of read in minutes - Beneath about, after author, the last field */}
+                  {modalType === 'article' && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-bold text-slate-700 ml-1 flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-brand" />
+                          Time of read (in minutes)
+                        </label>
+                        <span className="text-xs text-brand font-bold bg-brand/10 px-2 py-0.5 rounded-md">
+                          Unit: Minutes
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <input 
+                          type="number"
+                          min="1"
+                          max="180"
+                          value={modalData.readTimeMinutes ?? ''}
+                          onChange={(e) => {
+                            const val = e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1);
+                            setModalData({ 
+                              ...modalData, 
+                              readTimeMinutes: val,
+                              readTime: val ? `${val} mins read` : ''
+                            });
+                          }}
+                          placeholder="Enter time in minutes (e.g. 5, 10, or 20)"
+                          className="w-full pl-5 pr-24 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 text-sm"
+                        />
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 bg-slate-200/70 px-3 py-1.5 rounded-lg pointer-events-none">
+                          Minutes
+                        </div>
+                      </div>
+
+                      {/* Quick Preset Buttons */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <span className="text-xs text-slate-400 font-medium">Quick select:</span>
+                        {[3, 5, 10, 15, 20].map((mins) => (
+                          <button
+                            key={mins}
+                            type="button"
+                            onClick={() => setModalData({
+                              ...modalData,
+                              readTimeMinutes: mins,
+                              readTime: `${mins} mins read`
+                            })}
+                            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                              Number(modalData.readTimeMinutes) === mins
+                                ? 'bg-brand text-white shadow-sm'
+                                : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                            }`}
+                          >
+                            {mins} mins
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[11px] text-slate-400 font-medium">
+                        Input the estimated reading time figure. It will appear on the article as "{modalData.readTimeMinutes || 5} mins read".
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-4">
                     <button 
                       onClick={() => setIsModalOpen(false)}
@@ -1037,6 +1166,16 @@ export default function AdminCreateCareer() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Admin Article View Modal */}
+      <AdminArticleViewModal
+        isOpen={!!viewingArticle}
+        onClose={() => setViewingArticle(null)}
+        article={viewingArticle}
+        careerTitle={formData.title}
+        careerCategory={formData.category}
+        onEdit={(art) => handleOpenModal('article', art)}
+      />
     </div>
   );
 }

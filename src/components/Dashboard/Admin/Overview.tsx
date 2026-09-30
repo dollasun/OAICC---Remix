@@ -18,11 +18,21 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { mentorsStorage, counselorsStorage, adminUsersStorage, studentsStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
+import BulkActionBar from '../../Common/BulkActionBar';
+import BulkDeleteModal, { DeletableItemSummary } from '../../Common/BulkDeleteModal';
 
 export default function AdminOverview() {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState('All Roles');
+  const [selectedUserKeys, setSelectedUserKeys] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [dynamicStats, setDynamicStats] = useState([
     { label: 'Total Students', value: '0', icon: Users, color: 'bg-brand', trend: '+12%' },
     { label: 'Total Schools', value: '50', icon: School, color: 'bg-indigo-500', trend: '+5%' },
@@ -58,6 +68,95 @@ export default function AdminOverview() {
       navigate(`/admin/students/${user.id}`);
     } else {
       setSelectedUser(user);
+    }
+  };
+
+  const filteredUsers = recentUsers.filter(u => {
+    if (selectedRoleFilter === 'Students') return u.role === 'Student';
+    if (selectedRoleFilter === 'Mentors') return u.role === 'Mentor';
+    if (selectedRoleFilter === 'Counselors') return u.role === 'Counselor';
+    if (selectedRoleFilter === 'Parents') return u.role === 'Parent';
+    if (selectedRoleFilter === 'Teachers') return u.role === 'Teacher';
+    if (selectedRoleFilter === 'Schools') return u.role === 'School';
+    return true;
+  });
+
+  const getUserKey = (user: any) => `${user.role}-${user.id}`;
+
+  const isAllSelected = filteredUsers.length > 0 && filteredUsers.every(u => selectedUserKeys.includes(getUserKey(u)));
+  const isIndeterminate = selectedUserKeys.length > 0 && !isAllSelected;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedUserKeys([]);
+    } else {
+      setSelectedUserKeys(filteredUsers.map(getUserKey));
+    }
+  };
+
+  const toggleSelectUser = (user: any) => {
+    const key = getUserKey(user);
+    setSelectedUserKeys(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const handlePromptSingleDelete = (user: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setItemsToDelete([user]);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handlePromptBulkDelete = () => {
+    const selectedUsers = recentUsers.filter(u => selectedUserKeys.includes(getUserKey(u)));
+    setItemsToDelete(selectedUsers);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setIsDeleting(true);
+    try {
+      const keysToDelete = new Set(itemsToDelete.map(getUserKey));
+      
+      // Update underlying storages
+      const students = studentsStorage.get([]);
+      const mentors = mentorsStorage.get([]);
+      const counselors = counselorsStorage.get([]);
+
+      itemsToDelete.forEach(user => {
+        if (user.role === 'Student') {
+          studentsStorage.save(students.filter((s: any) => s.id !== user.id));
+        } else if (user.role === 'Mentor') {
+          mentorsStorage.save(mentors.filter((m: any) => m.id !== user.id));
+        } else if (user.role === 'Counselor') {
+          counselorsStorage.save(counselors.filter((c: any) => c.id !== user.id));
+        }
+      });
+
+      // Update recent users
+      const updatedRecent = recentUsers.filter(u => !keysToDelete.has(getUserKey(u)));
+      setRecentUsers(updatedRecent);
+
+      // Deselect deleted
+      setSelectedUserKeys(prev => prev.filter(k => !keysToDelete.has(k)));
+
+      // Refresh dynamic stats
+      const updatedStudents = studentsStorage.get([]);
+      const updatedMentors = mentorsStorage.get([]);
+      const updatedCounselors = counselorsStorage.get([]);
+      const updatedAdmins = adminUsersStorage.get([]);
+      setDynamicStats([
+        { label: 'Total Students', value: updatedStudents.length.toString(), icon: Users, color: 'bg-brand', trend: '+12%' },
+        { label: 'Total Mentors', value: updatedMentors.length.toString(), icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
+        { label: 'Total Counselors', value: updatedCounselors.length.toString(), icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
+        { label: 'Total Admins', value: updatedAdmins.length.toString(), icon: School, color: 'bg-indigo-500', trend: '+5%' },
+      ]);
+
+      showToast(`Successfully deleted ${itemsToDelete.length} user${itemsToDelete.length === 1 ? '' : 's'}!`);
+      setIsDeleteModalOpen(false);
+      setItemsToDelete([]);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -100,14 +199,27 @@ export default function AdminOverview() {
       {/* Recent Users Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-900">Recent Users</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-slate-900">Recent Users</h2>
+            {selectedUserKeys.length > 0 && (
+              <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
+                {selectedUserKeys.length} selected
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-4">
-            <select className="px-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-brand/20">
-              <option>All Roles</option>
-              <option>Students</option>
-              <option>Parents</option>
-              <option>Teachers</option>
-              <option>Schools</option>
+            <select 
+              value={selectedRoleFilter}
+              onChange={(e) => setSelectedRoleFilter(e.target.value)}
+              className="px-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer"
+            >
+              <option value="All Roles">All Roles</option>
+              <option value="Students">Students</option>
+              <option value="Mentors">Mentors</option>
+              <option value="Counselors">Counselors</option>
+              <option value="Parents">Parents</option>
+              <option value="Teachers">Teachers</option>
+              <option value="Schools">Schools</option>
             </select>
             <button className="p-2 hover:bg-slate-50 rounded-lg transition-colors text-slate-400">
               <MoreHorizontal className="w-5 h-5" />
@@ -118,46 +230,85 @@ export default function AdminOverview() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50/50">
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">User</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Joined</th>
-                <th className="px-8 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+                <th className="px-6 py-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all visible users"
+                    checked={isAllSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = isIndeterminate;
+                    }}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                  />
+                </th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">User</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Joined</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {recentUsers.map((user) => (
-                <tr 
-                  key={`${user.role}-${user.id}`} 
-                  onClick={() => handleUserClick(user)}
-                  className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
-                >
-                  <td className="px-8 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={user.avatar || user.image} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
-                      <span className="font-bold text-slate-900">{user.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{user.email}</td>
-                  <td className="px-8 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      user.role === 'Student' ? 'bg-brand/10 text-brand' :
-                      user.role === 'Parent' ? 'bg-indigo-50 text-indigo-500' :
-                      user.role === 'Mentor' ? 'bg-amber-50 text-amber-500' :
-                      user.role === 'Counselor' ? 'bg-emerald-50 text-emerald-500' :
-                      'bg-slate-100 text-slate-500'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-8 py-4 text-sm font-medium text-slate-500">{user.date}</td>
-                  <td className="px-8 py-4 text-right">
-                    <button className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
+                    No users found matching the filter.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredUsers.map((user) => {
+                  const key = getUserKey(user);
+                  const isSelected = selectedUserKeys.includes(key);
+                  return (
+                    <tr 
+                      key={key} 
+                      onClick={() => handleUserClick(user)}
+                      className={`hover:bg-slate-50/70 transition-colors group cursor-pointer ${
+                        isSelected ? 'bg-brand/[0.04]' : ''
+                      }`}
+                    >
+                      <td className="px-6 py-4 w-12 text-center" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          aria-label={`Select ${user.name}`}
+                          checked={isSelected}
+                          onChange={() => toggleSelectUser(user)}
+                          className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <img src={user.avatar || user.image} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
+                          <span className="font-bold text-slate-900">{user.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.email}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          user.role === 'Student' ? 'bg-brand/10 text-brand' :
+                          user.role === 'Parent' ? 'bg-indigo-50 text-indigo-500' :
+                          user.role === 'Mentor' ? 'bg-amber-50 text-amber-500' :
+                          user.role === 'Counselor' ? 'bg-emerald-50 text-emerald-500' :
+                          'bg-slate-100 text-slate-500'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.date}</td>
+                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                          onClick={(e) => handlePromptSingleDelete(user, e)}
+                          title="Delete user"
+                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -165,6 +316,39 @@ export default function AdminOverview() {
           <button className="text-brand font-bold text-sm hover:underline">View All Users</button>
         </div>
       </div>
+
+      {/* Floating Bulk Action Bar */}
+      <BulkActionBar
+        selectedCount={selectedUserKeys.length}
+        totalCount={filteredUsers.length}
+        itemLabel="user"
+        onClearSelection={() => setSelectedUserKeys([])}
+        onSelectAll={() => setSelectedUserKeys(filteredUsers.map(getUserKey))}
+        onDeleteSelected={handlePromptBulkDelete}
+        isDeleting={isDeleting}
+      />
+
+      {/* Confirmation Modal */}
+      <BulkDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalOpen(false);
+            setItemsToDelete([]);
+          }
+        }}
+        onConfirm={handleConfirmDelete}
+        itemCount={itemsToDelete.length}
+        itemType="User"
+        items={itemsToDelete.map(u => ({
+          id: getUserKey(u),
+          name: u.name,
+          role: u.role,
+          email: u.email,
+          avatar: u.avatar || u.image
+        }))}
+        isDeleting={isDeleting}
+      />
 
       {/* User Detail Modal */}
       <AnimatePresence>

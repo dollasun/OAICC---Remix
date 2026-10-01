@@ -102,10 +102,18 @@ export default function PolicyViewer() {
     }
   }, [location.hash, requestedPolicy]);
 
-  // STRICT ACCESS: Only policies that concern the active user type
+  const [policiesVersion, setPoliciesVersion] = useState(0);
+
+  useEffect(() => {
+    const handleUpdate = () => setPoliciesVersion(v => v + 1);
+    window.addEventListener('oaicc-policies-updated', handleUpdate);
+    return () => window.removeEventListener('oaicc-policies-updated', handleUpdate);
+  }, []);
+
+  // STRICT ACCESS: Only policies that concern the active user type (filters out hidden)
   const visiblePolicies = useMemo(() => {
     return getPoliciesForRole(activeRole);
-  }, [activeRole]);
+  }, [activeRole, policiesVersion]);
 
   // Is requested policy allowed for this specific user type?
   const isPolicyAllowedForRole = useMemo(() => {

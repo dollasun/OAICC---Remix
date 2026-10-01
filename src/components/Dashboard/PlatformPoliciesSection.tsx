@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -37,9 +37,16 @@ export default function PlatformPoliciesSection({
   const navigate = useNavigate();
   const [selectedPolicy, setSelectedPolicy] = useState<PolicyDocument | null>(null);
 
-  // Fetch policies strictly pertaining to this specific user role
-  const rolePolicies = useMemo(() => {
-    return getPoliciesForRole(userRole);
+  // Fetch policies strictly pertaining to this specific user role (filters out hidden)
+  const [rolePolicies, setRolePolicies] = useState<PolicyDocument[]>(() => getPoliciesForRole(userRole));
+
+  useEffect(() => {
+    setRolePolicies(getPoliciesForRole(userRole));
+    const handleUpdated = () => {
+      setRolePolicies(getPoliciesForRole(userRole));
+    };
+    window.addEventListener('oaicc-policies-updated', handleUpdated);
+    return () => window.removeEventListener('oaicc-policies-updated', handleUpdated);
   }, [userRole]);
 
   const getPolicyIcon = (id: string) => {

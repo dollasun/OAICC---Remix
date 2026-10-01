@@ -30,6 +30,7 @@ import MentorDetails from './Student/MentorDetails';
 import Counselors from './Student/Counselors';
 import CounselorDetails from './Student/CounselorDetails';
 import ActivityTracker from './Student/ActivityTracker';
+import StudentSettings from './Student/StudentSettings';
 import StudentProfile from './Student/StudentProfile';
 import SavedContent from './Student/SavedContent';
 import Events from './Student/Events';
@@ -55,7 +56,7 @@ export default function StudentDashboard() {
     { icon: UserCircle, label: 'Counselors', path: '/student/counselors' },
     { icon: MessageSquare, label: 'Messages', path: '/student/messages' },
     { icon: Activity, label: 'Activity', path: '/student/activity' },
-    { icon: User, label: 'My Profile', path: '/student/settings' },
+    { icon: Settings, label: 'Settings', path: '/student/settings' },
   ];
 
   const isActive = (path: string) => {
@@ -192,7 +193,7 @@ export default function StudentDashboard() {
                         onClick={() => { navigate('/student/settings'); setIsProfileDropdownOpen(false); }}
                         className="w-full flex items-center gap-3 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                       >
-                        <User className="w-4 h-4" /> My profile
+                        <Settings className="w-4 h-4" /> Settings
                       </button>
                       <button 
                         onClick={() => { navigate('/student/saved'); setIsProfileDropdownOpen(false); }}
@@ -234,7 +235,8 @@ export default function StudentDashboard() {
             <Route path="counselors/:id" element={<CounselorDetails />} />
             <Route path="messages" element={<StudentMessages />} />
             <Route path="activity" element={<ActivityTracker />} />
-            <Route path="settings" element={<StudentProfile />} />
+            <Route path="settings" element={<StudentSettings />} />
+            <Route path="profile" element={<Navigate to="/student/settings" replace />} />
             <Route path="saved" element={<SavedContent />} />
             <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />

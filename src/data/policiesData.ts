@@ -7,6 +7,16 @@ export interface PolicySection {
   subsections?: { title: string; content: string }[];
 }
 
+export interface PolicyVersionRecord {
+  version: string;
+  updatedAt: string;
+  updatedBy: string;
+  changeSummary: string;
+  sections: PolicySection[];
+  noticeBanner?: string;
+  effectiveDate?: string;
+}
+
 export interface PolicyDocument {
   id: string;
   slug: string;
@@ -25,6 +35,8 @@ export interface PolicyDocument {
   noticeBanner?: string;
   sections: PolicySection[];
   legalFramework?: string[];
+  isHidden?: boolean;
+  versionHistory?: PolicyVersionRecord[];
 }
 
 export const POLICIES: PolicyDocument[] = [
@@ -1288,27 +1300,150 @@ A parent, school, counsellor, mentor or administrator must not use their access 
   }
 ];
 
-export function getPoliciesForRole(role: UserRole | 'all'): PolicyDocument[] {
-  if (role === 'all') return POLICIES;
-  return POLICIES.filter((p) => p.applicableRoles.includes(role));
+const POLICIES_STORAGE_KEY = 'oaicc_managed_policies_v1';
+
+export function getAllManagedPolicies(): PolicyDocument[] {
+  if (typeof window === 'undefined') return POLICIES;
+  const stored = localStorage.getItem(POLICIES_STORAGE_KEY);
+  if (!stored) {
+    const initialized = POLICIES.map((p) => ({
+      ...p,
+      isHidden: false,
+      versionHistory: [
+        {
+          version: p.version || '1.0',
+          updatedAt: p.lastUpdated || 'September 2026',
+          updatedBy: 'OAICC Legal Governance',
+          changeSummary: 'Initial policy baseline publication and statutory compliance framework.',
+          sections: p.sections,
+          noticeBanner: p.noticeBanner,
+          effectiveDate: p.effectiveDate
+        }
+      ]
+    }));
+    try {
+      localStorage.setItem(POLICIES_STORAGE_KEY, JSON.stringify(initialized));
+      return initialized;
+    } catch {
+      return initialized;
+    }
+  }
+  try {
+    const parsed = JSON.parse(stored);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return POLICIES;
+  } catch {
+    return POLICIES;
+  }
+}
+
+export function saveManagedPolicies(policies: PolicyDocument[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(POLICIES_STORAGE_KEY, JSON.stringify(policies));
+    window.dispatchEvent(new Event('oaicc-policies-updated'));
+  } catch (e) {
+    console.error('Failed to save policies to localStorage', e);
+  }
+}
+
+export function getPoliciesForRole(role: UserRole | 'all', includeHidden: boolean = false): PolicyDocument[] {
+  const all = getAllManagedPolicies();
+  const filteredByRole = role === 'all' ? all : all.filter((p) => p.applicableRoles.includes(role));
+  if (includeHidden || role === 'admin') {
+    return filteredByRole;
+  }
+  return filteredByRole.filter((p) => !p.isHidden);
 }
 
 export function getPolicyBySlug(slug: string): PolicyDocument | undefined {
+  const all = getAllManagedPolicies();
   const normalized = slug.toLowerCase().trim();
   if (normalized === 'terms-and-conditions' || normalized === 'terms-of-use' || normalized === 'terms') {
-    return POLICIES.find((p) => p.slug === 'terms');
+    return all.find((p) => p.slug === 'terms');
   }
   if (normalized === 'privacy-policy' || normalized === 'privacy') {
-    return POLICIES.find((p) => p.slug === 'privacy');
+    return all.find((p) => p.slug === 'privacy');
   }
   if (normalized === 'cookie-policy' || normalized === 'cookie-notice' || normalized === 'cookies') {
-    return POLICIES.find((p) => p.slug === 'cookies');
+    return all.find((p) => p.slug === 'cookies');
   }
   if (normalized === 'safeguarding' || normalized === 'child-safeguarding' || normalized === 'child-protection') {
-    return POLICIES.find((p) => p.slug === 'safeguarding');
+    return all.find((p) => p.slug === 'safeguarding');
   }
   if (normalized === 'acceptable-use' || normalized === 'acceptable-use-policy' || normalized === 'aup') {
-    return POLICIES.find((p) => p.slug === 'acceptable-use');
+    return all.find((p) => p.slug === 'acceptable-use');
   }
-  return POLICIES.find((p) => p.slug === normalized || p.id === normalized);
+  return all.find((p) => p.slug === normalized || p.id === normalized);
+}
+
+export function updateManagedPolicy(
+  id: string,
+  updatedData: Partial<PolicyDocument>,
+  changeSummary: string = 'Policy terms revised',
+  updatedBy: string = 'Super Admin'
+): PolicyDocument {
+  const all = getAllManagedPolicies();
+  const index = all.findIndex((p) => p.id === id);
+  if (index === -1) throw new Error(`Policy with id ${id} not found`);
+
+  const current = all[index];
+  const newVersion = updatedData.version || incrementVersion(current.version || '1.0');
+  const nowStr = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const historyRecord: PolicyVersionRecord = {
+    version: newVersion,
+    updatedAt: nowStr,
+    updatedBy: updatedBy,
+    changeSummary: changeSummary,
+    sections: updatedData.sections || current.sections,
+    noticeBanner: updatedData.noticeBanner !== undefined ? updatedData.noticeBanner : current.noticeBanner,
+    effectiveDate: updatedData.effectiveDate || current.effectiveDate
+  };
+
+  const updated: PolicyDocument = {
+    ...current,
+    ...updatedData,
+    version: newVersion,
+    lastUpdated: nowStr,
+    versionHistory: [historyRecord, ...(current.versionHistory || [])]
+  };
+
+  all[index] = updated;
+  saveManagedPolicies(all);
+  return updated;
+}
+
+export function togglePolicyVisibility(id: string): PolicyDocument {
+  const all = getAllManagedPolicies();
+  const index = all.findIndex((p) => p.id === id);
+  if (index === -1) throw new Error(`Policy with id ${id} not found`);
+
+  const current = all[index];
+  const updated: PolicyDocument = {
+    ...current,
+    isHidden: !current.isHidden
+  };
+
+  all[index] = updated;
+  saveManagedPolicies(all);
+  return updated;
+}
+
+export function incrementVersion(ver: string, type: 'minor' | 'major' = 'minor'): string {
+  const parts = ver.split('.');
+  const major = parseInt(parts[0] || '1', 10);
+  const minor = parseInt(parts[1] || '0', 10);
+  if (type === 'major') {
+    return `${major + 1}.0`;
+  }
+  return `${major}.${minor + 1}`;
 }

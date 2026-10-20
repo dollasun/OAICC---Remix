@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   Scale,
   ChevronDown,
-  FileText
+  FileText,
+  Tag
 } from 'lucide-react';
 import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../../Logo';
@@ -25,6 +26,7 @@ import Logo from '../../Logo';
 // Import Admin Pages
 import AdminOverview from './Overview';
 import AdminCareers from './Careers';
+import AdminCareerCategories from './CareerCategories';
 import AdminCreateCareer from './CreateCareer';
 import AdminEditCareer from './EditCareer';
 import AdminMentors from './Mentors';
@@ -46,6 +48,7 @@ import ThemeToggle from '../../ThemeToggle';
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: Briefcase, label: 'Career', path: '/admin/careers' },
+  { icon: Tag, label: 'Career Category', path: '/admin/career-categories' },
   { icon: Users, label: 'Mentor', path: '/admin/mentors' },
   { icon: UserSquare2, label: 'Counselor', path: '/admin/counselors' },
   { icon: MessageSquare, label: 'Forum', path: '/admin/forum' },
@@ -265,6 +268,7 @@ export default function AdminDashboard() {
           <Routes>
             <Route path="dashboard" element={<AdminOverview />} />
             <Route path="careers" element={<AdminCareers />} />
+            <Route path="career-categories" element={<AdminCareerCategories />} />
             <Route path="careers/create" element={<AdminCreateCareer />} />
             <Route path="careers/edit/:id" element={<AdminEditCareer />} />
             <Route path="mentors" element={<AdminMentors />} />

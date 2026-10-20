@@ -42,6 +42,9 @@ export default function AdminEditCareer() {
     category: 'Science',
     about: '',
     skills: [] as string[],
+    qualifications: '',
+    workExperience: '',
+    topUniversities: [] as string[],
     responsibilities: [] as string[],
     subjects: [] as string[],
     pathway: [] as any[],
@@ -49,6 +52,8 @@ export default function AdminEditCareer() {
       { country: 'United States', currency: '$', min: '100,000', max: '500,000' }
     ]
   });
+
+  const [newUniversity, setNewUniversity] = useState('');
 
   const countries = [
     { name: 'United States', currency: '$' },
@@ -68,7 +73,7 @@ export default function AdminEditCareer() {
     }
   };
 
-  const handleRemoveArrayItem = (field: 'skills' | 'responsibilities' | 'subjects', index: number) => {
+  const handleRemoveArrayItem = (field: 'skills' | 'responsibilities' | 'subjects' | 'topUniversities', index: number) => {
     setFormData({
       ...formData,
       [field]: formData[field].filter((_, i) => i !== index)
@@ -156,6 +161,9 @@ export default function AdminEditCareer() {
         category: career.category,
         about: career.description || '',
         skills: career.skills || ['Software testing and quality assurance', 'Problem-solving skills'],
+        qualifications: career.qualifications || '',
+        workExperience: career.workExperience || '',
+        topUniversities: career.topUniversities || [],
         responsibilities: career.responsibilities || ['Design, build, and deploy scalable software and cloud system architectures.'],
         subjects: career.subjects || ['Computer Science', 'Mathematics'],
         pathway: career.pathway || [
@@ -189,6 +197,9 @@ export default function AdminEditCareer() {
           salaryMin: formData.salaries[0]?.min || '100,000',
           salaryMax: formData.salaries[0]?.max || '500,000',
           skills: formData.skills,
+          qualifications: formData.qualifications,
+          workExperience: formData.workExperience,
+          topUniversities: formData.topUniversities,
           responsibilities: formData.responsibilities,
           subjects: formData.subjects,
           pathway: formData.pathway,
@@ -448,6 +459,67 @@ export default function AdminEditCareer() {
                     className="px-6 py-3 bg-brand text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/90 transition-all shrink-0"
                   >
                     <Plus className="w-4 h-4" /> Add Skill
+                  </button>
+                </div>
+              </div>
+
+              {/* Qualifications */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <label className="text-sm font-bold text-slate-700 ml-1">Qualifications</label>
+                <textarea 
+                  rows={4}
+                  value={formData.qualifications}
+                  onChange={(e) => setFormData({ ...formData, qualifications: e.target.value })}
+                  className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                  placeholder="Enter qualifications..."
+                />
+              </div>
+
+              {/* Work Experience */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <label className="text-sm font-bold text-slate-700 ml-1">Work Experience</label>
+                <textarea 
+                  rows={4}
+                  value={formData.workExperience}
+                  onChange={(e) => setFormData({ ...formData, workExperience: e.target.value })}
+                  className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 resize-none"
+                  placeholder="Enter required experience..."
+                />
+              </div>
+
+              {/* Top Universities */}
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-end">
+                  <div>
+                    <label className="text-sm font-bold text-slate-700 ml-1">Top Universities</label>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {formData.topUniversities.map((uni, i) => (
+                    <div key={i} className="px-4 py-2 bg-slate-50 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-600 border border-slate-100">
+                      {uni} <X className="w-3 h-3 cursor-pointer hover:text-red-500" onClick={() => handleRemoveArrayItem('topUniversities', i)} />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newUniversity}
+                    onChange={(e) => setNewUniversity(e.target.value)}
+                    placeholder="Enter a university..."
+                    className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArrayItem('topUniversities', newUniversity, setNewUniversity);
+                      }
+                    }}
+                  />
+                  <button 
+                    onClick={() => handleAddArrayItem('topUniversities', newUniversity, setNewUniversity)}
+                    className="px-6 py-3 bg-brand text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-brand/90 transition-all shrink-0"
+                  >
+                    <Plus className="w-4 h-4" /> Add
                   </button>
                 </div>
               </div>

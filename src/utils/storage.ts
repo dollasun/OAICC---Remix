@@ -1,5 +1,6 @@
 
 const STORAGE_KEY_CAREERS = 'app_careers';
+const STORAGE_KEY_CAREER_CATEGORIES = 'app_career_categories';
 const STORAGE_KEY_FORUMS = 'app_forums';
 const STORAGE_KEY_FORUM_CATEGORIES = 'app_forum_categories';
 const STORAGE_KEY_MENTORS = 'app_mentors';
@@ -34,59 +35,33 @@ export const saveStoredData = (key: string, data: any) => {
 
 export const careersStorage = {
   get: (initialData: any = [
-    {
-      id: 1,
-      title: 'Software Engineering',
-      description: 'Design, develop, and maintain software systems and applications.',
-      category: 'Technology',
-      image: 'https://picsum.photos/seed/software/800/600',
-      salaries: [
-        { country: 'United States', currency: '$', min: '80,000', max: '150,000' },
-        { country: 'Nigeria', currency: '₦', min: '5,000,000', max: '15,000,000' }
-      ],
-      salaryMin: '5,000,000',
-      salaryMax: '150,000',
-      demand: 'High',
-      growth: '22%',
-      skills: ['Problem Solving', 'Coding', 'System Design'],
-      subjects: ['Mathematics', 'Further Maths', 'Physics']
-    },
-    {
-      id: 2,
-      title: 'Medicine & Surgery',
-      description: 'Diagnose and treat illnesses, perform surgeries, and promote health.',
-      category: 'Healthcare',
-      image: 'https://picsum.photos/seed/medicine/800/600',
-      salaries: [
-        { country: 'United States', currency: '$', min: '150,000', max: '400,000' },
-        { country: 'Nigeria', currency: '₦', min: '3,000,000', max: '10,000,000' }
-      ],
-      salaryMin: '3,000,000',
-      salaryMax: '400,000',
-      demand: 'Very High',
-      growth: '15%',
-      skills: ['Critical Thinking', 'Empathy', 'Dexterity'],
-      subjects: ['Biology', 'Chemistry', 'Physics']
-    },
-    {
-      id: 3,
-      title: 'Product Design',
-      description: 'Create user-centered designs for digital and physical products.',
-      category: 'Design',
-      image: 'https://picsum.photos/seed/design/800/600',
-      salaries: [
-        { country: 'United States', currency: '$', min: '70,000', max: '130,000' },
-        { country: 'Nigeria', currency: '₦', min: '4,000,000', max: '12,000,000' }
-      ],
-      salaryMin: '4,000,000',
-      salaryMax: '130,000',
-      demand: 'High',
-      growth: '18%',
-      skills: ['UI/UX', 'Visual Design', 'User Research'],
-      subjects: ['Fine Arts', 'Mathematics', 'English']
-    }
+    { id: 1, title: 'Software Engineering', description: 'Design, develop, and maintain software systems.', category: 'Technology', image: 'https://picsum.photos/seed/1/800/600', salary: '$100k - $200k', growth: 'High' },
+    { id: 2, title: 'Medicine', description: 'Diagnose and treat illnesses.', category: 'Healthcare', image: 'https://picsum.photos/seed/2/800/600', salary: '$150k - $400k', growth: 'High' },
+    { id: 3, title: 'Data Science', description: 'Analyze complex data.', category: 'Technology', image: 'https://picsum.photos/seed/3/800/600', salary: '$120k - $220k', growth: 'Very High' },
+    { id: 4, title: 'UX Design', description: 'Create user-centered designs.', category: 'Design', image: 'https://picsum.photos/seed/4/800/600', salary: '$80k - $150k', growth: 'High' },
+    { id: 5, title: 'Mechanical Engineering', description: 'Design mechanical systems.', category: 'Engineering', image: 'https://picsum.photos/seed/5/800/600', salary: '$75k - $140k', growth: 'Medium' },
+    { id: 6, title: 'Financial Analysis', description: 'Guide investment decisions.', category: 'Finance', image: 'https://picsum.photos/seed/6/800/600', salary: '$70k - $130k', growth: 'Medium' },
+    { id: 7, title: 'Digital Marketing', description: 'Manage digital campaigns.', category: 'Marketing', image: 'https://picsum.photos/seed/7/800/600', salary: '$50k - $100k', growth: 'High' },
+    { id: 8, title: 'Nursing', description: 'Provide patient care.', category: 'Healthcare', image: 'https://picsum.photos/seed/8/800/600', salary: '$60k - $110k', growth: 'High' },
+    { id: 9, title: 'Architecture', description: 'Design buildings.', category: 'Architecture', image: 'https://picsum.photos/seed/9/800/600', salary: '$70k - $130k', growth: 'Medium' },
+    { id: 10, title: 'Law', description: 'Represent clients.', category: 'Legal', image: 'https://picsum.photos/seed/10/800/600', salary: '$90k - $250k', growth: 'Medium' },
+    { id: 11, title: 'Teaching', description: 'Educate students.', category: 'Education', image: 'https://picsum.photos/seed/11/800/600', salary: '$40k - $80k', growth: 'Medium' },
+    { id: 12, title: 'Graphic Design', description: 'Create visual concepts.', category: 'Design', image: 'https://picsum.photos/seed/12/800/600', salary: '$45k - $90k', growth: 'Medium' },
+    { id: 13, title: 'Project Management', description: 'Lead projects.', category: 'Business', image: 'https://picsum.photos/seed/13/800/600', salary: '$80k - $160k', growth: 'High' },
+    { id: 14, title: 'Psychology', description: 'Study human behavior.', category: 'Healthcare', image: 'https://picsum.photos/seed/14/800/600', salary: '$60k - $120k', growth: 'High' },
+    { id: 15, title: 'Cybersecurity', description: 'Protect digital systems.', category: 'Technology', image: 'https://picsum.photos/seed/15/800/600', salary: '$90k - $180k', growth: 'Very High' }
   ]) => getStoredData(STORAGE_KEY_CAREERS, initialData),
   save: (data: any) => saveStoredData(STORAGE_KEY_CAREERS, data),
+};
+
+export const careerCategoriesStorage = {
+  get: (initialData: any = [
+    { id: 1, name: 'Technology', createdAt: '2026-07-01' },
+    { id: 2, name: 'Healthcare', createdAt: '2026-07-02' },
+    { id: 3, name: 'Design', createdAt: '2026-07-03' },
+    { id: 4, name: 'Engineering', createdAt: '2026-07-04' }
+  ]) => getStoredData(STORAGE_KEY_CAREER_CATEGORIES, initialData),
+  save: (data: any) => saveStoredData(STORAGE_KEY_CAREER_CATEGORIES, data),
 };
 
 export const forumsStorage = {

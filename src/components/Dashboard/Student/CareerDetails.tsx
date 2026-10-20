@@ -544,6 +544,43 @@ export default function CareerDetails() {
                       </div>
                     </div>
 
+                    {career.qualifications && (
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                          <GraduationCap className="w-5 h-5 text-brand" /> Qualifications
+                        </h3>
+                        <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                          <p className="text-slate-700 font-medium text-sm leading-relaxed">{career.qualifications}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {career.workExperience && (
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-brand" /> Work Experience
+                        </h3>
+                        <div className="p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                          <p className="text-slate-700 font-medium text-sm leading-relaxed">{career.workExperience}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {career.topUniversities && career.topUniversities.length > 0 && (
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                          <Target className="w-5 h-5 text-brand" /> Top Universities
+                        </h3>
+                        <div className="flex flex-wrap gap-3">
+                          {career.topUniversities.map((uni: string, idx: number) => (
+                            <span key={idx} className="px-6 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-700">
+                              {uni}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
                         <Target className="w-5 h-5 text-brand" /> Key Duties & Responsibilities

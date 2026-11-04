@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -8,8 +9,8 @@ export default function AdminSetPassword() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: ''
+    password: demo('', DEMO_PASSWORD),
+    confirmPassword: demo('', DEMO_PASSWORD)
   });
 
   const handleSubmit = (e: React.FormEvent) => {

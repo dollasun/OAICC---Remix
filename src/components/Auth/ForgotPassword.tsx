@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo } from '../../utils/demoDefaults';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, Eye, EyeOff, ChevronLeft, ArrowLeft } from 'lucide-react';
@@ -10,7 +11,7 @@ type ForgotStep = 'request' | 'check-email' | 'reset';
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [step, setStep] = useState<ForgotStep>('request');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(demo('', 'student@oaicc.demo'));
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState(false);

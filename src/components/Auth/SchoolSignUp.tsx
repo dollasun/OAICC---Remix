@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo, demoPerson, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, User, MapPin, School, Users, ChevronLeft, Eye, EyeOff, CheckCircle2, ArrowLeft, ShieldCheck, AlertCircle, Check } from 'lucide-react';
@@ -12,16 +13,16 @@ export default function SchoolSignUp() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    schoolName: '',
-    location: '',
+    firstName: demo('', demoPerson.firstName),
+    lastName: demo('', demoPerson.lastName),
+    email: demo('', 'school@oaicc.demo'),
+    password: demo('', DEMO_PASSWORD),
+    confirmPassword: demo('', DEMO_PASSWORD),
+    schoolName: demo('', 'Demo Secondary School'),
+    location: demo('', 'Lagos, Nigeria'),
     schoolTypes: [] as string[],
-    numClasses: '',
-    numStudents: ''
+    numClasses: demo('', '12'),
+    numStudents: demo('', '480')
   });
 
   const [termsAccepted, setTermsAccepted] = useState(false);

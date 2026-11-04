@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo } from '../../utils/demoDefaults';
 import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -6,7 +7,7 @@ import Logo from '../Logo';
 
 export default function AdminForgotPassword() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(demo('', 'admin@oaicc.demo'));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

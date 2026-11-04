@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo, demoPerson, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, Phone, ArrowLeft, Check, AlertCircle, User } from 'lucide-react';
@@ -17,12 +18,12 @@ export default function SignUp() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
+    firstName: demo('', demoPerson.firstName),
+    lastName: demo('', demoPerson.lastName),
+    email: demo('', 'new.user@oaicc.demo'),
+    phone: demo('', demoPerson.phone),
+    password: demo('', DEMO_PASSWORD),
+    confirmPassword: demo('', DEMO_PASSWORD)
   });
 
   // T&C Acceptance State

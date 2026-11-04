@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo, demoPerson, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
@@ -78,17 +79,17 @@ export default function CounselorOnboarding() {
   const [step, setStep] = useState<Step>('personal');
   
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    firstName: demo('', demoPerson.firstName),
+    lastName: demo('', demoPerson.lastName),
     email: 'counselor@oaicc.com',
-    phone: '',
-    bio: '',
-    specialization: '',
-    experience: '',
-    education: '',
+    phone: demo('', demoPerson.phone),
+    bio: demo('', 'Demo counselor bio.'),
+    specialization: demo('', 'Career guidance'),
+    experience: demo('', '5'),
+    education: demo('', 'M.Ed. Counselling'),
     counselorType: 'school_counselor',
-    password: '',
-    confirmPassword: '',
+    password: demo('', DEMO_PASSWORD),
+    confirmPassword: demo('', DEMO_PASSWORD),
     agreedToPolicies: false,
     acceptedPrivacy: false,
     acceptedCodeOfConduct: false,

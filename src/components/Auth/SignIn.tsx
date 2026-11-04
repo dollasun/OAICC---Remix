@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { demo, demoEmail, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
@@ -28,8 +29,8 @@ export default function SignIn({ defaultRole }: SignInProps) {
   const role: string = defaultRole || roleFromPath || searchParams.get('role') || 'student';
   const policyRole = role || 'student';
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(demoEmail(role));
+  const [password, setPassword] = useState(demo('', DEMO_PASSWORD));
   const [showPassword, setShowPassword] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
 

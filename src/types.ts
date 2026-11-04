@@ -105,6 +105,8 @@ export interface StudentRecord {
   status: AccountStatus;
   onboarded: boolean;
   createdAt: string;
+  /** Last time this student signed in. */
+  lastLoginAt?: string;
 }
 
 export interface ParentRecord {
@@ -157,5 +159,24 @@ export interface InboxNotification {
   body: string;
   link?: string;
   read: boolean;
+  createdAt: string;
+}
+
+/** A snapshot of one student's career-discovery progress, kept per student for school reports. */
+export interface StudentProgress {
+  studentId: string;
+  updatedAt: string;
+  assessmentAnswered: number;
+  assessmentTotal: number;
+  recommended: { title: string; category: string; match: number }[];
+  favourites: { title: string; category: string }[];
+}
+
+export interface MentorSession {
+  id: string;
+  studentId: string;
+  mentorId: number | string;
+  mentorName: string;
+  status: 'Requested' | 'Completed';
   createdAt: string;
 }

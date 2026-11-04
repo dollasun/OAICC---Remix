@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fullName, sessionStore, studentsStore } from '../../../utils/schoolData';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -67,6 +68,9 @@ export default function CounselorDetails() {
 
   const sessions = counselingSessionsStorage.get([]).filter((s: any) => s.counselorId === counselor.id);
 
+  const bookingSession = sessionStore.get();
+  const bookedBy = bookingSession?.role === 'student' ? studentsStore.get(bookingSession.userId) : undefined;
+
   const handleConfirmBooking = () => {
     if (!bookingData.date) {
       showToast('Please select a date');
@@ -76,7 +80,8 @@ export default function CounselorDetails() {
       id: Date.now(),
       counselorId: counselor.id,
       counselorName: counselor.name,
-      studentName: 'Osayuki Yuki', // Mocked current student
+      studentName: bookedBy ? (fullName(bookedBy) || bookedBy.email) : 'Osayuki Yuki', // falls back to the mock student when not signed in
+      studentRef: bookedBy?.id,
       studentImage: 'https://picsum.photos/seed/student/100/100',
       title: bookingData.reason || 'General Consultation',
       date: bookingData.date,

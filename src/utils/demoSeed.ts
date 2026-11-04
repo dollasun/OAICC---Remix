@@ -6,7 +6,7 @@
  * Demo logins (password Demo@12345): school@, teacher@, parent@, student@ at oaicc.demo.
  */
 import type { ActivityEntry, InboxNotification, InviteRecord, ParentRecord, SchoolClass, StudentRecord, TeacherRecord } from '../types';
-import { activity, inbox, invitesStore, parentsStore, sessionStore, studentsStore, teachersStore } from './schoolData';
+import { activity, inbox, invitesStore, mentorSessionsStore, parentsStore, progressStore, sessionStore, studentsStore, teachersStore } from './schoolData';
 import { INITIAL_QUESTIONS } from '../data/assessmentQuestions';
 import {
   adminRolesStorage, adminUsersStorage, careerCategoriesStorage, careersStorage, counselingSessionsStorage, counselorRequestsStorage,
@@ -154,13 +154,72 @@ export function seedDemoData(): boolean {
     note('student', 'demo-student-1', 'Parent linked', 'A parent linked their account to yours.', 30, false),
   ]);
 
+  seedReportData(students);
+
   localStorage.setItem(FLAG, '1');
   return true;
 }
 
+/** Login dates, quiz progress, careers, counsellor and mentor sessions that feed each student's report card. */
+function seedReportData(students: StudentRecord[]) {
+  const logins: Record<string, [number, number]> = {
+    'demo-student-1': [0, 3], 'demo-student-2': [1, 2], 'demo-student-3': [4, 0], 'demo-student-4': [2, 5], 'demo-student-5': [0, 20],
+    'demo-student-6': [6, 0], 'demo-student-7': [9, 0], 'demo-student-8': [3, 8], 'demo-student-9': [12, 0], 'demo-student-10': [18, 0],
+  };
+  studentsStore.save(students.map(s => (logins[s.id] ? { ...s, lastLoginAt: ago(...logins[s.id]) } : s)));
+
+  const rec = (...items: [string, string, number][]) => items.map(([title, category, match]) => ({ title, category, match }));
+  const fav = (...items: [string, string][]) => items.map(([title, category]) => ({ title, category }));
+  const progress: Record<string, [number, ReturnType<typeof rec>, ReturnType<typeof fav>]> = {
+    'demo-student-1': [40, rec(['Software Engineering', 'Technology', 88], ['Data Science', 'Technology', 84], ['Cybersecurity', 'Technology', 79], ['UX Design', 'Design', 74], ['Project Management', 'Business', 68]), fav(['Software Engineering', 'Technology'], ['Data Science', 'Technology'], ['UX Design', 'Design'], ['Cybersecurity', 'Technology'])],
+    'demo-student-2': [62, rec(['Medicine', 'Healthcare', 91], ['Nursing', 'Healthcare', 85], ['Psychology', 'Healthcare', 80], ['Teaching', 'Education', 71], ['Law', 'Legal', 64]), fav(['Medicine', 'Healthcare'], ['Psychology', 'Healthcare'])],
+    'demo-student-3': [62, rec(['Mechanical Engineering', 'Engineering', 89], ['Architecture', 'Architecture', 83], ['Project Management', 'Business', 77], ['Software Engineering', 'Technology', 70], ['Financial Analysis', 'Finance', 62]), fav(['Mechanical Engineering', 'Engineering'], ['Architecture', 'Architecture'], ['Project Management', 'Business'])],
+    'demo-student-5': [62, rec(['Graphic Design', 'Design', 90], ['UX Design', 'Design', 86], ['Digital Marketing', 'Marketing', 78], ['Architecture', 'Architecture', 72], ['Teaching', 'Education', 66]), fav(['Graphic Design', 'Design'], ['UX Design', 'Design'], ['Digital Marketing', 'Marketing'], ['Architecture', 'Architecture'], ['Teaching', 'Education'])],
+    'demo-student-6': [48, rec(['Law', 'Legal', 82], ['Financial Analysis', 'Finance', 76], ['Project Management', 'Business', 69], ['Teaching', 'Education', 61]), fav(['Law', 'Legal'])],
+    'demo-student-7': [62, rec(['Law', 'Legal', 87], ['Teaching', 'Education', 81], ['Psychology', 'Healthcare', 75], ['Digital Marketing', 'Marketing', 70], ['Financial Analysis', 'Finance', 63]), fav(['Law', 'Legal'], ['Psychology', 'Healthcare'], ['Teaching', 'Education'])],
+    'demo-student-8': [35, rec(['Nursing', 'Healthcare', 80], ['Medicine', 'Healthcare', 74], ['Psychology', 'Healthcare', 66]), fav(['Nursing', 'Healthcare'])],
+    'demo-student-9': [20, rec(['Teaching', 'Education', 72], ['Graphic Design', 'Design', 65]), []],
+  };
+  Object.entries(progress).forEach(([studentId, [answered, recommended, favourites]]) =>
+    progressStore.save({ studentId, updatedAt: ago(0, 1), assessmentAnswered: answered, assessmentTotal: 62, recommended, favourites }));
+
+  const session = (n: number, studentId: string, counselor: [number, string], title: string, days: number, status: 'Completed' | 'Upcoming') => {
+    const s = students.find(x => x.id === studentId)!;
+    return {
+      id: 910000 + n, counselorId: counselor[0], counselorName: counselor[1], studentRef: studentId, studentName: `${s.firstName} ${s.lastName}`,
+      studentImage: `https://picsum.photos/seed/${studentId}/100/100`, title, date: new Date(Date.now() + days * DAY).toISOString().slice(0, 10),
+      time: ['09:00 AM', '10:30 AM', '01:00 PM'][n % 3], type: 'Virtual', link: 'https://meet.example.com/oaicc-demo', status,
+    };
+  };
+  const funmbi: [number, string] = [1, 'Mr. Alfred Funmbi'];
+  const ojo: [number, string] = [2, 'Mrs. Sarah Ojo'];
+  const existing = (counselingSessionsStorage.get() as { studentRef?: string }[]).filter(x => !String(x.studentRef ?? '').startsWith('demo-student'));
+  counselingSessionsStorage.save([
+    ...existing,
+    session(1, 'demo-student-1', funmbi, 'Career Path Review', -21, 'Completed'),
+    session(2, 'demo-student-1', funmbi, 'Choosing University Courses', -8, 'Completed'),
+    session(3, 'demo-student-1', funmbi, 'Tech Portfolio Feedback', 5, 'Upcoming'),
+    session(4, 'demo-student-2', ojo, 'Medicine Pathways', -14, 'Completed'),
+    session(5, 'demo-student-2', ojo, 'Exam Strategy', 3, 'Upcoming'),
+    session(6, 'demo-student-3', funmbi, 'Engineering Roadmap', -10, 'Completed'),
+    session(7, 'demo-student-5', ojo, 'Creative Careers Chat', -6, 'Completed'),
+    session(8, 'demo-student-7', ojo, 'Law School Planning', -4, 'Completed'),
+    session(9, 'demo-student-7', ojo, 'Debate & Public Speaking', 7, 'Upcoming'),
+  ]);
+
+  const mentor = (studentId: string, id: number, name: string, days: number) =>
+    ({ id: `demo-m-${studentId}-${id}`, studentId, mentorId: id, mentorName: name, status: 'Completed' as const, createdAt: ago(days) });
+  mentorSessionsStore.save([
+    mentor('demo-student-1', 1, 'John Chidiebere', 18), mentor('demo-student-1', 2, 'Sarah Johnson', 9),
+    mentor('demo-student-2', 3, 'Dr. Amina Yusuf', 12),
+    mentor('demo-student-5', 4, 'Kemi Adewale', 7),
+    mentor('demo-student-7', 5, 'Barr. Chuka Obi', 5), mentor('demo-student-7', 6, 'John Chidiebere', 2),
+  ]);
+}
+
 /** Wipes the school/teacher/parent/student data and seeds the demo data again. */
 export function resetDemoData() {
-  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', FLAG, 'app_demo_student_seeded_v1']
+  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', FLAG, 'app_demo_student_seeded_v1']
     .forEach(k => localStorage.removeItem(k));
   sessionStore.clear();
   seedDemoData();

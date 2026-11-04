@@ -4,8 +4,8 @@
  * portals opened in the same browser. All reads are defensive: bad JSON yields [].
  */
 import type {
-  ActivityEntry, InboxNotification, InviteRecord, ParentRecord, PortalRole, SchoolClass,
-  Session, StudentRecord, TeacherRecord,
+  ActivityEntry, InboxNotification, InviteRecord, MentorSession, ParentRecord, PortalRole, SchoolClass,
+  Session, StudentProgress, StudentRecord, TeacherRecord,
 } from '../types';
 import { schoolClassesStorage, schoolStorage } from './storage';
 
@@ -17,6 +17,8 @@ const K = {
   invites: 'app_invites',
   activity: 'app_activity',
   inbox: 'app_inbox',
+  progress: 'app_student_progress',
+  mentorSessions: 'app_mentor_sessions',
 };
 
 const read = <T,>(key: string, fallback: T): T => {
@@ -186,6 +188,7 @@ export function acceptInvite(token: string, details: { firstName: string; lastNa
   } else {
     inbox.notify(invite.invitedBy.role, invite.invitedBy.userId, 'Invitation accepted', `${name} accepted your invitation.`);
   }
+  if (invite.role === 'student') studentsStore.update(invite.userId, { lastLoginAt: new Date().toISOString() });
   const session = { role, userId: invite.userId };
   sessionStore.set(session);
   return { ok: true, value: session };
@@ -202,7 +205,7 @@ export function registerAccount(role: 'teacher' | 'parent' | 'student', d: { fir
   if (role === 'teacher') teachersStore.save([{ ...rec }, ...teachersStore.all()]);
   else if (role === 'student') studentsStore.save([{ ...rec, parentIds: [] }, ...studentsStore.all()]);
   else parentsStore.save([rec, ...parentsStore.all()]);
-  if (role === 'student') activity.log(rec.id, 'joined', 'Created an account');
+  if (role === 'student') { activity.log(rec.id, 'joined', 'Created an account'); studentsStore.update(rec.id, { lastLoginAt: new Date().toISOString() }); }
   const session = { role, userId: rec.id };
   sessionStore.set(session);
   return { ok: true, value: session };
@@ -222,6 +225,7 @@ export function signInByEmail(role: string, email: string): boolean {
   const rec = findByEmail(role, email);
   if (!rec || ('status' in rec && rec.status === 'invited')) return false;
   sessionStore.set({ role: role as PortalRole, userId: rec.id });
+  if (role === 'student') studentsStore.update(rec.id, { lastLoginAt: new Date().toISOString() });
   return true;
 }
 
@@ -364,3 +368,18 @@ export function setTeacherClasses(teacherId: string, classIds: string[]) {
     else if (!shouldTeach && c.teacherId === teacherId) assignTeacher(c.id, undefined);
   });
 }
+
+/* ───────────── per-student progress + mentor sessions (used by the school report card) ───────────── */
+export const progressStore = {
+  all: (): Record<string, StudentProgress> => read<Record<string, StudentProgress>>(K.progress, {}),
+  get: (studentId: string) => progressStore.all()[studentId],
+  save: (p: StudentProgress) => write(K.progress, { ...progressStore.all(), [p.studentId]: p }),
+};
+
+export const mentorSessionsStore = {
+  all: (): MentorSession[] => read<MentorSession[]>(K.mentorSessions, []),
+  save: (v: MentorSession[]) => write(K.mentorSessions, v),
+  forStudent: (studentId: string) => mentorSessionsStore.all().filter(m => m.studentId === studentId),
+  add: (studentId: string, mentorId: number | string, mentorName: string) =>
+    mentorSessionsStore.save([{ id: uid('m'), studentId, mentorId, mentorName, status: 'Requested', createdAt: new Date().toISOString() }, ...mentorSessionsStore.all()]),
+};

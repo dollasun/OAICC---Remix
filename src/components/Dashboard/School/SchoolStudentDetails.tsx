@@ -29,6 +29,7 @@ import {
 import { savedCareersStorage, schoolStorage } from '../../../utils/storage';
 import { className, fullName, initialsOf, studentsStore } from '../../../utils/schoolData';
 import { trackerEntries } from '../studentTimeline';
+import { downloadStudentReport } from '../../../utils/studentReport';
 import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function SchoolStudentDetails() {
@@ -37,6 +38,20 @@ export default function SchoolStudentDetails() {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'profile' | 'interests' | 'activities'>('profile');
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
+  const handleDownloadReport = async () => {
+    if (!id) return;
+    setIsGeneratingReport(true);
+    try {
+      const name = await downloadStudentReport(id);
+      showToast(`${name}'s report card downloaded.`);
+    } catch {
+      showToast('The report card could not be created. Please try again.', 'error');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
   const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
   const [selectedCareerModal, setSelectedCareerModal] = useState<any | null>(null);
 
@@ -125,8 +140,13 @@ export default function SchoolStudentDetails() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-            Download Report
+          <button
+            onClick={handleDownloadReport}
+            disabled={isGeneratingReport}
+            className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait flex items-center gap-2"
+          >
+            {isGeneratingReport && <span className="w-4 h-4 border-2 border-slate-300 border-t-brand rounded-full animate-spin" />}
+            {isGeneratingReport ? 'Preparing report…' : 'Download Report'}
           </button>
           <button 
             onClick={() => setIsNoteModalOpen(true)}

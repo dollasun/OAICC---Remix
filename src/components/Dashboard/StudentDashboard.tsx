@@ -20,6 +20,7 @@ import {
   FileText
 } from 'lucide-react';
 import Logo from '../Logo';
+import { snapshotCurrentStudent } from '../../utils/studentProgress';
 import { fullName, sessionStore, studentsStore } from '../../utils/schoolData';
 
 // Import sub-components (to be created)
@@ -42,6 +43,13 @@ import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 export default function StudentDashboard() {
+  // Keep this student's progress snapshot (used by the school's report card) up to date.
+  React.useEffect(() => {
+    snapshotCurrentStudent();
+    const timer = window.setInterval(snapshotCurrentStudent, 5000);
+    window.addEventListener('beforeunload', snapshotCurrentStudent);
+    return () => { window.clearInterval(timer); window.removeEventListener('beforeunload', snapshotCurrentStudent); snapshotCurrentStudent(); };
+  }, []);
   const studentSession = sessionStore.get();
   const studentRecord = studentSession?.role === 'student' ? studentsStore.get(studentSession.userId) : undefined;
   const studentName = studentRecord ? (fullName(studentRecord) || studentRecord.email) : 'Bolu Ahmed';

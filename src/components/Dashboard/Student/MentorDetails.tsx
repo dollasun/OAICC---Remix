@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { mentorSessionsStore, sessionStore } from '../../../utils/schoolData';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
@@ -55,6 +56,8 @@ export default function MentorDetails() {
   }, [id]);
 
   const handleSendRequest = () => {
+    const me = sessionStore.get();
+    if (me?.role === 'student' && mentor) mentorSessionsStore.add(me.userId, mentor.id, mentor.name ?? 'Mentor');
     setIsRequesting(false);
     showToast('Mentorship request sent successfully!');
   };

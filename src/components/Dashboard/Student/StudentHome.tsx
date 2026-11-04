@@ -71,7 +71,9 @@ export default function StudentHome() {
 
     const allSessions = counselingSessionsStorage.get([]);
     // Filter sessions for the current student (mocked as student ID 1)
-    const studentSessions = allSessions.filter((s: any) => s.studentId === 1 || s.studentName === 'Osayuki Yuki');
+    const studentSessions = homeRecord
+      ? allSessions.filter((s: any) => s.studentRef === homeRecord.id)
+      : allSessions.filter((s: any) => s.studentId === 1 || s.studentName === 'Osayuki Yuki');
     setUpcomingSessions(studentSessions.slice(0, 2));
 
     // Get top 10 careers with highest recommendation scores

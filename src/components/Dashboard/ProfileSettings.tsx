@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { parentsStore, sessionStore } from '../../utils/schoolData';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, 
@@ -42,17 +43,29 @@ export default function ProfileSettings() {
     system: true
   });
 
+  const session = sessionStore.get();
+  const parentRecord = session?.role === 'parent' ? parentsStore.get(session.userId) : undefined;
   const [formData, setFormData] = useState({
-    title: 'Dr.',
-    firstName: 'Fadeyibi',
-    lastName: 'Aina',
-    relationship: 'Mother',
-    profession: 'Professor',
-    email: 'fadeyibiaina@oaicc.com',
-    phone: '123 456 7890',
-    location: '34, Wuse II, Abuja, Nigeria',
-    gender: 'Female'
+    title: '',
+    firstName: parentRecord?.firstName ?? '',
+    lastName: parentRecord?.lastName ?? '',
+    relationship: '',
+    profession: parentRecord?.profession ?? '',
+    email: parentRecord?.email ?? '',
+    phone: parentRecord?.phone ?? '',
+    location: parentRecord?.location ?? '',
+    gender: ''
   });
+
+  const saveProfile = () => {
+    if (!parentRecord) { showToast('Sign in with a parent account to update your profile.', 'error'); return; }
+    if (!formData.firstName.trim() || !formData.email.includes('@')) { showToast('First name and a valid email are required.', 'error'); return; }
+    const email = formData.email.trim().toLowerCase();
+    const clash = parentsStore.all().some(p => p.id !== parentRecord.id && p.email.toLowerCase() === email);
+    if (clash) { showToast('Another parent already uses this email.', 'error'); return; }
+    parentsStore.update(parentRecord.id, { firstName: formData.firstName.trim(), lastName: formData.lastName.trim(), email, phone: formData.phone.trim(), profession: formData.profession.trim(), location: formData.location.trim() });
+    showToast('Profile updated successfully!');
+  };
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
@@ -154,32 +167,32 @@ export default function ProfileSettings() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">First Name</label>
-                      <input type="text" defaultValue={formData.firstName} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Last Name</label>
-                      <input type="text" defaultValue={formData.lastName} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                      <input type="email" defaultValue={formData.email} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-                      <input type="tel" defaultValue={formData.phone} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Profession</label>
-                      <input type="text" defaultValue={formData.profession} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.profession} onChange={e => setFormData({ ...formData, profession: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Location</label>
-                      <input type="text" defaultValue={formData.location} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-4">
                     <button 
-                      onClick={() => showToast('Profile updated successfully!')}
+                      onClick={saveProfile}
                       className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
                     >
                       Save Changes
@@ -329,7 +342,7 @@ export default function ProfileSettings() {
               >
                 <div className="p-8">
                   <div className="p-6 bg-slate-50 rounded-xl text-center">
-                    <p className="text-slate-500 font-medium">You are currently on the <span className="text-brand font-bold">The Seaside School</span> plan.</p>
+                    <p className="text-slate-500 font-medium">You are currently on the <span className="text-brand font-bold">OAICC</span> plan.</p>
                   </div>
                 </div>
               </motion.div>

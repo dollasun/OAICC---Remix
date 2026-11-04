@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, X, CheckCircle2, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { notificationsStorage } from '../../utils/storage';
+import { useNotifications } from '../../utils/useNotifications';
 import { Notification } from '../../types';
 
 interface NotificationDropdownProps {
@@ -12,35 +12,23 @@ interface NotificationDropdownProps {
 export default function NotificationDropdown({ role }: NotificationDropdownProps) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  useEffect(() => {
-    const initialNotifications: Notification[] = [
-      {
-        id: '1',
-        title: 'Welcome to OAICC!',
-        body: 'We are excited to have you on board. Start exploring your career journey today.',
-        timestamp: '2 hours ago',
-        read: false
-      },
-      {
-        id: '2',
-        title: 'New Student Assigned',
-        body: 'A new student, Tunde Bakare, has been assigned to you for counseling.',
-        timestamp: '4 hours ago',
-        read: false
-      }
-    ];
-    setNotifications(notificationsStorage.get(initialNotifications));
-  }, []);
+  const legacySeed: Notification[] = [
+    { id: '1', title: 'Welcome to OAICC!', body: 'We are excited to have you on board. Start exploring your career journey today.', timestamp: '2 hours ago', read: false },
+    { id: '2', title: 'New Student Assigned', body: 'A new student, Tunde Bakare, has been assigned to you for counseling.', timestamp: '4 hours ago', read: false },
+  ];
+  const { items: notifications, markRead, inboxMode } = useNotifications(role, legacySeed);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleMarkAsRead = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    const updated = notifications.map(n => n.id === id ? { ...n, read: true } : n);
-    setNotifications(updated);
-    notificationsStorage.save(updated);
+    markRead(id);
+  };
+
+  const openNotification = (n: Notification) => {
+    setIsOpen(false);
+    if (inboxMode) markRead(n.id);
+    navigate(n.link ?? `/${role}/notifications`);
   };
 
   const handleViewAll = () => {
@@ -88,7 +76,7 @@ export default function NotificationDropdown({ role }: NotificationDropdownProps
                       <div 
                         key={notification.id}
                         className={`p-4 hover:bg-slate-50 transition-colors cursor-pointer relative ${!notification.read ? 'bg-brand/5' : ''}`}
-                        onClick={() => navigate(`/${role}/notifications`)}
+                        onClick={() => openNotification(notification)}
                       >
                         {!notification.read && (
                           <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand"></div>

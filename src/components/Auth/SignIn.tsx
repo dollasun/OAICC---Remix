@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { demo, demoEmail, DEMO_PASSWORD } from '../../utils/demoDefaults';
+import { demo, demoEmail, DEMO_PASSWORD, DEMO_PREFILL } from '../../utils/demoDefaults';
+import { findByEmail, registerAccount, signInByEmail } from '../../utils/schoolData';
 import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
@@ -67,7 +68,21 @@ export default function SignIn({ defaultRole }: SignInProps) {
       return;
     }
 
-    // Persist authenticated state
+    // Auth is still a front-end mock (no password check). Portals with real data need an account
+    // record for this email; in demo mode a missing demo account is created on the fly.
+    if (['school', 'teacher', 'parent', 'student'].includes(role) && !signInByEmail(role, email)) {
+      const existing = findByEmail(role, email);
+      if (existing && 'status' in existing && existing.status === 'invited') {
+        showToast('Please accept your invitation first using the link you were sent.', 'error');
+        return;
+      }
+      if (DEMO_PREFILL && role !== 'school') {
+        registerAccount(role as 'teacher' | 'parent' | 'student', { firstName: 'Demo', lastName: 'User', email });
+      } else if (!(DEMO_PREFILL && role === 'school')) {
+        showToast('No account found for this email. Please sign up first.', 'error');
+        return;
+      }
+    }
     localStorage.setItem('user_role', role);
     if (role === 'admin') {
       localStorage.setItem('admin_auth', 'true');

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { schoolStorage } from '../../../utils/storage';
+import { activity, addStudentNote, className, classesForTeacher, fullName, parentsStore, sessionStore, studentsStore, teachersStore } from '../../../utils/schoolData';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
 import { 
@@ -16,13 +18,6 @@ import {
   X
 } from 'lucide-react';
 
-const activities = [
-  { id: '1', type: 'Mentor', title: 'Requested a Mentor', description: 'You just Requested a mentor for Front-end development', time: '09:00 am', date: 'Today, Wednesday 31 March, 2022' },
-  { id: '2', type: 'Interest', title: 'Followed an Interest', description: 'You followed Medicine as an interest. You will be able to see articles, videos and content regarding medicine as an interest.', time: '11:00 am', date: 'Today, Wednesday 31 March, 2022' },
-  { id: '3', type: 'Quiz', title: 'Career Interest Quiz Result', description: 'Congratulations on completing the quiz career assessment. It evaluate and measure your interest and personality so we can find the right career for you. Click here to view result.', time: '12:00 pm', date: 'Today, Wednesday 31 March, 2022' },
-  { id: '4', type: 'System', title: 'Welcome to your dashboard', description: 'Congratulations on signing up! Your career journey begins now.', time: '02:00 pm', date: 'Today, Wednesday 31 March, 2022' },
-];
-
 export default function StudentDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,32 +26,41 @@ export default function StudentDetails() {
   const [isInterestModalOpen, setIsInterestModalOpen] = useState(false);
   const [isRecommendModalOpen, setIsRecommendModalOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
-  const [comments, setComments] = useState([
-    { id: '1', author: 'Dr. Fadeyibi Aina', role: 'Parent', text: 'Needs to try using Quickchart.io', time: '3 mins ago', avatar: 'https://picsum.photos/seed/parent/100/100' }
-  ]);
+  const session = sessionStore.get();
+  const record = studentsStore.get(id);
+  const teacher = session?.role === 'teacher' ? teachersStore.get(session.userId) : undefined;
+  const teacherName = teacher ? (fullName(teacher) || teacher.email) : 'Teacher';
+  const [version, setVersion] = useState(0);
+  void version; // re-read the activity feed after a new comment
+  const fmt = (iso: string) => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const feed = id ? activity.forStudent(id) : [];
+  const parents = record ? record.parentIds.map(pid => parentsStore.get(pid)).filter((p): p is NonNullable<typeof p> => Boolean(p)) : [];
+  const comments = feed.filter(a => a.type === 'note').map(a => ({
+    id: a.id, author: a.author ?? 'Teacher', role: a.authorRole ?? 'Teacher', text: a.text ?? '', time: fmt(a.createdAt),
+    avatar: `https://picsum.photos/seed/${a.author ?? 'teacher'}/100/100`,
+  }));
+  const activities = feed.map(a => ({
+    id: a.id, type: a.type === 'onboarding' ? 'Quiz' : 'System', title: a.title, description: a.text ?? a.title, time: fmt(a.createdAt),
+  }));
 
   const handleAddComment = () => {
-    if (!newComment.trim()) return;
-    const comment = {
-      id: Date.now().toString(),
-      author: 'Mr. Uzo Kelechi',
-      role: 'Teacher',
-      text: newComment,
-      time: 'Just now',
-      avatar: 'https://picsum.photos/seed/teacher/100/100'
-    };
-    setComments([comment, ...comments]);
+    if (!newComment.trim() || !id) return;
+    addStudentNote(id, teacherName, 'Teacher', newComment.trim());
+    setVersion(v => v + 1);
     setNewComment('');
     showToast('Comment added successfully!');
   };
 
   const student = {
-    firstName: 'Rasaq',
-    lastName: 'Desmond',
-    class: 'SSS 2 A',
-    school: 'The Seaside School',
-    avatar: 'https://picsum.photos/seed/rasaq/200/200'
+    firstName: record?.firstName || 'Awaiting',
+    lastName: record ? (record.lastName || (record.firstName ? '' : 'sign-up')) : '',
+    class: record?.classId ? className(record.classId) : 'No class',
+    school: schoolStorage.get()?.name ?? 'Your school',
+    avatar: `https://picsum.photos/seed/${id}/200/200`,
   };
+  const allowed = Boolean(record && teacher && record.classId && classesForTeacher(teacher.id).some(c => c.id === record.classId));
+
+  if (!allowed) return <Navigate to="/teacher/dashboard" replace />;
 
   return (
     <div className="space-y-8">
@@ -104,13 +108,12 @@ export default function StudentDetails() {
             <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 space-y-12">
               <div className="space-y-6">
                 {[
-                  { label: 'First Name', value: 'Favour' },
-                  { label: 'Last Name', value: 'Aina' },
-                  { label: 'Email Address', value: 'favouraina@gmail.com' },
-                  { label: 'Phone Number', value: '08054883021' },
-                  { label: 'Gender', value: 'Female' },
-                  { label: 'Class', value: 'JSS 3' },
-                  { label: 'Bio', value: 'I am an JSS 3 student at The Seaside School based in Nigeria. I would love to pursue a degree in Computer science. I am currently in a Tech wiz club at my secondary school.' },
+                  { label: 'First Name', value: record?.firstName || 'Not provided' },
+                  { label: 'Last Name', value: record?.lastName || 'Not provided' },
+                  { label: 'Email Address', value: record?.email ?? '' },
+                  { label: 'Phone Number', value: record?.phone || 'Not provided' },
+                  { label: 'Class', value: student.class },
+                  { label: 'Onboarding', value: record?.onboarded ? 'Complete' : 'Pending' },
                 ].map((item, idx) => (
                   <div key={idx} className="grid grid-cols-[200px_1fr] gap-4 items-start">
                     <p className="text-slate-500 font-medium">{item.label}</p>
@@ -120,38 +123,22 @@ export default function StudentDetails() {
               </div>
 
               <div className="pt-10 border-t border-slate-100">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-4">Counselor</h4>
-                    <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Counselor" />
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">Sarah Ojo</p>
-                        <p className="text-xs text-slate-500">Counselor at OAICC</p>
+                <h4 className="text-lg font-bold text-slate-900 mb-4">Parents / Guardians</h4>
+                {parents.length === 0 ? (
+                  <p className="text-sm text-slate-400 font-medium">No parent has been linked to this student yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {parents.map(p => (
+                      <div key={p.id} className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center"><User className="w-6 h-6" /></div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{fullName(p) || 'Awaiting sign-up'}</p>
+                          <p className="text-xs text-slate-500">{p.email}</p>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-4">Mentor</h4>
-                    <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Mentor" />
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">Mason Biyi</p>
-                        <p className="text-xs text-slate-500">Full Stack Developer at Moniepoint</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-slate-900 mb-4">Teacher</h4>
-                    <div className="flex items-center gap-3">
-                      <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Teacher" />
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">Mr. Uzo Kelechi</p>
-                        <p className="text-xs text-slate-500">Teacher at The Seaside School</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           )}

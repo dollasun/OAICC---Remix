@@ -1,3 +1,5 @@
+import type { School, SchoolClass } from '../types';
+
 
 const STORAGE_KEY_CAREERS = 'app_careers';
 const STORAGE_KEY_CAREER_CATEGORIES = 'app_career_categories';
@@ -18,6 +20,8 @@ const STORAGE_KEY_STRENGTH_QUIZ = 'app_strength_quiz';
 const STORAGE_KEY_COUNSELING_SESSIONS = 'app_counseling_sessions';
 const STORAGE_KEY_MESSAGES = 'app_messages';
 const STORAGE_KEY_STUDENT_MESSAGES = 'app_student_messages';
+const STORAGE_KEY_SCHOOL = 'app_school';
+const STORAGE_KEY_SCHOOL_CLASSES = 'app_school_classes';
 const STORAGE_KEY_COUNSELOR_PROFILE = 'app_counselor_personal_profile';
 
 export const getStoredData = (key: string, initialData: any) => {
@@ -31,6 +35,47 @@ export const getStoredData = (key: string, initialData: any) => {
 
 export const saveStoredData = (key: string, data: any) => {
   localStorage.setItem(key, JSON.stringify(data));
+};
+
+export const schoolStorage = {
+  get: (): School | null => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY_SCHOOL);
+      return stored ? (JSON.parse(stored) as School) : null;
+    } catch {
+      return null;
+    }
+  },
+  save: (school: School) => saveStoredData(STORAGE_KEY_SCHOOL, school),
+};
+
+export const schoolClassesStorage = {
+  get: (): SchoolClass[] => getStoredData(STORAGE_KEY_SCHOOL_CLASSES, []),
+  save: (classes: SchoolClass[]) => saveStoredData(STORAGE_KEY_SCHOOL_CLASSES, classes),
+  /** Returns the created class, or null when the name is empty or already used. */
+  add: (name: string, teacherId?: string): SchoolClass | null => {
+    const trimmed = name.trim();
+    const classes = schoolClassesStorage.get();
+    if (!trimmed || classes.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) return null;
+    const created: SchoolClass = {
+      id: `class-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      schoolId: schoolStorage.get()?.id ?? '',
+      name: trimmed,
+      teacherId: teacherId || undefined,
+      createdAt: new Date().toISOString(),
+    };
+    schoolClassesStorage.save([created, ...classes]);
+    return created;
+  },
+  /** Returns false when the name is empty or clashes with another class. */
+  update: (id: string, changes: { name: string; teacherId?: string }): boolean => {
+    const trimmed = changes.name.trim();
+    const classes = schoolClassesStorage.get();
+    if (!trimmed || classes.some(c => c.id !== id && c.name.toLowerCase() === trimmed.toLowerCase())) return false;
+    schoolClassesStorage.save(classes.map(c => (c.id === id ? { ...c, name: trimmed, teacherId: changes.teacherId || undefined } : c)));
+    return true;
+  },
+  remove: (id: string) => schoolClassesStorage.save(schoolClassesStorage.get().filter(c => c.id !== id)),
 };
 
 export const careersStorage = {

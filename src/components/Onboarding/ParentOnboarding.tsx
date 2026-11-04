@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { finishOnboarding, parentsStore, sessionStore } from '../../utils/schoolData';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -18,15 +19,17 @@ export default function ParentOnboarding() {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [step, setStep] = useState(1);
+  const session = sessionStore.get();
+  const record = session?.role === 'parent' ? parentsStore.get(session.userId) : undefined;
   const [formData, setFormData] = useState({
     relationship: '',
     title: '',
-    firstName: 'Fadeyibi',
-    lastName: 'Aina',
-    email: 'fadeyibiaina@oaicc.com',
-    profession: '',
-    location: '',
-    phone: '',
+    firstName: record?.firstName ?? '',
+    lastName: record?.lastName ?? '',
+    email: record?.email ?? '',
+    profession: record?.profession ?? '',
+    location: record?.location ?? '',
+    phone: record?.phone ?? '',
     avatar: 'https://picsum.photos/seed/parent/200/200'
   });
 
@@ -216,10 +219,10 @@ export default function ParentOnboarding() {
               <h2 className="text-4xl font-bold text-slate-900 mb-4 font-display">Great! Your account is all set.</h2>
               <p className="text-slate-500 text-lg">
                 You have successfully set up your account on OAICC.<br />
-                You are currently part of <span className="text-brand font-bold">The Seaside School</span> plan.
+                You are now part of <span className="text-brand font-bold">OAICC</span>.
               </p>
             </div>
-            <button onClick={() => navigate('/parent/dashboard')} className="btn-primary w-full py-4 text-lg">
+            <button onClick={() => { finishOnboarding('parent', formData); navigate('/parent/dashboard'); }} className="btn-primary w-full py-4 text-lg">
               Go to Dashboard
             </button>
           </motion.div>

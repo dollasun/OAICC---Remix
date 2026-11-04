@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { schoolStorage, schoolClassesStorage } from '../../utils/storage';
+import { sessionStore } from '../../utils/schoolData';
 import { demo, demoPerson, DEMO_PASSWORD } from '../../utils/demoDefaults';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -20,9 +22,9 @@ export default function SchoolSignUp() {
     confirmPassword: demo('', DEMO_PASSWORD),
     schoolName: demo('', 'Demo Secondary School'),
     location: demo('', 'Lagos, Nigeria'),
-    schoolTypes: [] as string[],
-    numClasses: demo('', '12'),
-    numStudents: demo('', '480')
+    schoolTypes: demo([] as string[], ['Junior Secondary', 'Senior Secondary']),
+    numClasses: demo('', '12 - 20'),
+    numStudents: demo('', '100 - 400')
   });
 
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -59,6 +61,22 @@ export default function SchoolSignUp() {
       return;
     }
     setTermsError(false);
+    const schoolId = `school-${Date.now().toString(36)}`;
+    schoolStorage.save({
+      id: schoolId,
+      name: formData.schoolName.trim(),
+      location: formData.location.trim(),
+      schoolTypes: formData.schoolTypes,
+      expectedClasses: formData.numClasses,
+      expectedStudents: formData.numStudents,
+      adminFirstName: formData.firstName.trim(),
+      adminLastName: formData.lastName.trim(),
+      adminEmail: formData.email.trim().toLowerCase(),
+      createdAt: new Date().toISOString(),
+    });
+    schoolClassesStorage.save([]); // a new school starts with no classes
+    sessionStore.set({ role: 'school', userId: schoolId });
+    localStorage.setItem('user_role', 'school');
     setStep(4); // Check email step
   };
 

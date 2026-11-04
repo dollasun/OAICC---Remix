@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react';
+import { schoolStorage } from '../../utils/storage';
+import { finishOnboarding, sessionStore, teachersStore } from '../../utils/schoolData';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -23,14 +25,17 @@ export default function TeacherOnboarding() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
+  const session = sessionStore.get();
+  const record = session?.role === 'teacher' ? teachersStore.get(session.userId) : undefined;
+  const schoolName = record?.schoolId ? (schoolStorage.get()?.name ?? 'OAICC') : 'OAICC';
   const [formData, setFormData] = useState({
     title: 'Mr.',
-    firstName: 'Uzo',
-    lastName: 'Kelechi',
-    email: 'fadeyibiaina@oaicc.com',
-    phone: '08055888444',
-    bio: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore.',
-    location: '34, Wuse II, Abuja, Nigeria',
+    firstName: record?.firstName ?? '',
+    lastName: record?.lastName ?? '',
+    email: record?.email ?? '',
+    phone: record?.phone ?? '',
+    bio: record?.bio ?? '',
+    location: record?.location ?? '',
     avatar: 'https://picsum.photos/seed/teacher/200/200',
     password: '',
     confirmPassword: ''
@@ -117,7 +122,7 @@ export default function TeacherOnboarding() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700">Email</label>
-                  <input type="email" className="input-field" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                  <input type="email" className="input-field" value={formData.email} readOnly={Boolean(record)} onChange={e => setFormData({...formData, email: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700">Phone Number</label>
@@ -167,7 +172,7 @@ export default function TeacherOnboarding() {
           >
             <div className="text-center">
               <h2 className="text-3xl font-bold text-slate-900 mb-2">Set your Password</h2>
-              <p className="text-slate-500">Favour Aina & Gbenga Aina</p>
+              <p className="text-slate-500">{formData.firstName} {formData.lastName}</p>
             </div>
 
             <div className="space-y-6">
@@ -229,17 +234,17 @@ export default function TeacherOnboarding() {
           >
             <div className="text-center">
               <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome, {formData.title} {formData.firstName} {formData.lastName}</h2>
-              <p className="text-slate-500">Mother to - Favour Aina & Gbenga Aina</p>
+              <p className="text-slate-500">{record?.schoolId ? `Teacher at ${schoolName}` : 'Teacher'}</p>
             </div>
 
             <div className="space-y-4">
               <h2 className="text-4xl font-bold text-slate-900 font-display">Great! Your account its all set.</h2>
               <p className="text-slate-500 text-lg">
                 Your have successfully setup your account on OAICC.<br />
-                You are currently part of <span className="text-brand font-bold">The Seaside School</span> plan.
+                You are now part of <span className="text-brand font-bold">{schoolName}</span>.
               </p>
             </div>
-            <button onClick={() => navigate('/teacher/dashboard')} className="btn-primary w-full py-4 text-lg">
+            <button onClick={() => { finishOnboarding('teacher', formData); navigate('/teacher/dashboard'); }} className="btn-primary w-full py-4 text-lg">
               Continue
             </button>
           </motion.div>

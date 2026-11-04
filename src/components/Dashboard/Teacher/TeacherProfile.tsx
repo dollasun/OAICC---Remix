@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { fullName, sessionStore, teachersStore } from '../../../utils/schoolData';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, 
@@ -42,14 +43,27 @@ export default function TeacherProfile() {
     system: true
   });
 
+  const session = sessionStore.get();
+  const teacherRecord = session?.role === 'teacher' ? teachersStore.get(session.userId) : undefined;
   const [formData, setFormData] = useState({
-    title: 'Mr.',
-    fullName: 'Uzo Kelechi',
-    email: 'uzo.kelechi@oaicc.com',
-    phone: '123 456 7890',
-    bio: 'Experienced educator passionate about student development and career guidance.',
-    location: '34, Wuse II, Abuja, Nigeria'
+    title: '',
+    fullName: teacherRecord ? fullName(teacherRecord) : '',
+    email: teacherRecord?.email ?? '',
+    phone: teacherRecord?.phone ?? '',
+    bio: teacherRecord?.bio ?? '',
+    location: teacherRecord?.location ?? ''
   });
+
+  const saveProfile = () => {
+    if (!teacherRecord) { showToast('Sign in with a teacher account to update your profile.', 'error'); return; }
+    const [first, ...rest] = formData.fullName.trim().split(/\s+/);
+    if (!first || !formData.email.includes('@')) { showToast('Name and a valid email are required.', 'error'); return; }
+    const email = formData.email.trim().toLowerCase();
+    const clash = teachersStore.all().some(t => t.id !== teacherRecord.id && t.email.toLowerCase() === email);
+    if (clash) { showToast('Another teacher already uses this email.', 'error'); return; }
+    teachersStore.update(teacherRecord.id, { firstName: first, lastName: rest.join(' '), email, phone: formData.phone.trim(), bio: formData.bio.trim(), location: formData.location.trim() });
+    showToast('Profile updated successfully!');
+  };
 
   const toggleAccordion = (id: string) => {
     setActiveAccordion(activeAccordion === id ? null : id);
@@ -151,28 +165,28 @@ export default function TeacherProfile() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-                      <input type="text" defaultValue={formData.fullName} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                      <input type="email" defaultValue={formData.email} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Phone Number</label>
-                      <input type="tel" defaultValue={formData.phone} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Location</label>
-                      <input type="text" defaultValue={formData.location} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
+                      <input type="text" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700" />
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <label className="text-sm font-bold text-slate-700 ml-1">Bio</label>
-                      <textarea defaultValue={formData.bio} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 min-h-[120px] resize-none" />
+                      <textarea value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 min-h-[120px] resize-none" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-4">
                     <button 
-                      onClick={() => showToast('Profile updated successfully!')}
+                      onClick={saveProfile}
                       className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-105 transition-all"
                     >
                       Save Changes

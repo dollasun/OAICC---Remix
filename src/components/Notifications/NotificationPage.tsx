@@ -1,71 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Bell, CheckCircle2, Clock, Trash2, Search, Filter } from 'lucide-react';
-import { notificationsStorage } from '../../utils/storage';
+import { useNotifications } from '../../utils/useNotifications';
 import { Notification } from '../../types';
 
 export default function NotificationPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const role = useLocation().pathname.split('/')[1] ?? '';
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    const initialNotifications: Notification[] = [
-      {
-        id: '1',
-        title: 'Welcome to OAICC!',
-        body: 'We are excited to have you on board. Start exploring your career journey today.',
-        timestamp: '2 hours ago',
-        read: false
-      },
-      {
-        id: '2',
-        title: 'New Student Assigned',
-        body: 'A new student, Tunde Bakare, has been assigned to you for counseling.',
-        timestamp: '4 hours ago',
-        read: false
-      },
-      {
-        id: '3',
-        title: 'Session Reminder',
-        body: 'Your session with Osayuki Yuki starts in 30 minutes.',
-        timestamp: '1 hour ago',
-        read: true
-      },
-      {
-        id: '4',
-        title: 'New Message',
-        body: 'Favour Aina sent you a new message regarding their portfolio.',
-        timestamp: 'Yesterday',
-        read: true
-      },
-      {
-        id: '5',
-        title: 'System Update',
-        body: 'The counseling dashboard has been updated with new analytics features.',
-        timestamp: '2 days ago',
-        read: true
-      }
-    ];
-    setNotifications(notificationsStorage.get(initialNotifications));
-  }, []);
-
-  const handleMarkAsRead = (id: string) => {
-    const updated = notifications.map(n => n.id === id ? { ...n, read: true } : n);
-    setNotifications(updated);
-    notificationsStorage.save(updated);
-  };
-
-  const handleMarkAllAsRead = () => {
-    const updated = notifications.map(n => ({ ...n, read: true }));
-    setNotifications(updated);
-    notificationsStorage.save(updated);
-  };
-
-  const handleDelete = (id: string) => {
-    const updated = notifications.filter(n => n.id !== id);
-    setNotifications(updated);
-    notificationsStorage.save(updated);
-  };
+  const legacySeed: Notification[] = [
+    { id: '1', title: 'Welcome to OAICC!', body: 'We are excited to have you on board. Start exploring your career journey today.', timestamp: '2 hours ago', read: false },
+    { id: '2', title: 'New Student Assigned', body: 'A new student, Tunde Bakare, has been assigned to you for counseling.', timestamp: '4 hours ago', read: false },
+    { id: '3', title: 'Session Reminder', body: 'Your session with Osayuki Yuki starts in 30 minutes.', timestamp: '1 hour ago', read: true },
+    { id: '4', title: 'New Message', body: 'Favour Aina sent you a new message regarding their portfolio.', timestamp: 'Yesterday', read: true },
+    { id: '5', title: 'System Update', body: 'The counseling dashboard has been updated with new analytics features.', timestamp: '2 days ago', read: true },
+  ];
+  const { items: notifications, markRead: handleMarkAsRead, markAllRead: handleMarkAllAsRead, remove: handleDelete } = useNotifications(role, legacySeed);
 
   const filteredNotifications = notifications.filter(n => 
     n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

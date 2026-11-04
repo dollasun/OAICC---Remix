@@ -1,41 +1,83 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Search, UserPlus, Mail, X, Check, ChevronRight, Users, Activity as ActivityIcon, Target } from 'lucide-react';
-import { Child } from '../../types';
-
-const initialChildren: Child[] = [
-  { id: '1', firstName: 'Favour', lastName: 'Aina', email: 'favour@oaicc.com', class: 'JSS 3 A', school: 'The Seaside School', relationship: 'Daughter', status: 'active', avatar: 'https://picsum.photos/seed/child1/200/200' },
-  { id: '2', firstName: 'Gbenga', lastName: 'Aina', email: 'gbenga@oaicc.com', class: 'SSS 1 B', school: 'The Seaside School', relationship: 'Son', status: 'active', avatar: 'https://picsum.photos/seed/child2/200/200' },
-];
+import { Plus, UserPlus, Mail, X, Check, ChevronRight, Users, Activity as ActivityIcon, Target, Copy } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import { schoolStorage } from '../../utils/storage';
+import { activity, addChild, childrenOf, className, fullName, pendingChildInvites, sessionStore } from '../../utils/schoolData';
 
 export default function ChildrenList() {
   const navigate = useNavigate();
-  const [children, setChildren] = useState<Child[]>(initialChildren);
+  const { showToast } = useToast();
+  const [version, setVersion] = useState(0);
+  const refresh = () => setVersion(v => v + 1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [addStep, setAddStep] = useState(1);
-  const [newChildEmail, setNewChildEmail] = useState('');
+  const [form, setForm] = useState({ email: '', firstName: '', lastName: '' });
+  const [result, setResult] = useState<{ message: string; link?: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  void version; // re-read localStorage after each change
+  const session = sessionStore.get();
+  const parentId = session?.role === 'parent' ? session.userId : undefined;
+  const children = parentId ? childrenOf(parentId) : [];
 
   const handleAddChild = () => {
+    if (!parentId) {
+      showToast('Please sign in with a parent account to add a child.', 'error');
+      return;
+    }
+    setForm({ email: '', firstName: '', lastName: '' });
+    setResult(null);
+    setCopied(false);
     setIsAddModalOpen(true);
     setAddStep(1);
   };
 
+  const submitChild = () => {
+    if (!parentId) return;
+    const r = addChild(parentId, form);
+    if ('error' in r) {
+      showToast(r.error, 'error');
+      return;
+    }
+    refresh();
+    setResult(
+      r.value.linked
+        ? { message: 'This child already has an OAICC account. It has been linked to yours and they have been notified.' }
+        : { message: 'Invitation created. Share this link with your child so they can create their account.', link: r.value.link },
+    );
+    setAddStep(4);
+  };
+
+  const copyLink = async () => {
+    if (!result?.link) return;
+    try {
+      await navigator.clipboard.writeText(result.link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      showToast('Could not copy automatically. Select the link and copy it.', 'error');
+    }
+  };
+
+  const kpis = [
+    { label: 'Total Children', value: children.length, icon: <Users className="w-6 h-6" />, color: 'bg-blue-500' },
+    { label: 'Active Activities', value: children.reduce((n, c) => n + activity.forStudent(c.id).length, 0), icon: <ActivityIcon className="w-6 h-6" />, color: 'bg-cyan-500' },
+    { label: 'Onboarding Complete', value: children.filter(c => c.onboarded).length, icon: <Target className="w-6 h-6" />, color: 'bg-emerald-500' },
+    { label: 'Pending Invites', value: parentId ? pendingChildInvites(parentId).length : 0, icon: <Mail className="w-6 h-6" />, color: 'bg-orange-500' },
+  ];
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: 'Total Children', value: '2', icon: <Users className="w-6 h-6" />, color: 'bg-blue-500', shadow: 'shadow-blue-200' },
-          { label: 'Active Activities', value: '12', icon: <ActivityIcon className="w-6 h-6" />, color: 'bg-cyan-500', shadow: 'shadow-cyan-200' },
-          { label: 'Career Quizzes', value: '4', icon: <Target className="w-6 h-6" />, color: 'bg-emerald-500', shadow: 'shadow-emerald-200' },
-          { label: 'Pending Invites', value: '1', icon: <Mail className="w-6 h-6" />, color: 'bg-orange-500', shadow: 'shadow-orange-200' },
-        ].map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:${kpi.shadow} hover:shadow-sm transition-all`}
+            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all"
           >
             <div className={`${kpi.color} w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4`}>
               {kpi.icon}
@@ -80,20 +122,20 @@ export default function ChildrenList() {
             >
               <div className="flex items-center gap-4 mb-6">
                 <img 
-                  src={child.avatar} 
+                  src={`https://picsum.photos/seed/${child.id}/200/200`} 
                   alt={child.firstName} 
                   className="w-16 h-16 rounded-xl object-cover"
                 />
                 <div>
-                  <h3 className="text-xl font-bold text-slate-900">{child.firstName} {child.lastName}</h3>
-                  <p className="text-sm text-slate-500">{child.class} • {child.school}</p>
+                  <h3 className="text-xl font-bold text-slate-900">{fullName(child) || 'Awaiting sign-up'}</h3>
+                  <p className="text-sm text-slate-500">{child.classId ? className(child.classId) : 'No class yet'} • {child.schoolId ? (schoolStorage.get()?.name ?? 'School') : 'No school yet'}</p>
                 </div>
               </div>
               
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">Relationship</span>
-                  <span className="font-semibold text-slate-900">{child.relationship}</span>
+                  <span className="text-slate-500">Onboarding</span>
+                  <span className="font-semibold text-slate-900">{child.onboarded ? 'Complete' : 'Pending'}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500">Email</span>
@@ -102,8 +144,8 @@ export default function ChildrenList() {
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-600">
-                  <Check className="w-3 h-3" /> Active
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${child.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                  <Check className="w-3 h-3" /> {child.status === 'active' ? 'Active' : 'Invited'}
                 </span>
                 <div className="text-brand font-bold text-sm flex items-center group-hover:gap-1 transition-all">
                   View Progress <ChevronRight className="w-4 h-4" />
@@ -148,7 +190,7 @@ export default function ChildrenList() {
                         className="w-full p-4 rounded-xl border-2 border-slate-100 hover:border-brand hover:bg-brand-light/20 text-left transition-all group"
                       >
                         <p className="font-bold text-slate-900 group-hover:text-brand">Yes, they have an account</p>
-                        <p className="text-sm text-slate-500">We'll send them a connection request.</p>
+                        <p className="text-sm text-slate-500">We'll link their account to yours using their email.</p>
                       </button>
                       <button 
                         onClick={() => setAddStep(3)}
@@ -172,40 +214,56 @@ export default function ChildrenList() {
                           type="email" 
                           placeholder="example@email.com" 
                           className="input-field"
-                          value={newChildEmail}
-                          onChange={e => setNewChildEmail(e.target.value)}
+                          value={form.email}
+                          onChange={e => setForm({ ...form, email: e.target.value })}
                         />
                       </div>
                     </div>
                     <div className="flex gap-4 pt-4">
                       <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-600 hover:bg-slate-50">Back</button>
-                      <button onClick={() => setIsAddModalOpen(false)} className="flex-[2] btn-primary">Send Invite</button>
+                      <button onClick={submitChild} disabled={!form.email.trim()} className="flex-[2] btn-primary disabled:opacity-50">Link or invite</button>
                     </div>
                   </div>
-                ) : (
+                ) : addStep === 3 ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700">First Name</label>
-                        <input type="text" className="input-field" placeholder="Child's first name" />
+                        <input type="text" className="input-field" placeholder="Child's first name" value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })} />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700">Last Name</label>
-                        <input type="text" className="input-field" placeholder="Child's last name" />
+                        <input type="text" className="input-field" placeholder="Child's last name" value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700">Email Address</label>
-                      <input type="email" className="input-field" placeholder="child@email.com" />
+                      <input type="email" className="input-field" placeholder="child@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Password</label>
-                      <input type="password" placeholder="••••••••" className="input-field" />
-                    </div>
+                    <p className="text-xs text-slate-400 font-medium">Your child will get an invite link and set up their own account.</p>
                     <div className="flex gap-4 pt-6">
                       <button onClick={() => setAddStep(1)} className="flex-1 px-6 py-3 border border-slate-200 rounded-lg font-bold text-slate-600 hover:bg-slate-50">Back</button>
-                      <button onClick={() => setIsAddModalOpen(false)} className="flex-[2] btn-primary">Create Account</button>
+                      <button onClick={submitChild} disabled={!form.email.trim()} className="flex-[2] btn-primary disabled:opacity-50">Create invite</button>
                     </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center"><Check className="w-7 h-7" /></div>
+                    <p className="text-slate-600 leading-relaxed">{result?.message}</p>
+                    {result?.link && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Invite link</label>
+                        <div className="flex gap-2">
+                          <input readOnly value={result.link} onFocus={e => e.currentTarget.select()} className="input-field py-3 text-xs" />
+                          <button type="button" onClick={copyLink} className="px-4 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shrink-0">
+                            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                            {copied ? 'Copied' : 'Copy'}
+                          </button>
+                        </div>
+                        <p className="text-xs text-slate-400 font-medium">Email delivery isn't set up yet, so send this link yourself.</p>
+                      </div>
+                    )}
+                    <button onClick={() => setIsAddModalOpen(false)} className="btn-primary w-full py-4">Done</button>
                   </div>
                 )}
               </div>

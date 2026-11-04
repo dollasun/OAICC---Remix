@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
 import { 
@@ -26,7 +26,9 @@ import {
   GraduationCap,
   DollarSign
 } from 'lucide-react';
-import { savedCareersStorage } from '../../../utils/storage';
+import { savedCareersStorage, schoolStorage } from '../../../utils/storage';
+import { className, fullName, initialsOf, studentsStore } from '../../../utils/schoolData';
+import { trackerEntries } from '../studentTimeline';
 import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function SchoolStudentDetails() {
@@ -38,17 +40,19 @@ export default function SchoolStudentDetails() {
   const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
   const [selectedCareerModal, setSelectedCareerModal] = useState<any | null>(null);
 
+  const record = studentsStore.get(id);
+  const studentSchool = schoolStorage.get();
   const student = {
-    name: 'Esther Rae',
+    name: record ? (fullName(record) || 'Awaiting sign-up') : '',
     role: 'Student',
-    email: 'estherrae@oaicc.com',
-    phone: '+234 801 234 5678',
-    class: 'SSS3',
-    location: 'Lagos, Nigeria',
-    joinedDate: 'Jan 6, 2022',
-    initials: 'ER',
+    email: record?.email ?? '',
+    phone: record?.phone ?? 'Not provided',
+    class: record?.classId ? className(record.classId) : 'No class',
+    location: studentSchool?.location ?? 'Not provided',
+    joinedDate: record ? new Date(record.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+    initials: record && fullName(record) ? initialsOf(record) : '?',
     color: 'bg-cyan-100 text-cyan-600',
-    bio: 'Esther is a brilliant student with a keen interest in technology and creative arts. She consistently performs well in her academics and is an active participant in school clubs.',
+    bio: record?.onboarded ? 'This student has completed onboarding.' : 'This student has not completed onboarding yet.',
   };
 
   // 1. Career Interest list: top 10 recommended careers + favorited careers
@@ -90,56 +94,12 @@ export default function SchoolStudentDetails() {
   }, []);
 
   // 2. Activity Tracker data (same format as Student Activity Tracker)
-  const trackerActivities = [
-    {
-      id: 1,
-      type: 'quiz',
-      title: 'Career Interest Assessment',
-      status: 'Completed',
-      date: 'Oct 10, 2024',
-      icon: ActivityIcon,
-      color: 'bg-brand',
-      details: 'Matched with 12 potential career paths based on assessment results.'
-    },
-    {
-      id: 2,
-      type: 'mentor',
-      title: 'Mentorship Request',
-      status: 'Pending',
-      date: 'Oct 13, 2024',
-      icon: Users,
-      color: 'bg-indigo-500',
-      details: 'Sent a request to Sarah Johnson (Senior Software Engineer at Google).'
-    },
-    {
-      id: 3,
-      type: 'career',
-      title: 'Saved Career Path',
-      status: 'Updated',
-      date: 'Oct 14, 2024',
-      icon: BookOpen,
-      color: 'bg-emerald-500',
-      details: 'Saved "Data Scientist" to career library.'
-    },
-    {
-      id: 4,
-      type: 'session',
-      title: 'Counseling Session Scheduled',
-      status: 'Upcoming',
-      date: 'Oct 22, 2024',
-      icon: Calendar,
-      color: 'bg-amber-500',
-      details: 'Virtual meeting scheduled with Sarah Ojo (Counselor).'
-    }
-  ];
+  const trackerActivities = trackerEntries(id);
 
   // 3. Milestones data
-  const milestones = [
-    { id: 1, title: 'Profile 100% Complete', date: 'Oct 05, 2024', icon: Award },
-    { id: 2, title: 'First Career Match', date: 'Oct 10, 2024', icon: Star },
-    { id: 3, title: 'Quiz Assessment Passed', date: 'Oct 15, 2024', icon: CheckCircle2 },
-    { id: 4, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users }
-  ];
+  const milestones = trackerEntries(id).filter(e => e.type !== 'note').map(e => ({ id: e.id, title: e.title, date: e.date, icon: e.icon }));
+
+  if (!record) return <Navigate to="/school/dashboard" replace />;
 
   return (
     <div className="space-y-8">
@@ -401,7 +361,7 @@ export default function SchoolStudentDetails() {
                   </h2>
                   <div className="flex gap-3">
                     <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-semibold text-slate-600">
-                      <Calendar className="w-4 h-4" /> January 2023
+                      <Calendar className="w-4 h-4" /> {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </div>
                     <button className="p-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100">
                       <Filter className="w-5 h-5" />
@@ -513,12 +473,7 @@ export default function SchoolStudentDetails() {
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {[...milestones, 
-                    { id: 5, title: 'First Quiz Passed', date: 'Oct 15, 2024', icon: Award },
-                    { id: 6, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users },
-                    { id: 7, title: 'Career Path Saved', date: 'Oct 20, 2024', icon: BookOpen },
-                    { id: 8, title: 'Weekly Streak', date: 'Oct 25, 2024', icon: ActivityIcon }
-                  ].map((m, idx) => (
+                  {milestones.map((m, idx) => (
                     <div key={`school-modal-m-${m.id}-${idx}`} className="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
                       <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
                         <m.icon className="w-6 h-6" />

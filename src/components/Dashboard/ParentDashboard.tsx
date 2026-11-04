@@ -17,6 +17,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import Logo from '../Logo';
+import { childrenOf, fullName, parentsStore, sessionStore } from '../../utils/schoolData';
 import ChildrenList from './ChildrenList';
 import ChildDetails from './ChildDetails';
 import ProfileSettings from './ProfileSettings';
@@ -27,24 +28,23 @@ import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
-const children = [
-  { id: '1', name: 'Favour Aina' },
-  { id: '2', name: 'Gbenga Aina' },
-];
-
 export default function ParentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { totalUnread } = useCrossPortalMessaging('parent-1', 'parent');
+  const session = sessionStore.get();
+  const parent = session?.role === 'parent' ? parentsStore.get(session.userId) : undefined;
+  const parentName = parent ? (fullName(parent) || parent.email) : 'Parent';
+  const children = (parent ? childrenOf(parent.id) : []).map(c => ({ id: c.id, name: fullName(c) || c.email }));
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   const isChildActive = (id: string) => {
-    return location.pathname === `/parent/child/${id}`;
+    return location.pathname === `/parent/dashboard/child/${id}` || location.pathname === `/parent/child/${id}`;
   };
 
   const isChildrenSectionActive = () => {
@@ -103,7 +103,7 @@ export default function ParentDashboard() {
                   {children.map((child) => (
                     <Link
                       key={child.id}
-                      to={`/parent/child/${child.id}`}
+                      to={`/parent/dashboard/child/${child.id}`}
                       className={`block py-2 text-sm font-bold transition-all ${
                         isChildActive(child.id)
                           ? 'text-brand'
@@ -176,12 +176,12 @@ export default function ParentDashboard() {
               className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">Dr. Fadeyibi Aina</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{parentName}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Parent</p>
             </div>
           </button>
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => { sessionStore.clear(); navigate('/'); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
           >
             <LogOut className="w-5 h-5" />
@@ -216,7 +216,7 @@ export default function ParentDashboard() {
                 className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Dr. Fadeyibi Aina</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{parentName}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Parent</p>
                 </div>
                 <img 

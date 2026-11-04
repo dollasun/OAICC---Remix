@@ -12,6 +12,7 @@ import ParentDashboard from './components/Dashboard/ParentDashboard';
 import TeacherOnboarding from './components/Onboarding/TeacherOnboarding';
 import TeacherDashboard from './components/Dashboard/TeacherDashboard';
 import SchoolSignUp from './components/Auth/SchoolSignUp';
+import AcceptInvite from './components/Auth/AcceptInvite';
 import SchoolDashboard from './components/Dashboard/SchoolDashboard';
 import StudentOnboarding from './components/Onboarding/StudentOnboarding';
 import StudentDashboard from './components/Dashboard/StudentDashboard';
@@ -44,6 +45,7 @@ export default function App() {
                 <Route path="/auth/signup" element={<SignUp />} />
                 <Route path="/auth/signup/school" element={<SchoolSignUp />} />
                 <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+                <Route path="/invite/:token" element={<AcceptInvite />} />
                 
                 {/* Onboarding Routes */}
                 <Route path="/onboarding/parent" element={<ParentOnboarding />} />

@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { Eye, EyeOff, Mail, Lock, Phone, ArrowLeft, Check, AlertCircle, User } from 'lucide-react';
 import Logo from '../Logo';
 import AuthSlider from './AuthSlider';
+import { registerAccount } from '../../utils/schoolData';
 import GoogleAuthModal from './GoogleAuthModal';
 import { useToast } from '../../context/ToastContext';
 
@@ -64,6 +65,14 @@ export default function SignUp() {
       return;
     }
     setTermsError(false);
+    if (role === 'teacher' || role === 'parent' || role === 'student') {
+      const result = registerAccount(role, formData);
+      if ('error' in result) {
+        showToast(result.error, 'error');
+        return;
+      }
+    }
+    localStorage.setItem('user_role', role);
     showToast('Account created successfully! Welcome to OAICC.', 'success');
     navigate(`/onboarding/${role}`);
   };

@@ -18,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import Logo from '../Logo';
+import { classesForTeacher, fullName, sessionStore, teachersStore } from '../../utils/schoolData';
 import StudentList from './Teacher/StudentList';
 import StudentDetails from './Teacher/StudentDetails';
 import TeacherProfile from './Teacher/TeacherProfile';
@@ -28,43 +29,29 @@ import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
-const classes = [
-  { id: 'sss2a', name: 'SSS 2 A' },
-  { id: 'sss3b', name: 'SSS 3 B' },
-];
-
 export default function TeacherDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isClassExpanded, setIsClassExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { totalUnread } = useCrossPortalMessaging('teacher-1', 'teacher');
+  const session = sessionStore.get();
+  const teacher = session?.role === 'teacher' ? teachersStore.get(session.userId) : undefined;
+  const teacherName = teacher ? (fullName(teacher) || teacher.email) : 'Teacher';
+  const classes = teacher ? classesForTeacher(teacher.id) : [];
   
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
-  const isClassActive = (id: string) => {
-    // For demo, we just use the first class as the main dashboard
-    if (id === 'sss2a' && location.pathname === '/teacher/dashboard') return true;
-    return location.pathname === `/teacher/class/${id}`;
-  };
+  const isClassActive = (id: string) => location.pathname === `/teacher/class/${id}`;
 
   const isClassSectionActive = () => {
     return location.pathname === '/teacher/dashboard' || location.pathname.startsWith('/teacher/class/') || location.pathname.startsWith('/teacher/student/');
   };
 
-  const notifications = [
-    { id: 1, text: 'Favour Aina mentor request has been approved', time: 'New' },
-    { id: 2, text: 'Favour Aina took a career interest test', time: 'New' },
-    { id: 3, text: 'Gbenga is added Medicine as a career interest', time: 'New' },
-    { id: 4, text: 'You have 2 new unread articles in Software development', time: 'Older' },
-    { id: 5, text: 'Gbenga Aina mentor request was declined', time: 'Older' },
-    { id: 6, text: 'Your password was reset successfully', time: 'Older' },
-  ];
-
   const handleSignOut = () => {
-    // In a real app, clear auth state
+    sessionStore.clear();
     navigate('/');
   };
 
@@ -107,7 +94,7 @@ export default function TeacherDashboard() {
                   {classes.map((cls) => (
                     <Link
                       key={cls.id}
-                      to={cls.id === 'sss2a' ? '/teacher/dashboard' : `/teacher/class/${cls.id}`}
+                      to={`/teacher/class/${cls.id}`}
                       className={`block py-2 text-sm font-bold transition-all ${
                         isClassActive(cls.id)
                           ? 'text-brand'
@@ -117,6 +104,9 @@ export default function TeacherDashboard() {
                       {cls.name}
                     </Link>
                   ))}
+                  {classes.length === 0 && (
+                    <p className="py-2 text-sm font-medium text-slate-400">No classes assigned yet</p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -180,7 +170,7 @@ export default function TeacherDashboard() {
               className="w-10 h-10 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">Mr. Uzo Kelechi</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{teacherName}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">Teacher</p>
             </div>
           </button>
@@ -221,7 +211,7 @@ export default function TeacherDashboard() {
                 className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Mr. Uzo Kelechi</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{teacherName}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Teacher</p>
                 </div>
                 <img 

@@ -24,11 +24,14 @@ import {
   ShieldCheck,
   CheckCircle2,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  GraduationCap
 } from 'lucide-react';
 import Logo from '../Logo';
+import { sessionStore } from '../../utils/schoolData';
 import SchoolOverview from './School/SchoolOverview';
 import SchoolClasses from './School/SchoolClasses';
+import SchoolTeachers from './School/SchoolTeachers';
 import SchoolClassDetails from './School/SchoolClassDetails';
 import SchoolProfile from './School/SchoolProfile';
 import SchoolStudentDetails from './School/SchoolStudentDetails';
@@ -38,11 +41,15 @@ import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
+import { schoolStorage } from '../../utils/storage';
 
 export default function SchoolDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const school = schoolStorage.get();
+  const schoolName = school?.name ?? 'Your school';
+  const schoolInitials = schoolName.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
   const { totalUnread } = useCrossPortalMessaging('admin-1', 'admin');
   
   const isActive = (path: string) => {
@@ -84,6 +91,18 @@ export default function SchoolDashboard() {
           >
             <Users className="w-5 h-5" />
             Classes
+          </Link>
+
+          <Link
+            to="/school/teachers"
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all ${
+              isActive('/school/teachers') 
+                ? 'bg-brand text-white shadow-sm shadow-brand/5' 
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+            }`}
+          >
+            <GraduationCap className="w-5 h-5" />
+            Teachers
           </Link>
 
           <Link
@@ -132,7 +151,7 @@ export default function SchoolDashboard() {
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 mt-auto">
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => { sessionStore.clear(); navigate('/'); }}
             className="w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all"
           >
             <LogOut className="w-5 h-5" />
@@ -166,11 +185,11 @@ export default function SchoolDashboard() {
                 className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Caleb schools</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{schoolName}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">School Admin</p>
                 </div>
                 <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold border-2 border-brand/20">
-                  CS
+                  {schoolInitials}
                 </div>
               </button>
 
@@ -216,6 +235,7 @@ export default function SchoolDashboard() {
           <Routes>
             <Route path="dashboard" element={<SchoolOverview />} />
             <Route path="classes" element={<SchoolClasses />} />
+            <Route path="teachers" element={<SchoolTeachers />} />
             <Route path="classes/:id" element={<SchoolClassDetails />} />
             <Route path="student/:id" element={<SchoolStudentDetails />} />
             <Route path="events" element={<SchoolEvents />} />

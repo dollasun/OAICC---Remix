@@ -20,6 +20,7 @@ import {
   FileText
 } from 'lucide-react';
 import Logo from '../Logo';
+import { sessionStore } from '../../utils/schoolData';
 
 // Import sub-components (to be created)
 import StudentHome from './Student/StudentHome';
@@ -128,7 +129,7 @@ export default function StudentDashboard() {
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800 mt-auto">
           <button 
-            onClick={() => navigate('/')}
+            onClick={() => { sessionStore.clear(); navigate('/'); }}
             className={`w-full flex items-center gap-3 px-4 py-3 text-red-500 font-bold hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-all ${isSidebarCollapsed ? 'justify-center' : ''}`}
           >
             <LogOut className="w-5 h-5 shrink-0" />

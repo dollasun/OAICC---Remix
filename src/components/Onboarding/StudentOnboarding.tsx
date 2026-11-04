@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { finishOnboarding as markOnboardingDone } from '../../utils/schoolData';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -245,6 +246,7 @@ export default function StudentOnboarding() {
 
   const finishOnboarding = () => {
     showToast('Assessment complete! Welcome to your personalized dashboard.');
+    markOnboardingDone('student');
     navigate('/student/dashboard');
   };
 

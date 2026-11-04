@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   User, 
@@ -25,7 +25,9 @@ import {
   DollarSign
 } from 'lucide-react';
 import { Activity } from '../../types';
-import { savedCareersStorage } from '../../utils/storage';
+import { savedCareersStorage, schoolStorage } from '../../utils/storage';
+import { activity, addStudentNote, className, fullName, parentsStore, sessionStore, studentsStore, teacherOfClass } from '../../utils/schoolData';
+import { trackerEntries } from './studentTimeline';
 import { getTopRecommendedCareers } from '../../utils/recommendations';
 
 export default function ChildDetails() {
@@ -35,12 +37,16 @@ export default function ChildDetails() {
   const [isAchievementsModalOpen, setIsAchievementsModalOpen] = useState(false);
   const [selectedCareerModal, setSelectedCareerModal] = useState<any | null>(null);
 
+  const session = sessionStore.get();
+  const record = studentsStore.get(id);
+  // A parent may only open their own children.
+  const allowed = Boolean(record && session?.role === 'parent' && record.parentIds.includes(session.userId));
   const child = {
-    firstName: 'Favour',
-    lastName: 'Aina',
-    class: 'JSS 3 A',
-    school: 'The Seaside School',
-    avatar: 'https://picsum.photos/seed/child1/200/200'
+    firstName: record?.firstName || 'Awaiting',
+    lastName: record ? (record.lastName || (record.firstName ? '' : 'sign-up')) : '',
+    class: record?.classId ? className(record.classId) : 'No class yet',
+    school: record?.schoolId ? (schoolStorage.get()?.name ?? 'Your school') : 'No school yet',
+    avatar: `https://picsum.photos/seed/${id}/200/200`,
   };
 
   // 1. Career Interest list: top 10 recommended careers + favorited careers
@@ -82,56 +88,24 @@ export default function ChildDetails() {
   }, []);
 
   // 2. Activity Tracker data (same format as Student Activity Tracker)
-  const trackerActivities = [
-    {
-      id: 1,
-      type: 'quiz',
-      title: 'Career Interest Assessment',
-      status: 'Completed',
-      date: 'Oct 10, 2024',
-      icon: ActivityIcon,
-      color: 'bg-brand',
-      details: 'Matched with 12 potential career paths based on assessment results.'
-    },
-    {
-      id: 2,
-      type: 'mentor',
-      title: 'Mentorship Request',
-      status: 'Pending',
-      date: 'Oct 13, 2024',
-      icon: Users,
-      color: 'bg-indigo-500',
-      details: 'Sent a request to Sarah Johnson (Senior Software Engineer at Google).'
-    },
-    {
-      id: 3,
-      type: 'career',
-      title: 'Saved Career Path',
-      status: 'Updated',
-      date: 'Oct 14, 2024',
-      icon: BookOpen,
-      color: 'bg-emerald-500',
-      details: 'Saved "Data Scientist" to career library.'
-    },
-    {
-      id: 4,
-      type: 'session',
-      title: 'Counseling Session Scheduled',
-      status: 'Upcoming',
-      date: 'Oct 22, 2024',
-      icon: Calendar,
-      color: 'bg-amber-500',
-      details: 'Virtual meeting scheduled with Sarah Ojo (Counselor).'
-    }
-  ];
+  const trackerActivities = trackerEntries(id);
+  const [noteVersion, setNoteVersion] = useState(0);
+  void noteVersion; // re-read the activity feed after posting a note
+  const [newNote, setNewNote] = useState('');
+  const notes = id ? activity.forStudent(id).filter(a => a.type === 'note') : [];
+  const classTeacher = record?.classId ? teacherOfClass(record.classId) : undefined;
+  const parentRecord = session?.role === 'parent' ? parentsStore.get(session.userId) : undefined;
+  const postNote = () => {
+    if (!id || !newNote.trim()) return;
+    addStudentNote(id, parentRecord ? fullName(parentRecord) || 'Parent' : 'Parent', 'Parent', newNote.trim());
+    setNewNote('');
+    setNoteVersion(v => v + 1);
+  };
 
   // 3. Milestones data
-  const milestones = [
-    { id: 1, title: 'Profile 100% Complete', date: 'Oct 05, 2024', icon: Award },
-    { id: 2, title: 'First Career Match', date: 'Oct 10, 2024', icon: Star },
-    { id: 3, title: 'Quiz Assessment Passed', date: 'Oct 15, 2024', icon: CheckCircle2 },
-    { id: 4, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users }
-  ];
+  const milestones = trackerEntries(id).filter(e => e.type !== 'note').map(e => ({ id: e.id, title: e.title, date: e.date, icon: e.icon }));
+
+  if (!allowed) return <Navigate to="/parent/dashboard" replace />;
 
   return (
     <div className="space-y-8">
@@ -278,7 +252,7 @@ export default function ChildDetails() {
                   </h2>
                   <div className="flex gap-3">
                     <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-lg text-sm font-semibold text-slate-600">
-                      <Calendar className="w-4 h-4" /> January 2023
+                      <Calendar className="w-4 h-4" /> {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </div>
                     <button className="p-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100">
                       <Filter className="w-5 h-5" />
@@ -374,14 +348,12 @@ export default function ChildDetails() {
               <div className="bg-white p-10 rounded-2xl shadow-sm border border-slate-100 space-y-12">
                 <div className="space-y-6">
                   {[
-                    { label: 'First Name', value: 'Favour' },
-                    { label: 'Last Name', value: 'Aina' },
-                    { label: 'Email Address', value: 'favouraina@gmail.com' },
-                    { label: 'Phone Number', value: '08054883021' },
-                    { label: 'Gender', value: 'Female' },
-                    { label: 'Class', value: 'JSS 3' },
-                    { label: 'Bio', value: 'I am a JSS 3 student at The Seaside School based in Nigeria. I would love to pursue a degree in Computer science. I am currently in a Tech wiz club at my secondary school.' },
-                    { label: 'Home Address', value: '34, Wuse II, Abuja, Nigeria' },
+                    { label: 'First Name', value: record?.firstName || 'Not provided' },
+                    { label: 'Last Name', value: record?.lastName || 'Not provided' },
+                    { label: 'Email Address', value: record?.email ?? '' },
+                    { label: 'Phone Number', value: record?.phone || 'Not provided' },
+                    { label: 'Class', value: child.class },
+                    { label: 'School', value: child.school },
                   ].map((item, idx) => (
                     <div key={idx} className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-2 sm:gap-4 items-start">
                       <p className="text-slate-500 font-medium">{item.label}</p>
@@ -391,36 +363,12 @@ export default function ChildDetails() {
                 </div>
 
                 <div className="pt-10 border-t border-slate-100">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <h4 className="text-lg font-bold text-slate-900 mb-4">Teacher</h4>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center"><User className="w-6 h-6" /></div>
                     <div>
-                      <h4 className="text-lg font-bold text-slate-900 mb-4">Counselor</h4>
-                      <div className="flex items-center gap-3">
-                        <img src="https://picsum.photos/seed/counselor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Counselor" />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900">Sarah Ojo</p>
-                          <p className="text-xs text-slate-500">Counselor at OAICC</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-slate-900 mb-4">Mentor</h4>
-                      <div className="flex items-center gap-3">
-                        <img src="https://picsum.photos/seed/mentor/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Mentor" />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900">Mason Biyi</p>
-                          <p className="text-xs text-slate-500">Full Stack Developer at Moniepoint</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-slate-900 mb-4">Teacher</h4>
-                      <div className="flex items-center gap-3">
-                        <img src="https://picsum.photos/seed/teacher/100/100" className="w-12 h-12 rounded-lg object-cover" alt="Teacher" />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900">Mr. Uzo Kelechi</p>
-                          <p className="text-xs text-slate-500">Teacher at The Seaside School</p>
-                        </div>
-                      </div>
+                      <p className="text-sm font-bold text-slate-900">{classTeacher ? (fullName(classTeacher) || classTeacher.email) : 'No teacher assigned yet'}</p>
+                      {classTeacher && <p className="text-xs text-slate-500">Teacher at {child.school}</p>}
                     </div>
                   </div>
                 </div>
@@ -431,43 +379,47 @@ export default function ChildDetails() {
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <h3 className="font-bold text-slate-900 mb-4">Notes</h3>
-                <textarea 
-                  placeholder="Leave a note..." 
+                <textarea
+                  placeholder="Leave a note for the teacher..."
+                  value={newNote}
+                  onChange={e => setNewNote(e.target.value)}
                   className="w-full h-32 p-4 bg-slate-50 rounded-xl border-none focus:ring-2 focus:ring-brand/20 outline-none text-sm resize-none"
                 />
-                <div className="mt-4 space-y-4">
-                  <div className="flex gap-3">
-                    <img src="https://picsum.photos/seed/parent/100/100" className="w-8 h-8 rounded-full" alt="Parent" />
-                    <div className="flex-1">
-                      <div className="flex justify-between">
-                        <p className="text-xs font-bold">Dr. Fadeyibi Aina</p>
-                        <p className="text-[10px] text-slate-400">3 mins ago</p>
+                <div className="mt-4 flex justify-end">
+                  <button onClick={postNote} disabled={!newNote.trim()} className="btn-primary text-xs px-4 py-2 disabled:opacity-50">Post note</button>
+                </div>
+                <div className="mt-6 space-y-4">
+                  {notes.length === 0 && <p className="text-xs text-slate-400 font-medium">No notes yet.</p>}
+                  {notes.map(n => (
+                    <div key={n.id} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-[10px] font-bold shrink-0">{(n.author ?? '?')[0]}</div>
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <p className="text-xs font-bold">{n.author} <span className="text-[10px] text-brand uppercase tracking-wider">{n.authorRole}</span></p>
+                          <p className="text-[10px] text-slate-400">{new Date(n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-1">{n.text}</p>
                       </div>
-                      <p className="text-xs text-slate-600 mt-1">Needs to try using Quickchart.io</p>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <h3 className="font-bold text-slate-900 mb-4">Assigned Team</h3>
                 <div className="space-y-4">
-                  {[
-                    { role: 'Counselor', name: 'Sarah Ojo', school: 'OAICC' },
-                    { role: 'Mentor', name: 'Mason Byl', school: 'Moniepoint' },
-                    { role: 'Teacher', name: 'Mr. Uzo Kelechi', school: 'The Seaside School' },
-                  ].map((member, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
-                        <User className="w-5 h-5" />
-                      </div>
+                  {classTeacher ? (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400"><User className="w-5 h-5" /></div>
                       <div>
-                        <p className="text-xs text-slate-400 font-bold uppercase">{member.role}</p>
-                        <p className="text-sm font-bold text-slate-900">{member.name}</p>
-                        <p className="text-[10px] text-slate-500">{member.school}</p>
+                        <p className="text-xs text-slate-400 font-bold uppercase">Teacher</p>
+                        <p className="text-sm font-bold text-slate-900">{fullName(classTeacher) || classTeacher.email}</p>
+                        <p className="text-[10px] text-slate-500">{child.school}</p>
                       </div>
                     </div>
-                  ))}
+                  ) : (
+                    <p className="text-xs text-slate-400 font-medium">No one has been assigned yet.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -504,12 +456,7 @@ export default function ChildDetails() {
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-                  {[...milestones, 
-                    { id: 5, title: 'First Quiz Passed', date: 'Oct 15, 2024', icon: Award },
-                    { id: 6, title: 'Mentor Connected', date: 'Oct 18, 2024', icon: Users },
-                    { id: 7, title: 'Career Path Saved', date: 'Oct 20, 2024', icon: BookOpen },
-                    { id: 8, title: 'Weekly Streak', date: 'Oct 25, 2024', icon: ActivityIcon }
-                  ].map((m, idx) => (
+                  {milestones.map((m, idx) => (
                     <div key={`child-modal-m-${m.id}-${idx}`} className="flex items-center gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
                       <div className="w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand">
                         <m.icon className="w-6 h-6" />

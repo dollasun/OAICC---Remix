@@ -55,6 +55,8 @@ export interface School {
   adminLastName: string;
   adminEmail: string;
   phone?: string;
+  about?: string;
+  avatar?: string;
   createdAt: string;
 }
 
@@ -85,6 +87,7 @@ export interface TeacherRecord {
   bio?: string;
   subject?: string;
   location?: string;
+  avatar?: string;
   status: AccountStatus;
   onboarded: boolean;
   createdAt: string;
@@ -113,6 +116,7 @@ export interface ParentRecord {
   phone?: string;
   location?: string;
   profession?: string;
+  avatar?: string;
   status: AccountStatus;
   onboarded: boolean;
   createdAt: string;

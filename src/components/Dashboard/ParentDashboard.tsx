@@ -20,7 +20,7 @@ import Logo from '../Logo';
 import { childrenOf, fullName, parentsStore, sessionStore } from '../../utils/schoolData';
 import ChildrenList from './ChildrenList';
 import ChildDetails from './ChildDetails';
-import ProfileSettings from './ProfileSettings';
+import PortalSettings from './PortalSettings';
 import ParentEvents from './Parent/ParentEvents';
 import ParentMessages from './Parent/ParentMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
@@ -267,7 +267,7 @@ export default function ParentDashboard() {
             <Route path="dashboard/child/:id" element={<ChildDetails />} />
             <Route path="events" element={<ParentEvents />} />
             <Route path="messages" element={<ParentMessages />} />
-            <Route path="settings" element={<ProfileSettings />} />
+            <Route path="settings" element={<PortalSettings role="parent" />} />
             <Route path="notifications" element={<NotificationPage />} />
           </Routes>
         </div>

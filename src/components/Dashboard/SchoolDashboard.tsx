@@ -33,7 +33,7 @@ import SchoolOverview from './School/SchoolOverview';
 import SchoolClasses from './School/SchoolClasses';
 import SchoolTeachers from './School/SchoolTeachers';
 import SchoolClassDetails from './School/SchoolClassDetails';
-import SchoolProfile from './School/SchoolProfile';
+import PortalSettings from './PortalSettings';
 import SchoolStudentDetails from './School/SchoolStudentDetails';
 import SchoolEvents from './School/SchoolEvents';
 import SchoolMessages from './School/SchoolMessages';
@@ -240,7 +240,7 @@ export default function SchoolDashboard() {
             <Route path="student/:id" element={<SchoolStudentDetails />} />
             <Route path="events" element={<SchoolEvents />} />
             <Route path="messages" element={<SchoolMessages />} />
-            <Route path="settings" element={<SchoolProfile />} />
+            <Route path="settings" element={<PortalSettings role="school" />} />
             <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>

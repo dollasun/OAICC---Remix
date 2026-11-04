@@ -75,13 +75,22 @@ export const invitesStore = {
 };
 
 /* ───────────── notifications (in-app inbox) ───────────── */
+/** Per-user in-app notification preferences (a missing key means "on"). */
+export const notifPrefs = {
+  key: (role: string, id: string) => `app_notif_prefs_${role}_${id}`,
+  get: (role: string, id?: string | null): Record<string, boolean> => (id ? read<Record<string, boolean>>(notifPrefs.key(role, id), {}) : {}),
+  set: (role: string, id: string, prefs: Record<string, boolean>) => write(notifPrefs.key(role, id), prefs),
+};
+
 export const inbox = {
   all: (): InboxNotification[] => read<InboxNotification[]>(K.inbox, []),
   save: (v: InboxNotification[]) => write(K.inbox, v),
   forRecipient: (role: string, id?: string | null) =>
     inbox.all().filter(n => n.recipientRole === role && n.recipientId === (id ?? '')).sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-  notify: (role: PortalRole, recipientId: string | undefined, title: string, body: string, link?: string) => {
+  /** `category` lets the recipient mute this kind of notification in Settings. */
+  notify: (role: PortalRole, recipientId: string | undefined, title: string, body: string, link?: string, category?: string) => {
     if (!recipientId) return;
+    if (category && notifPrefs.get(role, recipientId)[category] === false) return;
     inbox.save([{ id: uid('n'), recipientRole: role, recipientId, title, body, link, read: false, createdAt: new Date().toISOString() }, ...inbox.all()]);
   },
   markRead: (id: string) => inbox.save(inbox.all().map(n => (n.id === id ? { ...n, read: true } : n))),
@@ -168,12 +177,12 @@ export function acceptInvite(token: string, details: { firstName: string; lastNa
   if (invite.role === 'student') {
     activity.log(invite.userId, 'joined', 'Accepted the invitation and created an account');
     const student = studentsStore.get(invite.userId);
-    if (student?.classId) notifyClassTeacher(student.classId, 'New student in your class', `${name} joined ${className(student.classId)}.`, student.id);
-    student?.parentIds.forEach(pid => inbox.notify('parent', pid, 'Your child joined', `${name} accepted your invitation.`, '/parent/dashboard'));
+    if (student?.classId) notifyClassTeacher(student.classId, 'New student in your class', `${name} joined ${className(student.classId)}.`, student.id, 'students');
+    student?.parentIds.forEach(pid => inbox.notify('parent', pid, 'Your child joined', `${name} accepted your invitation.`, '/parent/dashboard', 'children'));
   }
   const role: PortalRole = invite.role;
   if (invite.invitedBy.role === 'school') {
-    inbox.notify('school', invite.invitedBy.userId, `New ${invite.role} joined`, `${name} accepted your invitation.`, invite.role === 'teacher' ? '/school/teachers' : '/school/dashboard');
+    inbox.notify('school', invite.invitedBy.userId, `New ${invite.role} joined`, `${name} accepted your invitation.`, invite.role === 'teacher' ? '/school/teachers' : '/school/dashboard', 'invitations');
   } else {
     inbox.notify(invite.invitedBy.role, invite.invitedBy.userId, 'Invitation accepted', `${name} accepted your invitation.`);
   }
@@ -228,16 +237,16 @@ export const classesForTeacher = (teacherId: string): SchoolClass[] => schoolCla
 export const studentsInClass = (classId: string) => studentsStore.all().filter(s => s.classId === classId);
 export const teacherOfClass = (classId: string) => teachersStore.get(schoolClassesStorage.get().find(c => c.id === classId)?.teacherId);
 
-export function notifyClassTeacher(classId: string, title: string, body: string, studentId?: string) {
+export function notifyClassTeacher(classId: string, title: string, body: string, studentId?: string, category = 'students') {
   const t = teacherOfClass(classId);
-  if (t) inbox.notify('teacher', t.id, title, body, studentId ? `/teacher/student/${studentId}` : `/teacher/class/${classId}`);
+  if (t) inbox.notify('teacher', t.id, title, body, studentId ? `/teacher/student/${studentId}` : `/teacher/class/${classId}`, category);
 }
 
 export function assignTeacher(classId: string, teacherId: string | undefined) {
   const cls = schoolClassesStorage.get().find(c => c.id === classId);
   if (!cls) return;
   schoolClassesStorage.update(classId, { name: cls.name, teacherId });
-  if (teacherId) inbox.notify('teacher', teacherId, 'Class assigned', `You have been assigned to ${cls.name}.`, `/teacher/class/${classId}`);
+  if (teacherId) inbox.notify('teacher', teacherId, 'Class assigned', `You have been assigned to ${cls.name}.`, `/teacher/class/${classId}`, 'classes');
 }
 
 export function moveStudentToClass(studentId: string, classId: string | undefined) {
@@ -305,9 +314,9 @@ export function addStudentNote(studentId: string, author: string, authorRole: 'T
   activity.log(studentId, 'note', `${author} left a comment`, { author, authorRole, text });
   const who = s ? fullName(s) || 'your child' : 'your child';
   if (authorRole === 'Teacher') {
-    s?.parentIds.forEach(pid => inbox.notify('parent', pid, 'New comment on your child', `${author} commented on ${who}'s profile.`, `/parent/dashboard/child/${studentId}`));
+    s?.parentIds.forEach(pid => inbox.notify('parent', pid, 'New comment on your child', `${author} commented on ${who}'s profile.`, `/parent/dashboard/child/${studentId}`, 'comments'));
   } else if (s?.classId) {
-    notifyClassTeacher(s.classId, 'New parent note', `${author} left a note about ${who}.`, studentId);
+    notifyClassTeacher(s.classId, 'New parent note', `${author} left a note about ${who}.`, studentId, 'parentNotes');
   }
 }
 

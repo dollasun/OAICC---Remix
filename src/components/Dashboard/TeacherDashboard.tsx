@@ -21,7 +21,7 @@ import Logo from '../Logo';
 import { classesForTeacher, fullName, sessionStore, teachersStore } from '../../utils/schoolData';
 import StudentList from './Teacher/StudentList';
 import StudentDetails from './Teacher/StudentDetails';
-import TeacherProfile from './Teacher/TeacherProfile';
+import PortalSettings from './PortalSettings';
 import TeacherEvents from './Teacher/TeacherEvents';
 import TeacherMessages from './Teacher/TeacherMessages';
 import NotificationDropdown from '../Notifications/NotificationDropdown';
@@ -262,7 +262,7 @@ export default function TeacherDashboard() {
             <Route path="student/:id" element={<StudentDetails />} />
             <Route path="events" element={<TeacherEvents />} />
             <Route path="messages" element={<TeacherMessages />} />
-            <Route path="settings" element={<TeacherProfile />} />
+            <Route path="settings" element={<PortalSettings role="teacher" />} />
             <Route path="notifications" element={<NotificationPage />} />
           </Routes>
         </div>

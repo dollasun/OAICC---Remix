@@ -20,7 +20,7 @@ import {
   FileText
 } from 'lucide-react';
 import Logo from '../Logo';
-import { sessionStore } from '../../utils/schoolData';
+import { fullName, sessionStore, studentsStore } from '../../utils/schoolData';
 
 // Import sub-components (to be created)
 import StudentHome from './Student/StudentHome';
@@ -42,6 +42,9 @@ import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 export default function StudentDashboard() {
+  const studentSession = sessionStore.get();
+  const studentRecord = studentSession?.role === 'student' ? studentsStore.get(studentSession.userId) : undefined;
+  const studentName = studentRecord ? (fullName(studentRecord) || studentRecord.email) : 'Bolu Ahmed';
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -169,7 +172,7 @@ export default function StudentDashboard() {
                 className="flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 sm:p-2 rounded-xl transition-all"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Bolu Ahmed</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{studentName}</p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Student</p>
                 </div>
                 <img 

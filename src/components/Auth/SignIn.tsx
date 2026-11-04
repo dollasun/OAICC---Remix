@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { demo, demoEmail, DEMO_PASSWORD, DEMO_PREFILL } from '../../utils/demoDefaults';
+import { resetDemoData } from '../../utils/demoSeed';
 import { findByEmail, registerAccount, signInByEmail } from '../../utils/schoolData';
 import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
@@ -234,6 +235,19 @@ export default function SignIn({ defaultRole }: SignInProps) {
               <span>Sign in with Google</span>
             </button>
           </form>
+
+          {DEMO_PREFILL && (
+            <p className="mt-6 text-center text-xs text-slate-400 font-medium">
+              Demo mode: sample school, teacher, parent and student data is loaded.{' '}
+              <button
+                type="button"
+                onClick={() => { resetDemoData(); showToast('Demo data reset.'); }}
+                className="text-brand font-bold hover:underline"
+              >
+                Reset demo data
+              </button>
+            </p>
+          )}
 
           <GoogleAuthModal 
             isOpen={showGoogleModal} 

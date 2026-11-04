@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sessionStore, studentsStore } from '../../../utils/schoolData';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
@@ -28,6 +29,9 @@ import { getTopRecommendedCareers } from '../../../utils/recommendations';
 import CompareCareersModal from './CompareCareersModal';
 
 export default function StudentHome() {
+  const homeSession = sessionStore.get();
+  const homeRecord = homeSession?.role === 'student' ? studentsStore.get(homeSession.userId) : undefined;
+  const firstName = homeRecord?.firstName || 'Bolu';
   const navigate = useNavigate();
   const [savedIds, setSavedIds] = useState<number[]>([]);
   const [upcomingSessions, setUpcomingSessions] = useState<any[]>([]);
@@ -223,7 +227,7 @@ export default function StudentHome() {
             <span>Student Career Discovery Portal</span>
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
-            Welcome back, <span className="bg-gradient-to-r from-brand via-cyan-600 to-teal-500 bg-clip-text text-transparent">Bolu!</span> 👋
+            Welcome back, <span className="bg-gradient-to-r from-brand via-cyan-600 to-teal-500 bg-clip-text text-transparent">{firstName}!</span> 👋
           </h1>
           <p className="text-sm sm:text-base text-slate-500 font-medium">
             Here's what's happening with your personalized career journey today.

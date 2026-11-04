@@ -93,6 +93,7 @@ export const inbox = {
 /* ───────────── student activity ───────────── */
 export const activity = {
   all: (): ActivityEntry[] => read<ActivityEntry[]>(K.activity, []),
+  save: (v: ActivityEntry[]) => write(K.activity, v),
   log: (studentId: string, type: ActivityEntry['type'], title: string, extra?: Pick<ActivityEntry, 'author' | 'authorRole' | 'text'>) =>
     write(K.activity, [{ id: uid('a'), studentId, type, title, createdAt: new Date().toISOString(), ...extra }, ...activity.all()]),
   forStudent: (studentId: string) => activity.all().filter(a => a.studentId === studentId),

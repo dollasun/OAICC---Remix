@@ -66,7 +66,7 @@ export default function AdminEditCareer() {
   ];
 
 
-  const handleAddArrayItem = (field: 'skills' | 'responsibilities' | 'subjects', value: string, setter: (val: string) => void) => {
+  const handleAddArrayItem = (field: 'skills' | 'responsibilities' | 'subjects' | 'topUniversities', value: string, setter: (val: string) => void) => {
     if (value.trim() && !formData[field].includes(value.trim()) && formData[field].length < 10) {
       setFormData({ ...formData, [field]: [...formData[field], value.trim()] });
       setter('');

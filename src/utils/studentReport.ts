@@ -1,4 +1,5 @@
 import React from 'react';
+import Papa from 'papaparse';
 import { schoolClassesStorage, schoolStorage, counselingSessionsStorage } from './storage';
 import { fullName, initialsOf, mentorSessionsStore, progressStore, studentsStore } from './schoolData';
 
@@ -9,7 +10,7 @@ export interface ReportData {
   className: string;
   schoolName: string;
   accountStatus: 'active' | 'invited';
-  lastLogin: { label: string; relative: string } | null;
+  lastLogin: { label: string; relative: string; iso: string } | null;
   quiz: { answered: number; total: number; percent: number; status: 'Complete' | 'In progress' | 'Not started'; unlocked: boolean };
   recommended: { title: string; category: string; match: number }[];
   favourites: string[];
@@ -54,11 +55,11 @@ export function buildReportData(studentId: string): ReportData | null {
     schoolName: schoolStorage.get()?.name ?? 'OAICC',
     accountStatus: s.status,
     lastLogin: s.lastLoginAt
-      ? { label: new Date(s.lastLoginAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }), relative: relativeDays(s.lastLoginAt) }
+      ? { label: new Date(s.lastLoginAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }), relative: relativeDays(s.lastLoginAt), iso: s.lastLoginAt }
       : null,
     quiz: {
       answered, total, percent: total ? Math.round((answered / total) * 100) : 0,
-      status: answered >= total ? 'Complete' : answered > 0 ? 'In progress' : 'Not started',
+      status: answered > 0 && answered >= total ? 'Complete' : answered > 0 ? 'In progress' : 'Not started',
       unlocked: answered >= UNLOCK_AT,
     },
     recommended: progress?.recommended ?? [],
@@ -84,9 +85,8 @@ export async function createStudentReport(studentId: string, theme: ReportTheme 
   return { blob, name: data.name, fileName: `${data.name.replace(/[^\w]+/g, '-')}-OAICC-Report-Card-${theme === 'light' ? 'Light' : 'Dark'}.pdf` };
 }
 
-/** Creates the report card and downloads it. Resolves with the student's name. */
-export async function downloadStudentReport(studentId: string, theme: ReportTheme = 'dark'): Promise<string> {
-  const { blob, fileName, name } = await createStudentReport(studentId, theme);
+/** Saves a blob as a file in the browser. */
+function triggerDownload(blob: Blob, fileName: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -95,5 +95,65 @@ export async function downloadStudentReport(studentId: string, theme: ReportThem
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/** Creates the report card and downloads it. Resolves with the student's name. */
+export async function downloadStudentReport(studentId: string, theme: ReportTheme = 'dark'): Promise<string> {
+  const { blob, fileName, name } = await createStudentReport(studentId, theme);
+  triggerDownload(blob, fileName);
   return name;
+}
+
+/* ───────────── CSV reports (one row per student) ───────────── */
+
+export const REPORT_CSV_COLUMNS = [
+  'Student Name',
+  'Class',
+  'Last Date of Login',
+  'Quiz Completed',
+  'Recommended Careers',
+  'Favourited Careers',
+  'Assigned Counsellor',
+  'Number of Sessions with Counsellor',
+  'Number of Sessions with Mentor',
+] as const;
+
+const localIsoDate = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+/** Builds the CSV text for the given students. Returns null if none of them exist. */
+export function buildStudentsCsv(studentIds: string[]): { csv: string; count: number } | null {
+  const rows = studentIds
+    .map(id => buildReportData(id))
+    .filter((d): d is ReportData => d !== null)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(d => [
+      d.name,
+      d.className,
+      // ISO date (YYYY-MM-DD, local) so the column sorts and filters as a real date in a spreadsheet
+      d.lastLogin ? localIsoDate(d.lastLogin.iso) : 'Never logged in',
+      d.quiz.status === 'Not started' ? 'Not started' : `${d.quiz.answered} of ${d.quiz.total} questions (${d.quiz.percent}%) - ${d.quiz.status}`,
+      d.recommended.map(r => `${r.title} (${r.match}%)`).join('; '),
+      d.favourites.join('; '),
+      d.counsellor ? d.counsellor.name : 'Not assigned',
+      d.counsellorSessions.total,
+      d.mentorSessions.total,
+    ]);
+  if (rows.length === 0) return null;
+  // escapeFormulae stops names like "=HYPERLINK(...)" from running as spreadsheet formulas.
+  return { csv: Papa.unparse({ fields: [...REPORT_CSV_COLUMNS], data: rows }, { escapeFormulae: true }), count: rows.length };
+}
+
+const slug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'report';
+
+/** Builds and downloads a CSV report. Resolves with the number of students written (0 = nothing downloaded). */
+export function downloadStudentsCsv(studentIds: string[], label: string): number {
+  const built = buildStudentsCsv(studentIds);
+  if (!built) return 0;
+  // The BOM makes Excel read accented and non-Latin names correctly.
+  const blob = new Blob(['\uFEFF', built.csv], { type: 'text/csv;charset=utf-8;' });
+  triggerDownload(blob, `${slug(schoolStorage.get()?.name ?? 'school')}-${slug(label)}-report-${new Date().toISOString().slice(0, 10)}.csv`);
+  return built.count;
 }

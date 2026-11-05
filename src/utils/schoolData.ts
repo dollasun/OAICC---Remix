@@ -31,6 +31,8 @@ const read = <T,>(key: string, fallback: T): T => {
 };
 const write = (key: string, value: unknown) => localStorage.setItem(key, JSON.stringify(value));
 const uid = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+/** Removes keys whose value is undefined so they never overwrite existing data in an update. */
+const defined = <T extends object>(o: T): Partial<T> => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
 const normEmail = (e: string) => e.trim().toLowerCase();
 const isEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 export const fullName = (p: { firstName: string; lastName: string }) => `${p.firstName} ${p.lastName}`.trim();
@@ -168,8 +170,8 @@ export function acceptInvite(token: string, details: { firstName: string; lastNa
   const invite = invitesStore.byToken(token);
   if (!invite || invite.status !== 'pending') return fail('This invite link is invalid or has already been used.');
   if (!details.firstName.trim() || !details.lastName.trim()) return fail('Enter your first and last name.');
-  const changes = { firstName: details.firstName.trim(), lastName: details.lastName.trim(), phone: details.phone?.trim() || undefined, status: 'active' as const };
-  const name = fullName(changes);
+  const changes = defined({ firstName: details.firstName.trim(), lastName: details.lastName.trim(), phone: details.phone?.trim() || undefined, status: 'active' as const });
+  const name = `${details.firstName.trim()} ${details.lastName.trim()}`.trim();
 
   if (invite.role === 'teacher') teachersStore.update(invite.userId, changes);
   else if (invite.role === 'student') studentsStore.update(invite.userId, changes);
@@ -186,7 +188,9 @@ export function acceptInvite(token: string, details: { firstName: string; lastNa
   if (invite.invitedBy.role === 'school') {
     inbox.notify('school', invite.invitedBy.userId, `New ${invite.role} joined`, `${name} accepted your invitation.`, invite.role === 'teacher' ? '/school/teachers' : '/school/dashboard', 'invitations');
   } else {
-    inbox.notify(invite.invitedBy.role, invite.invitedBy.userId, 'Invitation accepted', `${name} accepted your invitation.`);
+    // A parent who invited their child was already told ("Your child joined") above.
+    const alreadyNotified = invite.role === 'student' && studentsStore.get(invite.userId)?.parentIds.includes(invite.invitedBy.userId);
+    if (!alreadyNotified) inbox.notify(invite.invitedBy.role, invite.invitedBy.userId, 'Invitation accepted', `${name} accepted your invitation.`);
   }
   if (invite.role === 'student') studentsStore.update(invite.userId, { lastLoginAt: new Date().toISOString() });
   const session = { role, userId: invite.userId };
@@ -249,8 +253,11 @@ export function notifyClassTeacher(classId: string, title: string, body: string,
 export function assignTeacher(classId: string, teacherId: string | undefined) {
   const cls = schoolClassesStorage.get().find(c => c.id === classId);
   if (!cls) return;
-  schoolClassesStorage.update(classId, { name: cls.name, teacherId });
+  const previous = cls.teacherId;
+  if (previous === teacherId) return;
+  schoolClassesStorage.setTeacher(classId, teacherId);
   if (teacherId) inbox.notify('teacher', teacherId, 'Class assigned', `You have been assigned to ${cls.name}.`, `/teacher/class/${classId}`, 'classes');
+  if (previous) inbox.notify('teacher', previous, 'Class reassigned', `You are no longer assigned to ${cls.name}.`, undefined, 'classes');
 }
 
 export function moveStudentToClass(studentId: string, classId: string | undefined) {
@@ -265,14 +272,22 @@ export function moveStudentToClass(studentId: string, classId: string | undefine
 }
 
 export function removeTeacher(teacherId: string) {
-  schoolClassesStorage.get().filter(c => c.teacherId === teacherId).forEach(c => schoolClassesStorage.update(c.id, { name: c.name, teacherId: undefined }));
+  schoolClassesStorage.get().filter(c => c.teacherId === teacherId).forEach(c => schoolClassesStorage.setTeacher(c.id, undefined));
   revokeInvite(teacherId);
   teachersStore.save(teachersStore.all().filter(t => t.id !== teacherId));
+  inbox.save(inbox.all().filter(n => !(n.recipientRole === 'teacher' && n.recipientId === teacherId)));
+  localStorage.removeItem(notifPrefs.key('teacher', teacherId));
 }
 
 export function removeStudent(studentId: string) {
   revokeInvite(studentId);
   studentsStore.save(studentsStore.all().filter(s => s.id !== studentId));
+  // clean up everything that belonged to this student so nothing is left orphaned
+  activity.save(activity.all().filter(a => a.studentId !== studentId));
+  progressStore.remove(studentId);
+  mentorSessionsStore.save(mentorSessionsStore.all().filter(m => m.studentId !== studentId));
+  inbox.save(inbox.all().filter(n => !(n.recipientRole === 'student' && n.recipientId === studentId)));
+  localStorage.removeItem(notifPrefs.key('student', studentId));
 }
 
 /* ───────────── parent ↔ children ───────────── */
@@ -304,9 +319,9 @@ export function finishOnboarding(role: 'teacher' | 'parent' | 'student', profile
   const s = sessionStore.get();
   if (!s || s.role !== role) return;
   if (role === 'teacher') {
-    teachersStore.update(s.userId, { onboarded: true, ...(profile ? { firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone, bio: profile.bio, location: profile.location } : {}) });
+    teachersStore.update(s.userId, { onboarded: true, ...defined({ firstName: profile?.firstName, lastName: profile?.lastName, phone: profile?.phone, bio: profile?.bio, location: profile?.location }) });
   } else if (role === 'parent') {
-    parentsStore.update(s.userId, { onboarded: true, ...(profile ? { firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone, profession: profile.profession, location: profile.location } : {}) });
+    parentsStore.update(s.userId, { onboarded: true, ...defined({ firstName: profile?.firstName, lastName: profile?.lastName, phone: profile?.phone, profession: profile?.profession, location: profile?.location }) });
   } else {
     markOnboarded('student', s.userId);
   }
@@ -354,7 +369,7 @@ export function addExistingStudentToSchool(schoolId: string, studentId: string, 
   const s = studentsStore.get(studentId);
   if (!s) return fail('Student not found.');
   if (s.schoolId === schoolId) return fail('This student is already in your school.');
-  studentsStore.update(studentId, { schoolId });
+  studentsStore.update(studentId, { schoolId, classId: undefined }); // a class from their previous school no longer applies
   inbox.notify('student', studentId, 'Added to a school', `${schoolStorage.get()?.name ?? 'A school'} added you to their school.`);
   if (classId) moveStudentToClass(studentId, classId);
   return { ok: true, value: { ...s, schoolId, classId } };
@@ -374,6 +389,7 @@ export const progressStore = {
   all: (): Record<string, StudentProgress> => read<Record<string, StudentProgress>>(K.progress, {}),
   get: (studentId: string) => progressStore.all()[studentId],
   save: (p: StudentProgress) => write(K.progress, { ...progressStore.all(), [p.studentId]: p }),
+  remove: (studentId: string) => { const all = progressStore.all(); delete all[studentId]; write(K.progress, all); },
 };
 
 export const mentorSessionsStore = {

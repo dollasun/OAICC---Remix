@@ -182,7 +182,7 @@ function seedReportData(students: StudentRecord[]) {
     'demo-student-1': [0, 3], 'demo-student-2': [1, 2], 'demo-student-3': [4, 0], 'demo-student-4': [2, 5], 'demo-student-5': [0, 20],
     'demo-student-6': [6, 0], 'demo-student-7': [9, 0], 'demo-student-8': [3, 8], 'demo-student-9': [12, 0], 'demo-student-10': [18, 0],
   };
-  studentsStore.save(students.map(s => (logins[s.id] ? { ...s, lastLoginAt: ago(...logins[s.id]) } : s)));
+  studentsStore.save(students.map(s => (logins[s.id] ? { ...s, lastLoginAt: s.lastLoginAt ?? ago(...logins[s.id]) } : s)));
 
   const rec = (...items: [string, string, number][]) => items.map(([title, category, match]) => ({ title, category, match }));
   const fav = (...items: [string, string][]) => items.map(([title, category]) => ({ title, category }));
@@ -196,8 +196,10 @@ function seedReportData(students: StudentRecord[]) {
     'demo-student-8': [35, rec(['Nursing', 'Healthcare', 80], ['Medicine', 'Healthcare', 74], ['Psychology', 'Healthcare', 66]), fav(['Nursing', 'Healthcare'])],
     'demo-student-9': [20, rec(['Teaching', 'Education', 72], ['Graphic Design', 'Design', 65]), []],
   };
-  Object.entries(progress).forEach(([studentId, [answered, recommended, favourites]]) =>
-    progressStore.save({ studentId, updatedAt: ago(0, 1), assessmentAnswered: answered, assessmentTotal: 62, recommended, favourites }));
+  Object.entries(progress).forEach(([studentId, [answered, recommended, favourites]]) => {
+    if (progressStore.get(studentId)) return; // never overwrite progress a student already has
+    progressStore.save({ studentId, updatedAt: ago(0, 1), assessmentAnswered: answered, assessmentTotal: 62, recommended, favourites });
+  });
 
   const session = (n: number, studentId: string, counselor: [number, string], title: string, days: number, status: 'Completed' | 'Upcoming') => {
     const s = students.find(x => x.id === studentId)!;
@@ -226,6 +228,7 @@ function seedReportData(students: StudentRecord[]) {
   const mentor = (studentId: string, id: number, name: string, days: number) =>
     ({ id: `demo-m-${studentId}-${id}`, studentId, mentorId: id, mentorName: name, status: 'Completed' as const, createdAt: ago(days) });
   mentorSessionsStore.save([
+    ...mentorSessionsStore.all().filter(m => !m.id.startsWith('demo-m-')), // keep anything added since
     mentor('demo-student-1', 1, 'John Chidiebere', 18), mentor('demo-student-1', 2, 'Sarah Johnson', 9),
     mentor('demo-student-2', 3, 'Dr. Amina Yusuf', 12),
     mentor('demo-student-5', 4, 'Kemi Adewale', 7),
@@ -237,6 +240,7 @@ function seedReportData(students: StudentRecord[]) {
 export function resetDemoData() {
   ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', REPORT_FLAG, FLAG, 'app_demo_student_seeded_v1']
     .forEach(k => localStorage.removeItem(k));
+  Object.keys(localStorage).filter(k => k.startsWith('app_notif_prefs_')).forEach(k => localStorage.removeItem(k));
   sessionStore.clear();
   seedDemoData();
 }

@@ -36,6 +36,9 @@ export default function TeacherViewModal({ teacher, initialMode = 'view', onClos
   const [mode, setMode] = useState<'view' | 'reassign'>('view');
   const [selected, setSelected] = useState<string[]>([]);
   const [version, setVersion] = useState(0);
+  // Keep showing the last teacher while the closing animation plays (the prop is null by then).
+  const [shown, setShown] = useState<TeacherRecord | null>(teacher);
+  useEffect(() => { if (teacher) setShown(teacher); }, [teacher]);
 
   useEffect(() => {
     if (!teacher) return;
@@ -52,7 +55,7 @@ export default function TeacherViewModal({ teacher, initialMode = 'view', onClos
 
   void version; // re-read classes after a reassignment
   // Always show the freshest copy of the record.
-  const t = teacher ? teachersStore.get(teacher.id) ?? teacher : null;
+  const t = shown ? teachersStore.get(shown.id) ?? shown : null;
   const taught = t ? classesForTeacher(t.id) : [];
   const students = taught.flatMap(c => studentsInClass(c.id));
   const allClasses = t ? schoolClassesStorage.get() : [];
@@ -80,7 +83,7 @@ export default function TeacherViewModal({ teacher, initialMode = 'view', onClos
 
   return (
     <AnimatePresence>
-      {t && (
+      {teacher && t && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
           <motion.div

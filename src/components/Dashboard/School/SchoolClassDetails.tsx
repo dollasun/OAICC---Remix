@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Filter, MoreVertical, Search, Trash2, User } from 'lucide-react';
+import { ArrowLeft, Download, Filter, MoreVertical, Search, Trash2, User } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
 import { schoolClassesStorage } from '../../../utils/storage';
@@ -8,6 +8,7 @@ import {
   assignTeacher, fullName, initialsOf, inviteLink, invitesStore, moveStudentToClass, removeStudent, studentsInClass, teacherOfClass,
 } from '../../../utils/schoolData';
 import InviteUserModal from './InviteUserModal';
+import { downloadStudentsCsv } from '../../../utils/studentReport';
 
 export default function SchoolClassDetails() {
   const { id } = useParams();
@@ -26,9 +27,17 @@ export default function SchoolClassDetails() {
   if (!schoolClass) return <Navigate to="/school/classes" replace />;
 
   const teacher = teacherOfClass(schoolClass.id);
-  const members = studentsInClass(schoolClass.id)
+  const classStudents = studentsInClass(schoolClass.id);
+  const members = classStudents
     .filter(s => `${fullName(s)} ${s.email}`.toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => (newestFirst ? b.createdAt.localeCompare(a.createdAt) : a.createdAt.localeCompare(b.createdAt)));
+
+  const classStudentIds = classStudents.map(s => s.id);
+  const handleDownloadReport = () => {
+    const count = downloadStudentsCsv(classStudentIds, schoolClass.name);
+    if (count === 0) showToast('There are no students in this class yet.', 'error');
+    else showToast(`${schoolClass.name} report downloaded (${count} ${count === 1 ? 'student' : 'students'}).`);
+  };
 
   const copyInvite = async (userId: string) => {
     const invite = invitesStore.forUser(userId);
@@ -82,7 +91,17 @@ export default function SchoolClassDetails() {
             )}
           </div>
         </div>
-        <button onClick={() => setIsInviteModalOpen(true)} className="btn-primary px-6 py-3">Add new student</button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadReport}
+            disabled={classStudentIds.length === 0}
+            title={classStudentIds.length === 0 ? 'Add students to this class to download a report' : 'Download a CSV report of this class'}
+            className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Download className="w-4 h-4" /> Download report
+          </button>
+          <button onClick={() => setIsInviteModalOpen(true)} className="btn-primary px-6 py-3">Add new student</button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

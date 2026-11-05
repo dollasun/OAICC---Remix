@@ -75,6 +75,9 @@ export const schoolClassesStorage = {
     schoolClassesStorage.save(classes.map(c => (c.id === id ? { ...c, name: trimmed, teacherId: changes.teacherId || undefined } : c)));
     return true;
   },
+  /** Sets or clears a class's teacher without touching its name. */
+  setTeacher: (id: string, teacherId?: string) =>
+    schoolClassesStorage.save(schoolClassesStorage.get().map(c => (c.id === id ? { ...c, teacherId: teacherId || undefined } : c))),
   remove: (id: string) => schoolClassesStorage.save(schoolClassesStorage.get().filter(c => c.id !== id)),
 };
 

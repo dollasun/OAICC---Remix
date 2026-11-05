@@ -10,6 +10,7 @@ import {
 } from '../../../utils/schoolData';
 import InviteUserModal from './InviteUserModal';
 import TeacherViewModal from './TeacherViewModal';
+import { downloadStudentsCsv } from '../../../utils/studentReport';
 
 type UserRole = 'Teacher' | 'Parent' | 'Student';
 interface Row { id: string; name: string; email: string; role: UserRole; status: string; createdAt: string; initials: string; color: string }
@@ -62,6 +63,12 @@ export default function SchoolOverview() {
     { label: 'Total students', value: students.length },
   ];
 
+  const handleDownloadReport = () => {
+    const count = downloadStudentsCsv(students.map(x => x.id), 'all-students');
+    if (count === 0) showToast('There are no students in your school yet.', 'error');
+    else showToast(`School report downloaded (${count} ${count === 1 ? 'student' : 'students'}).`);
+  };
+
   const remove = (u: Row) => {
     if (!window.confirm(`Remove ${u.name === 'Awaiting sign-up' ? u.email : u.name} from your school?`)) return;
     if (u.role === 'Teacher') removeTeacher(u.id);
@@ -94,10 +101,22 @@ export default function SchoolOverview() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
           <button onClick={() => setIsExportModalOpen(true)} className="flex items-center gap-2 text-slate-500 font-bold mt-2 hover:text-brand transition-all">
-            <Download className="w-4 h-4" /> Export
+            <Download className="w-4 h-4" /> Export users
           </button>
         </div>
-        {users.length > 0 && <button onClick={() => setIsInviteModalOpen(true)} className="btn-primary px-6 py-3">Invite new user</button>}
+        {users.length > 0 && (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadReport}
+              disabled={students.length === 0}
+              title={students.length === 0 ? 'Add students to download a report' : 'Download a CSV report of all students'}
+              className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" /> Download report
+            </button>
+            <button onClick={() => setIsInviteModalOpen(true)} className="btn-primary px-6 py-3">Invite new user</button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

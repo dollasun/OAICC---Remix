@@ -4,7 +4,8 @@
  * numbered tilted badges, and coloured progress bars.
  */
 import React from 'react';
-import { Circle, Document, Font, G, Page, Path, Polygon, Rect, StyleSheet, Svg, Text, View } from '@react-pdf/renderer';
+import { Circle, Document, Font, G, Image, Page, Polygon, StyleSheet, Svg, Text, View } from '@react-pdf/renderer';
+import logoPng from '../../assets/logo/oaicc-logo-green.png?url';
 import q400 from '@fontsource/quicksand/files/quicksand-latin-400-normal.woff?url';
 import q500 from '@fontsource/quicksand/files/quicksand-latin-500-normal.woff?url';
 import q600 from '@fontsource/quicksand/files/quicksand-latin-600-normal.woff?url';
@@ -70,29 +71,11 @@ function Star({ size, color }: { size: number; color: string }) {
   return <Svg width={size} height={size} viewBox="0 0 24 24"><Polygon points={pts} fill={color} /></Svg>;
 }
 
-/** Cartoon turtle mascot (simplified), drawn as vector shapes. */
-function Turtle() {
-  return (
-    <Svg width={34} height={22} viewBox="0 0 68 44">
-      <Rect x="14" y="30" width="9" height="11" rx="4" fill="#34D399" />
-      <Rect x="40" y="30" width="9" height="11" rx="4" fill="#34D399" />
-      <Path d="M6 34 C6 8, 52 8, 54 34 Z" fill="#2A6DF4" />
-      <Circle cx="22" cy="22" r="5" fill="#FF6A00" />
-      <Circle cx="34" cy="17" r="5" fill="#FFB400" />
-      <Circle cx="44" cy="25" r="4.5" fill="#EF4444" />
-      <Circle cx="58" cy="26" r="9" fill="#34D399" />
-      <Circle cx="61" cy="23" r="2.2" fill="#05071A" />
-      <Path d="M2 34 L-3 30 L4 28 Z" fill="#34D399" />
-    </Svg>
-  );
-}
-
+/** The real OAICC logo, on a white sticker so its navy "o" stays visible on the dark page. */
 function Logo() {
-  const L = ({ ch, color }: { ch: string; color: string }) => <Text style={{ fontSize: 24, fontWeight: 700, color, letterSpacing: -1 }}>{ch}</Text>;
   return (
-    <View style={[s.row, { alignItems: 'center' }]}>
-      <L ch="o" color="#3B6BFF" /><L ch="a" color="#00ADEF" /><L ch="i" color="#FF3B00" /><L ch="c" color="#FF6A00" /><L ch="c" color="#FFB400" />
-      <View style={{ marginLeft: 4, marginTop: 2 }}><Turtle /></View>
+    <View style={{ backgroundColor: '#FFFFFF', borderRadius: 12, paddingVertical: 6, paddingHorizontal: 11, transform: 'rotate(-1.5deg)' }}>
+      <Image src={logoPng} style={{ height: 24, width: 94.5 }} />
     </View>
   );
 }

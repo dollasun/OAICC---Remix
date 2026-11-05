@@ -1,38 +1,30 @@
 import React from 'react';
+import logoUrl from '../assets/logo/oaicc-logo-green.svg';
+import markUrl from '../assets/logo/oaicc-mark.png';
 
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** `white` renders a single-colour white version for use on coloured backgrounds. */
   variant?: 'default' | 'white';
+  /** Shows only the turtle mark (used by collapsed sidebars). */
   hideText?: boolean;
 }
 
+const HEIGHT = { sm: 'h-7', md: 'h-9', lg: 'h-12', xl: 'h-20' } as const;
+
+/** The OAICC logo ("OAICC logo green": wordmark + turtle mascot). */
 export default function Logo({ className = '', size = 'md', variant = 'default', hideText = false }: LogoProps) {
-  const sizeClasses = {
-    sm: 'text-xl',
-    md: 'text-2xl',
-    lg: 'text-4xl',
-    xl: 'text-6xl',
-  };
-
-  const colors = variant === 'white' 
-    ? { o: '#FFFFFF', a: '#FFFFFF', i: '#FFFFFF', c1: '#FFFFFF', c2: '#FFFFFF' }
-    : { o: '#001F5B', a: '#00ADEF', i: '#FF3B00', c1: '#FF6A00', c2: '#FFB400' };
-
+  // The navy "o" is hard to see on dark surfaces, so give the default logo a soft light halo in dark mode.
+  const tone = variant === 'white' ? 'brightness-0 invert' : 'dark:drop-shadow-[0_0_6px_rgba(255,255,255,0.35)]';
   return (
-    <div className={`font-display font-black tracking-tighter flex items-center ${sizeClasses[size]} ${className}`}>
-      <span style={{ color: colors.o }}>o</span>
-      <span style={{ color: colors.a }}>a</span>
-      <span style={{ color: colors.i }} className="relative">
-        i
-        <span className="absolute -top-[0.15em] left-1/2 -translate-x-1/2 w-[0.2em] h-[0.2em] rounded-full" style={{ backgroundColor: colors.i }}></span>
-      </span>
-      {!hideText && (
-        <>
-          <span style={{ color: colors.c1 }}>c</span>
-          <span style={{ color: colors.c2 }}>c</span>
-        </>
-      )}
+    <div className={`flex items-center ${className}`}>
+      <img
+        src={hideText ? markUrl : logoUrl}
+        alt="OAICC"
+        draggable={false}
+        className={`${HEIGHT[size]} w-auto max-w-full select-none object-contain ${tone}`}
+      />
     </div>
   );
 }

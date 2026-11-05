@@ -137,3 +137,17 @@ html.dark .bg-cyan-100:not([class*="dark:bg-"]) { background-color: rgb(6 182 21
 html.dark .bg-orange-50:not([class*="dark:bg-"]) { background-color: rgb(249 115 22 / .12); }
 html.dark .bg-orange-100:not([class*="dark:bg-"]) { background-color: rgb(249 115 22 / .18); }
 html.dark .bg-brand-light:not([class*="dark:bg-"]) { background-color: rgb(0 180 216 / .15); }
+
+/* Light gradient stops (dark mode). */
+html.dark .from-white:not([class*="dark:from-"]) { --tw-gradient-from: #0f172a; }
+html.dark .from-slate-50:not([class*="dark:from-"]) { --tw-gradient-from: #111b30; }
+html.dark .via-white:not([class*="dark:via-"]) { --tw-gradient-via: #0f172a; }
+html.dark .via-slate-50:not([class*="dark:via-"]) { --tw-gradient-via: #111b30; }
+html.dark .to-white:not([class*="dark:to-"]) { --tw-gradient-to: #0f172a; }
+html.dark .to-slate-50:not([class*="dark:to-"]) { --tw-gradient-to: #111b30; }
+html.dark .from-emerald-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rgb(16 185 129 / .12); }
+html.dark .from-cyan-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rgb(6 182 212 / .12); }
+html.dark .from-amber-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rgb(245 158 11 / .12); }
+html.dark .from-indigo-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rgb(99 102 241 / .12); }
+html.dark .via-cyan-50\/30:not([class*="dark:via-"]) { --tw-gradient-via: rgb(6 182 212 / .12); }
+html.dark .to-indigo-50\/40:not([class*="dark:to-"]) { --tw-gradient-to: rgb(99 102 241 / .12); }

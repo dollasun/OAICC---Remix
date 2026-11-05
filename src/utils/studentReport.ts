@@ -71,20 +71,22 @@ export function buildReportData(studentId: string): ReportData | null {
 }
 
 /** Builds the report card PDF in the browser. The PDF library is loaded only when needed. */
-export async function createStudentReport(studentId: string): Promise<{ blob: Blob; fileName: string; name: string }> {
+export type ReportTheme = 'dark' | 'light';
+
+export async function createStudentReport(studentId: string, theme: ReportTheme = 'dark'): Promise<{ blob: Blob; fileName: string; name: string }> {
   const data = buildReportData(studentId);
   if (!data) throw new Error('Student not found');
   const [{ pdf }, { default: StudentReportCard }] = await Promise.all([
     import('@react-pdf/renderer'),
     import('../components/Reports/StudentReportCard'),
   ]);
-  const blob = await pdf(React.createElement(StudentReportCard, { data })).toBlob();
-  return { blob, name: data.name, fileName: `${data.name.replace(/[^\w]+/g, '-')}-OAICC-Report-Card.pdf` };
+  const blob = await pdf(React.createElement(StudentReportCard, { data, theme })).toBlob();
+  return { blob, name: data.name, fileName: `${data.name.replace(/[^\w]+/g, '-')}-OAICC-Report-Card-${theme === 'light' ? 'Light' : 'Dark'}.pdf` };
 }
 
 /** Creates the report card and downloads it. Resolves with the student's name. */
-export async function downloadStudentReport(studentId: string): Promise<string> {
-  const { blob, fileName, name } = await createStudentReport(studentId);
+export async function downloadStudentReport(studentId: string, theme: ReportTheme = 'dark'): Promise<string> {
+  const { blob, fileName, name } = await createStudentReport(studentId, theme);
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

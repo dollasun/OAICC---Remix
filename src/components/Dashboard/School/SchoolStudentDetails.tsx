@@ -29,7 +29,8 @@ import {
 import { savedCareersStorage, schoolStorage } from '../../../utils/storage';
 import { className, fullName, initialsOf, studentsStore } from '../../../utils/schoolData';
 import { trackerEntries } from '../studentTimeline';
-import { downloadStudentReport } from '../../../utils/studentReport';
+import { downloadStudentReport, type ReportTheme } from '../../../utils/studentReport';
+import ReportStyleModal from './ReportStyleModal';
 import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function SchoolStudentDetails() {
@@ -40,12 +41,15 @@ export default function SchoolStudentDetails() {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  const handleDownloadReport = async () => {
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const handleDownloadReport = async (theme: ReportTheme) => {
     if (!id) return;
     setIsGeneratingReport(true);
     try {
-      const name = await downloadStudentReport(id);
-      showToast(`${name}'s report card downloaded.`);
+      const name = await downloadStudentReport(id, theme);
+      showToast(`${name}'s ${theme} report card downloaded.`);
+      setIsReportModalOpen(false);
     } catch {
       showToast('The report card could not be created. Please try again.', 'error');
     } finally {
@@ -141,12 +145,10 @@ export default function SchoolStudentDetails() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={handleDownloadReport}
-            disabled={isGeneratingReport}
-            className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait flex items-center gap-2"
+            onClick={() => setIsReportModalOpen(true)}
+            className="px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
           >
-            {isGeneratingReport && <span className="w-4 h-4 border-2 border-slate-300 border-t-brand rounded-full animate-spin" />}
-            {isGeneratingReport ? 'Preparing report…' : 'Download Report'}
+            Download Report
           </button>
           <button 
             onClick={() => setIsNoteModalOpen(true)}
@@ -615,6 +617,14 @@ export default function SchoolStudentDetails() {
           </div>
         )}
       </AnimatePresence>
+
+      <ReportStyleModal
+        open={isReportModalOpen}
+        studentName={student.name}
+        busy={isGeneratingReport}
+        onClose={() => setIsReportModalOpen(false)}
+        onDownload={handleDownloadReport}
+      />
 
       {/* Admin Note Modal */}
       <AnimatePresence>

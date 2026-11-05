@@ -15,6 +15,7 @@ import {
 } from './storage';
 
 const FLAG = 'app_demo_seeded_v1';
+const REPORT_FLAG = 'app_demo_report_seeded_v1';
 const SCHOOL_ID = 'demo-school';
 const DAY = 86_400_000;
 const ago = (days: number, hours = 0) => new Date(Date.now() - days * DAY - hours * 3_600_000).toISOString();
@@ -44,6 +45,7 @@ function seedStudentPortal() {
 
 export function seedDemoData(): boolean {
   seedStudentPortal();
+  ensureReportDemoData();
   if (localStorage.getItem(FLAG) || schoolStorage.get()) return false;
 
   schoolStorage.save({
@@ -155,9 +157,23 @@ export function seedDemoData(): boolean {
   ]);
 
   seedReportData(students);
+  localStorage.setItem(REPORT_FLAG, '1');
 
   localStorage.setItem(FLAG, '1');
   return true;
+}
+
+/**
+ * Browsers that loaded the demo before the report-card data existed have demo students but no login
+ * dates, quiz progress or sessions. Add them once, without touching anything else.
+ */
+function ensureReportDemoData() {
+  if (localStorage.getItem(REPORT_FLAG)) return;
+  if (schoolStorage.get()?.id !== SCHOOL_ID) return; // not the demo school (or nothing seeded yet)
+  const demoStudents = studentsStore.all().filter(s => s.id.startsWith('demo-student-'));
+  if (demoStudents.length === 0) return;
+  seedReportData(studentsStore.all());
+  localStorage.setItem(REPORT_FLAG, '1');
 }
 
 /** Login dates, quiz progress, careers, counsellor and mentor sessions that feed each student's report card. */
@@ -219,7 +235,7 @@ function seedReportData(students: StudentRecord[]) {
 
 /** Wipes the school/teacher/parent/student data and seeds the demo data again. */
 export function resetDemoData() {
-  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', FLAG, 'app_demo_student_seeded_v1']
+  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', REPORT_FLAG, FLAG, 'app_demo_student_seeded_v1']
     .forEach(k => localStorage.removeItem(k));
   sessionStore.clear();
   seedDemoData();

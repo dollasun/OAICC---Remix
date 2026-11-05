@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
 import { BookOpen, ChevronLeft, ChevronRight, Link2, Trash2, Users } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
-import { schoolClassesStorage, schoolStorage } from '../../../utils/storage';
+import { schoolStorage } from '../../../utils/storage';
 import {
-  classesForTeacher, fullName, initialsOf, inviteLink, invitesStore, removeTeacher, setTeacherClasses, teachersOfSchool,
+  classesForTeacher, fullName, initialsOf, inviteLink, invitesStore, removeTeacher, teachersOfSchool,
 } from '../../../utils/schoolData';
 import type { TeacherRecord } from '../../../types';
 import InviteUserModal from './InviteUserModal';
+import TeacherViewModal from './TeacherViewModal';
 
 const PAGE_SIZE = 10;
 
@@ -17,14 +17,12 @@ export default function SchoolTeachers() {
   const [version, setVersion] = useState(0);
   const refresh = () => setVersion(v => v + 1);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [assigning, setAssigning] = useState<TeacherRecord | null>(null);
-  const [selectedClassIds, setSelectedClassIds] = useState<string[]>([]);
+  const [viewing, setViewing] = useState<{ teacher: TeacherRecord; mode: 'view' | 'reassign' } | null>(null);
   const [page, setPage] = useState(1);
 
   // `version` forces a re-read of localStorage after each change.
   void version;
   const teachers = teachersOfSchool(school?.id);
-  const classes = schoolClassesStorage.get();
   const totalPages = Math.max(1, Math.ceil(teachers.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const visible = teachers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
@@ -44,19 +42,6 @@ export default function SchoolTeachers() {
     } catch {
       showToast('Could not copy the link automatically.', 'error');
     }
-  };
-
-  const openAssign = (t: TeacherRecord) => {
-    setAssigning(t);
-    setSelectedClassIds(classesForTeacher(t.id).map(c => c.id));
-  };
-
-  const saveAssign = () => {
-    if (!assigning) return;
-    setTeacherClasses(assigning.id, selectedClassIds);
-    setAssigning(null);
-    refresh();
-    showToast('Classes updated successfully!');
   };
 
   return (
@@ -102,7 +87,7 @@ export default function SchoolTeachers() {
                 {visible.map(t => {
                   const taught = classesForTeacher(t.id);
                   return (
-                    <tr key={t.id} className="hover:bg-slate-50/80 transition-all group">
+                    <tr key={t.id} className="hover:bg-slate-50/80 transition-all group cursor-pointer" onClick={() => setViewing({ teacher: t, mode: 'view' })}>
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold bg-blue-100 text-blue-600">{fullName(t) ? initialsOf(t) : '?'}</div>
@@ -119,11 +104,11 @@ export default function SchoolTeachers() {
                         </span>
                       </td>
                       <td className="px-8 py-5">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                           {t.status === 'invited' && (
                             <button title="Copy invite link" onClick={() => copyInvite(t)} className="p-2 text-slate-400 hover:text-brand transition-all"><Link2 className="w-5 h-5" /></button>
                           )}
-                          <button title="Assign classes" onClick={() => openAssign(t)} className="p-2 text-slate-400 hover:text-brand transition-all"><BookOpen className="w-5 h-5" /></button>
+                          <button title="Assign classes" onClick={() => setViewing({ teacher: t, mode: 'reassign' })} className="p-2 text-slate-400 hover:text-brand transition-all"><BookOpen className="w-5 h-5" /></button>
                           <button
                             title="Remove teacher"
                             onClick={() => {
@@ -164,44 +149,12 @@ export default function SchoolTeachers() {
 
       <InviteUserModal open={isInviteOpen} onClose={() => setIsInviteOpen(false)} onDone={refresh} lockRole="teacher" />
 
-      <AnimatePresence>
-        {assigning && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAssigning(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-md bg-white rounded-2xl shadow-sm p-8">
-              <h3 className="text-2xl font-bold text-slate-900 mb-1">Assign classes</h3>
-              <p className="text-sm text-slate-500 mb-6">{fullName(assigning) || assigning.email}</p>
-              {classes.length === 0 ? (
-                <p className="text-slate-500 text-sm mb-6">You haven't created any classes yet. Add a class first.</p>
-              ) : (
-                <div className="space-y-2 max-h-72 overflow-y-auto mb-6">
-                  {classes.map(c => {
-                    const otherTeacher = c.teacherId && c.teacherId !== assigning.id;
-                    return (
-                      <label key={c.id} className="flex items-center justify-between gap-3 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all">
-                        <span className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            className="accent-brand w-4 h-4"
-                            checked={selectedClassIds.includes(c.id)}
-                            onChange={e => setSelectedClassIds(e.target.checked ? [...selectedClassIds, c.id] : selectedClassIds.filter(id => id !== c.id))}
-                          />
-                          <span className="text-sm font-bold text-slate-900">{c.name}</span>
-                        </span>
-                        {otherTeacher && <span className="text-xs font-medium text-amber-600">Reassigns from another teacher</span>}
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-              <div className="flex gap-4">
-                <button onClick={() => setAssigning(null)} className="flex-1 px-6 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
-                <button onClick={saveAssign} disabled={classes.length === 0} className="flex-1 btn-primary disabled:opacity-50">Save</button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <TeacherViewModal
+        teacher={viewing?.teacher ?? null}
+        initialMode={viewing?.mode ?? 'view'}
+        onClose={() => setViewing(null)}
+        onChanged={refresh}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   fullName, initialsOf, parentsOfSchool, removeParent, removeStudent, removeTeacher, studentsOfSchool, teachersOfSchool,
 } from '../../../utils/schoolData';
 import InviteUserModal from './InviteUserModal';
+import TeacherViewModal from './TeacherViewModal';
 
 type UserRole = 'Teacher' | 'Parent' | 'Student';
 interface Row { id: string; name: string; email: string; role: UserRole; status: string; createdAt: string; initials: string; color: string }
@@ -29,6 +30,7 @@ export default function SchoolOverview() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [viewingTeacherId, setViewingTeacherId] = useState<string | null>(null);
   const [roleFilter, setRoleFilter] = useState<UserRole | 'All'>('All');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -158,8 +160,11 @@ export default function SchoolOverview() {
                 {visible.map(u => (
                   <tr
                     key={u.id}
-                    className={`hover:bg-slate-50/80 transition-all group ${u.role === 'Student' ? 'cursor-pointer' : ''}`}
-                    onClick={() => { if (u.role === 'Student') navigate(`/school/student/${u.id}`); }}
+                    className={`hover:bg-slate-50/80 transition-all group ${u.role === 'Student' || u.role === 'Teacher' ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      if (u.role === 'Student') navigate(`/school/student/${u.id}`);
+                      else if (u.role === 'Teacher') setViewingTeacherId(u.id);
+                    }}
                   >
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
@@ -193,6 +198,12 @@ export default function SchoolOverview() {
           </div>
         </div>
       )}
+
+      <TeacherViewModal
+        teacher={viewingTeacherId ? teachers.find(t => t.id === viewingTeacherId) ?? null : null}
+        onClose={() => setViewingTeacherId(null)}
+        onChanged={refresh}
+      />
 
       <InviteUserModal open={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} onDone={refresh} />
 

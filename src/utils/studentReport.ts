@@ -1,5 +1,6 @@
 import React from 'react';
 import Papa from 'papaparse';
+import { triggerDownload } from './download';
 import { schoolClassesStorage, schoolStorage, counselingSessionsStorage } from './storage';
 import { fullName, initialsOf, mentorSessionsStore, progressStore, studentsStore } from './schoolData';
 
@@ -83,18 +84,6 @@ export async function createStudentReport(studentId: string, theme: ReportTheme 
   ]);
   const blob = await pdf(React.createElement(StudentReportCard, { data, theme })).toBlob();
   return { blob, name: data.name, fileName: `${data.name.replace(/[^\w]+/g, '-')}-OAICC-Report-Card-${theme === 'light' ? 'Light' : 'Dark'}.pdf` };
-}
-
-/** Saves a blob as a file in the browser. */
-function triggerDownload(blob: Blob, fileName: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
 
 /** Creates the report card and downloads it. Resolves with the student's name. */

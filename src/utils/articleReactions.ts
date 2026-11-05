@@ -1,4 +1,5 @@
 // Article Reactions and Feedback Store
+import { buildSampleCareers } from '../data/sampleCareers';
 
 export interface ArticleFeedback {
   likes: number;
@@ -15,16 +16,31 @@ const DEFAULT_REACTIONS: Record<string, ArticleFeedback> = {
   a3: { likes: 19, dislikes: 3, userVote: null },
 };
 
+// Sample reactions for the sample career library's articles, so the admin analytics show real-looking
+// numbers. They are derived from the article id, so they are the same every time.
+const SAMPLE_REACTIONS: Record<string, ArticleFeedback> = (() => {
+  const out: Record<string, ArticleFeedback> = {};
+  buildSampleCareers([]).forEach(career => {
+    career.articleItems.forEach(article => {
+      const seed = [...article.id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+      out[article.id] = { likes: 14 + (seed % 47), dislikes: seed % 6, userVote: null };
+    });
+  });
+  return out;
+})();
+
 export const getStoredReactions = (): Record<string, ArticleFeedback> => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_REACTIONS));
-      return { ...DEFAULT_REACTIONS };
+      const initial = { ...DEFAULT_REACTIONS, ...SAMPLE_REACTIONS };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+      return initial;
     }
-    return JSON.parse(raw);
+    // stored votes win; sample articles that have no record yet get their sample numbers
+    return { ...SAMPLE_REACTIONS, ...JSON.parse(raw) };
   } catch {
-    return { ...DEFAULT_REACTIONS };
+    return { ...DEFAULT_REACTIONS, ...SAMPLE_REACTIONS };
   }
 };
 

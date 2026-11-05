@@ -19,7 +19,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { careersStorage } from '../../../utils/storage';
+import { careersStorage, careerCategoriesStorage } from '../../../utils/storage';
 import RichTextEditor from '../../Common/RichTextEditor';
 import AdminArticleViewModal from './AdminArticleViewModal';
 import { getArticleReaction } from '../../../utils/articleReactions';
@@ -38,8 +38,9 @@ export default function AdminEditCareer() {
   const [newMilestones, setNewMilestones] = useState<{ [key: number]: string }>({});
 
   const [formData, setFormData] = useState({
+    title: '',
     step: '',
-    category: 'Science',
+    category: '',
     about: '',
     skills: [] as string[],
     qualifications: '',
@@ -54,6 +55,13 @@ export default function AdminEditCareer() {
   });
 
   const [newUniversity, setNewUniversity] = useState('');
+
+  // Categories are the managed list (which matches the platform's recommendation industries); a career's
+  // own category is kept in the list even if it is not managed, so editing never blanks the field.
+  const managedCategories: string[] = (careerCategoriesStorage.get() as { name: string }[]).map(c => c.name);
+  const categoryOptions: string[] = !formData.category || managedCategories.includes(formData.category)
+    ? managedCategories
+    : [formData.category, ...managedCategories];
 
   const countries = [
     { name: 'United States', currency: '$' },
@@ -175,11 +183,14 @@ export default function AdminEditCareer() {
       });
       setBgImage(career.image);
 
-      if (career.articleItems && career.articleItems.length > 0) {
-        setResources(prev => ({ ...prev, articles: career.articleItems }));
-      } else if (career.articlesList && career.articlesList.length > 0) {
-        setResources(prev => ({ ...prev, articles: career.articlesList }));
-      }
+      // load every kind of resource the career has (videos and links were previously not loaded at all)
+      setResources({
+        videos: Array.isArray(career.videoItems) ? career.videoItems : [],
+        articles: Array.isArray(career.articleItems) && career.articleItems.length > 0
+          ? career.articleItems
+          : (Array.isArray(career.articlesList) ? career.articlesList : []),
+        links: Array.isArray(career.linkItems) ? career.linkItems : [],
+      });
     }
   }, [id]);
 
@@ -190,6 +201,7 @@ export default function AdminEditCareer() {
         return {
           ...c,
           name: formData.title,
+          title: formData.title,
           category: formData.category,
           description: formData.about,
           image: bgImage,
@@ -207,7 +219,10 @@ export default function AdminEditCareer() {
           articles: resources.articles.length,
           resources: resources.links.length,
           articleItems: resources.articles,
-          articlesList: resources.articles
+          articlesList: resources.articles,
+          videoItems: resources.videos,
+          linkItems: resources.links,
+          salary: '$' + (formData.salaries[0]?.min || '100,000') + ' - $' + (formData.salaries[0]?.max || '500,000')
         };
       }
       return c;
@@ -216,23 +231,8 @@ export default function AdminEditCareer() {
     navigate('/admin/careers');
   };
 
-  const [resources, setResources] = useState({
-    videos: [
-      { id: 'v1', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v1/400/200', url: 'https://youtube.com/watch?v=1' },
-      { id: 'v2', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v2/400/200', url: 'https://youtube.com/watch?v=2' },
-      { id: 'v3', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v3/400/200', url: 'https://youtube.com/watch?v=3' }
-    ],
-    articles: [
-      { id: 'a1', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 5, readTime: '5 mins read' },
-      { id: 'a2', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 8, readTime: '8 mins read' },
-      { id: 'a3', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 12, readTime: '12 mins read' }
-    ],
-    links: [
-      { id: 'l1', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l1/400/200', type: 'Opportunity', from: 'Coursera' },
-      { id: 'l2', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l2/400/200', type: 'Opportunity', from: 'Coursera' },
-      { id: 'l3', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l3/400/200', type: 'Opportunity', from: 'Coursera' }
-    ]
-  });
+  // Filled from the career record by the effect above (starts empty rather than with placeholders).
+  const [resources, setResources] = useState<{ videos: any[]; articles: any[]; links: any[] }>({ videos: [], articles: [], links: [] });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'video' | 'article' | 'resource' | null>(null);
@@ -322,7 +322,7 @@ export default function AdminEditCareer() {
       </button>
 
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-slate-900">Edit Software Engineering</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Edit {formData.title || 'career'}</h1>
         <p className="text-slate-500 font-medium mt-1">Update the details and resources for this career path.</p>
       </div>
 
@@ -404,12 +404,9 @@ export default function AdminEditCareer() {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                   >
-                    <option value="Science">Science</option>
-                    <option value="Arts">Arts</option>
-                    <option value="Commercial">Commercial</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Creative">Creative</option>
-                    <option value="Business">Business</option>
+                    {categoryOptions.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
                   </select>
                 </div>
               </div>

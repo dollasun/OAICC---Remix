@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, X, Download, AlertCircle } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
+import { careerCategoriesStorage } from '../../../utils/storage';
 
 interface BulkUploadModalProps {
   isOpen: boolean;
@@ -48,10 +49,9 @@ export default function BulkUploadModal({ isOpen, onClose, onUpload }: BulkUploa
               className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl outline-none"
             >
               <option value="">Select category...</option>
-              <option value="Technology">Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Design">Design</option>
-              <option value="Engineering">Engineering</option>
+              {(careerCategoriesStorage.get() as { id: number; name: string }[]).map(c => (
+                <option key={c.id} value={c.name}>{c.name}</option>
+              ))}
             </select>
           </div>
           

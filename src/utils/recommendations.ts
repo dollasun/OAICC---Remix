@@ -122,28 +122,44 @@ export function getRankedIndustries(): ScoredCareer[] {
     coverage[ind] = hasAnswers ? (w / D) : 0;
   });
 
-  let catalog: any[] = [];
-  const storedCareers = careersStorage.get([]);
-  
-  if (Array.isArray(storedCareers) && storedCareers.length > 0) {
-    catalog = storedCareers;
-  } else {
-    let idCounter = 1;
-    for (const [cluster, jobs] of Object.entries(careerGlossary)) {
-      jobs.forEach((job: string) => {
-        catalog.push({
-          id: idCounter++,
-          title: job,
-          category: cluster,
-          salary: '$60k - $120k',
-          growth: 'Medium',
-          education: "Bachelor's Degree",
-          image: `https://picsum.photos/seed/${idCounter * 7}/600/400`,
-          description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()}.`
-        });
+  // The catalog is the built-in career glossary plus the admin career library. An admin career with
+  // the same title replaces the glossary entry, so a career never appears twice.
+  const glossary: any[] = [];
+  let idCounter = 1;
+  for (const [cluster, jobs] of Object.entries(careerGlossary)) {
+    jobs.forEach((job: string) => {
+      glossary.push({
+        id: idCounter++,
+        title: job,
+        category: cluster,
+        salary: '$60k - $120k',
+        growth: 'Medium',
+        education: "Bachelor's Degree",
+        image: `https://picsum.photos/seed/${idCounter * 7}/600/400`,
+        description: `A professional in the ${cluster} industry focusing on ${job.toLowerCase()}.`
       });
-    }
+    });
   }
+  const storedCareers = careersStorage.get([]);
+  const adminCareers: any[] = (Array.isArray(storedCareers) ? storedCareers : [])
+    .filter((c: any) => c && (c.title || c.name))
+    .map((c: any) => ({
+      ...c,
+      title: c.title || c.name,
+      salary: typeof c.salary === 'string' ? c.salary : `$${c.salaryMin || '60,000'} - $${c.salaryMax || '120,000'}`,
+      growth: c.growth || 'Medium',
+      education: c.education || "Bachelor's Degree",
+      description: c.description || `A professional in the ${c.category} field.`,
+      image: c.image || `https://picsum.photos/seed/${c.id}/600/400`,
+    }));
+  const adminTitles = new Set(adminCareers.map(c => String(c.title).toLowerCase()));
+  // Industry names differ in capitalisation between the glossary and the scoring table (for example
+  // "Social care" vs "Social Care"). Match them case-insensitively so no industry is silently skipped.
+  const industryKeyByLower = new Map(Object.keys(D_K_MAP).map(k => [k.toLowerCase(), k]));
+  const catalog: any[] = [...glossary.filter(g => !adminTitles.has(g.title.toLowerCase())), ...adminCareers].map(c => ({
+    ...c,
+    category: industryKeyByLower.get(String(c.category).toLowerCase()) ?? c.category,
+  }));
 
   const allCareers = catalog.map(career => {
     const industry = career.category; // Ensure it aligns with our 24 industries if possible

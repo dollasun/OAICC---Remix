@@ -216,10 +216,21 @@ export default function CareerDetails() {
         salary: salaryObj,
         growth: found.growth ? `${found.growth} (Faster than average)` : '22% (Faster than average)',
         education: found.education || "Bachelor's Degree",
-        skills,
-        responsibilities,
-        pathway,
-        videos: [
+        // Careers from the admin library carry their own content; the generic defaults are only a fallback.
+        skills: Array.isArray(found.skills) && found.skills.length > 0 ? found.skills : skills,
+        responsibilities: Array.isArray(found.responsibilities) && found.responsibilities.length > 0 ? found.responsibilities : responsibilities,
+        pathway: Array.isArray(found.pathway) && found.pathway.length > 0 ? found.pathway : pathway,
+        videos: Array.isArray(found.videoItems) && found.videoItems.length > 0
+          ? found.videoItems.map((v: any) => ({
+              id: v.id,
+              title: v.title,
+              author: v.ownedBy || 'OAICC',
+              category: found.category,
+              thumbnail: v.thumbnail || `https://picsum.photos/seed/${v.id}/400/225`,
+              duration: 'Video',
+              url: v.url
+            }))
+          : [
           { id: 'v1', title: `A Day in the Life of a ${found.title}`, author: 'Career Spotlight', category: found.category, thumbnail: `https://picsum.photos/seed/v1-${found.id}/400/225`, duration: '10:15' },
           { id: 'v2', title: `Top Skills Required for ${found.title}`, author: 'Industry Experts', category: found.category, thumbnail: `https://picsum.photos/seed/v2-${found.id}/400/225`, duration: '14:30' }
         ],
@@ -253,9 +264,17 @@ export default function CareerDetails() {
                 about: `<p>A high-impact portfolio is one of your most valuable assets when seeking internships, entry-level opportunities, or academic sponsorships.</p><p class="mt-4">Highlight 3-5 well-documented case studies rather than a long list of unfinished demos. Explain the context, your specific contributions, and the measurable results achieved.</p>`
               }
             ],
-        resources: [
-          { id: 'r1', title: `${found.title} Starter Career Roadmap`, author: 'OAICC Learning', thumbnail: `https://picsum.photos/seed/r1-${found.id}/400/250` }
-        ]
+        resources: Array.isArray(found.linkItems) && found.linkItems.length > 0
+          ? found.linkItems.map((l: any) => ({
+              id: l.id,
+              title: l.title,
+              author: [l.type, l.from].filter(Boolean).join(' · '),
+              thumbnail: l.thumbnail || `https://picsum.photos/seed/${l.id}/400/250`,
+              url: l.url
+            }))
+          : [
+              { id: 'r1', title: `${found.title} Starter Career Roadmap`, author: 'OAICC Learning', thumbnail: `https://picsum.photos/seed/r1-${found.id}/400/250` }
+            ]
       });
     }
   }, [id]);
@@ -371,7 +390,7 @@ export default function CareerDetails() {
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Education</p>
-                <p className="text-xl font-bold text-slate-900">Bachelor's</p>
+                <p className="text-xl font-bold text-slate-900">{typeof career.education === 'string' && career.education ? career.education.replace(/ Degree$/, '') : "Bachelor's"}</p>
               </div>
             </div>
           </div>

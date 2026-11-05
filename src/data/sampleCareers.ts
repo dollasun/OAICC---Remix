@@ -1,0 +1,521 @@
+/**
+ * Sample career library for the admin portal. Every career is fully populated (profile, skills,
+ * pathway, salaries, videos, articles and links) so each table column, the view/edit page and every
+ * action can be exercised. Categories are the platform's 24 recommendation industries, so these
+ * careers also appear in the student portal's recommendations.
+ */
+
+type Step = [type: 'education' | 'professional' | 'vocation', duration: string, step: string, description: string, milestones: string[]];
+type Salary = [country: 'United States' | 'Nigeria' | 'United Kingdom' | 'Ghana' | 'Kenya' | 'South Africa' | 'European Union', min: string, max: string];
+type Video = [title: string, ownedBy: string, search: string];
+type Article = [title: string, author: string, minutes: number, paragraphs: string[]];
+type Link = [title: string, from: string, type: 'Opportunity' | 'Course' | 'Tool', url: string];
+
+interface Spec {
+  name: string;
+  category: string;
+  about: string;
+  skills: string[];
+  qualifications: string;
+  workExperience: string;
+  universities: string[];
+  responsibilities: string[];
+  subjects: string[];
+  pathway: Step[];
+  salaries: Salary[];
+  videos: Video[];
+  articles: Article[];
+  links: Link[];
+  /** Mentor expertise labels that belong to this career (used to count mentors). */
+  mentorRoles: string[];
+  growth: string;
+  education: string;
+}
+
+const CURRENCY: Record<Salary[0], string> = {
+  'United States': '$', Nigeria: '₦', 'United Kingdom': '£', Ghana: 'GH₵', Kenya: 'KSh', 'South Africa': 'R', 'European Union': '€',
+};
+
+const SPECS: Spec[] = [
+  {
+    name: 'Software Engineer', category: 'Information technology', growth: '25%', education: "Bachelor's Degree",
+    about: 'Software engineers design, build, test and maintain the applications and systems people use every day, from mobile banking apps to hospital records and online learning platforms. The work mixes problem-solving, teamwork and continuous learning.',
+    skills: ['Problem-solving', 'Programming', 'System design', 'Algorithms and data structures', 'Teamwork and communication', 'Cloud computing'],
+    qualifications: "A Bachelor's degree in Computer Science, Software Engineering or a related field is the most common route. Many engineers also enter through intensive bootcamps or self-directed learning backed by a strong project portfolio.",
+    workExperience: 'Entry-level roles ask for 0-2 years of experience, usually shown through internships, open-source contributions or personal projects. Mid-level engineers typically have 3-5 years of shipping production software.',
+    universities: ['University of Lagos', 'Covenant University', 'University of Ibadan', 'Massachusetts Institute of Technology'],
+    responsibilities: ['Design, write and review clean, well-tested code.', 'Turn product requirements into reliable technical solutions.', 'Debug production issues and improve system performance.', 'Collaborate with designers, product managers and QA engineers.', 'Document systems and share knowledge with the team.'],
+    subjects: ['Mathematics', 'Further Mathematics', 'Physics', 'Computer Studies', 'English Language'],
+    pathway: [
+      ['education', '1-4 years', 'Build the foundations', 'Strengthen maths and logic in secondary school and start learning to code with free online courses.', ['Learn one language such as Python or JavaScript', 'Build a small personal project', 'Join a coding club']],
+      ['education', '3-4 years', 'Earn a degree or complete a bootcamp', 'Study computer science formally or follow an intensive, project-based programme.', ['Complete data structures and algorithms', 'Contribute to a group project', 'Publish code on GitHub']],
+      ['professional', '6-12 months', 'Internship or junior placement', 'Get real experience on a team, learning version control, code review and deployment.', ['Land an internship', 'Ship a feature to production', 'Find a mentor']],
+      ['professional', '2-4 years', 'Software engineer', 'Own features end to end and grow into a specialist in backend, frontend, mobile or cloud.', ['Lead a small project', 'Mentor an intern', 'Specialise in one area']],
+    ],
+    salaries: [['United States', '85,000', '180,000'], ['Nigeria', '6,000,000', '36,000,000'], ['United Kingdom', '35,000', '95,000']],
+    videos: [['A day in the life of a software engineer', 'Tech Careers Africa', 'day in the life of a software engineer'], ['How to learn programming from scratch', 'CodeStart Academy', 'learn programming for beginners'], ['Ace your first coding interview', 'Interview Prep Hub', 'junior software engineer interview tips']],
+    articles: [
+      ['What does a software engineer actually do all day?', 'Chidinma Okafor', 6, ['A software engineer rarely spends the whole day writing code. Much of the time goes into reading existing code, discussing requirements, reviewing teammates\' work and tracking down bugs.', 'A typical day might start with a short stand-up meeting, followed by focused coding time on one feature, a code review for a colleague and a conversation with a designer about how a screen should behave.', 'The best engineers get good at communication as well as code. Clear writing, honest estimates and asking good questions matter just as much as knowing a language.']],
+      ['Building a portfolio that gets you hired', 'Tunde Bakare', 5, ['Employers want proof that you can build things. A portfolio of two or three finished projects says more than a long list of courses.', 'Pick projects that solve a real problem, even a small one, and write a short README explaining what the project does, how to run it and what you learned.', 'Host your work online and keep your GitHub profile tidy. Recruiters often look there before they ever read your CV.']],
+    ],
+    links: [['CS50: Introduction to Computer Science', 'Harvard / edX', 'Course', 'https://www.edx.org/learn/computer-science'], ['freeCodeCamp curriculum', 'freeCodeCamp', 'Course', 'https://www.freecodecamp.org/learn'], ['GitHub Student Developer Pack', 'GitHub', 'Tool', 'https://education.github.com/pack'], ['Google Summer of Code', 'Google', 'Opportunity', 'https://summerofcode.withgoogle.com/']],
+    mentorRoles: ['Software Engineering', 'Artificial Intelligence'],
+  },
+  {
+    name: 'Data Scientist', category: 'Information technology', growth: '35%', education: "Bachelor's Degree",
+    about: 'Data scientists collect, clean and analyse large sets of information to find patterns that help organisations make better decisions, from predicting crop yields to spotting fraud. They combine statistics, programming and clear storytelling.',
+    skills: ['Statistical analysis', 'Machine learning', 'Python and R', 'SQL', 'Data visualisation', 'Business communication'],
+    qualifications: "A Bachelor's degree in Statistics, Mathematics, Computer Science or Economics is common; a Master's degree helps for research-heavy roles. Strong portfolios built on public datasets are also valued.",
+    workExperience: 'Junior roles often start as data analyst positions. Employers look for experience cleaning real-world data and presenting findings to non-technical colleagues.',
+    universities: ['University of Ibadan', 'Obafemi Awolowo University', 'University of Cape Town', 'Stanford University'],
+    responsibilities: ['Clean and prepare messy data for analysis.', 'Build and evaluate predictive models.', 'Create dashboards and reports for decision makers.', 'Design experiments such as A/B tests.', 'Explain results in plain language.'],
+    subjects: ['Mathematics', 'Further Mathematics', 'Statistics', 'Computer Studies', 'Economics'],
+    pathway: [
+      ['education', '1-3 years', 'Strengthen maths and stats', 'Build a solid base in algebra, probability and spreadsheets.', ['Learn basic statistics', 'Practise with spreadsheets', 'Try a small data project']],
+      ['education', '3-4 years', 'Degree in a quantitative field', 'Study statistics, maths or computer science and learn Python, R and SQL.', ['Complete a machine learning course', 'Enter a Kaggle competition', 'Write up a case study']],
+      ['professional', '1-2 years', 'Data analyst', 'Work with real business data, building reports and learning how decisions are made.', ['Automate a weekly report', 'Present findings to a manager', 'Learn a BI tool']],
+      ['professional', '2-5 years', 'Data scientist', 'Own modelling projects from question to deployment.', ['Deploy a model', 'Mentor an analyst', 'Specialise in an industry']],
+    ],
+    salaries: [['United States', '95,000', '190,000'], ['Nigeria', '7,200,000', '42,000,000'], ['United Kingdom', '40,000', '100,000']],
+    videos: [['What is data science?', 'Data Africa', 'what is data science explained'], ['Your first machine learning project', 'ML Made Simple', 'first machine learning project beginners'], ['SQL in 30 minutes', 'Query Lab', 'sql tutorial for beginners']],
+    articles: [['From spreadsheets to machine learning: a roadmap', 'Dr. Amina Yusuf', 7, ['Most data scientists begin with spreadsheets. Learning to sort, filter and chart data teaches you to ask questions of a dataset.', 'Next comes SQL for pulling data from databases, then Python or R for cleaning and modelling. Machine learning is the last step, not the first.', 'At every stage, practise on real datasets such as public health or weather records and write down what you found.']]],
+    links: [['Kaggle Learn', 'Kaggle', 'Course', 'https://www.kaggle.com/learn'], ['Google Data Analytics Certificate', 'Coursera', 'Course', 'https://www.coursera.org/professional-certificates/google-data-analytics'], ['Jupyter Notebook', 'Project Jupyter', 'Tool', 'https://jupyter.org/']],
+    mentorRoles: ['Data Science', 'Artificial Intelligence'],
+  },
+  {
+    name: 'Cybersecurity Analyst', category: 'Information technology', growth: '32%', education: "Bachelor's Degree",
+    about: 'Cybersecurity analysts protect organisations from hackers and data breaches. They monitor systems for threats, investigate incidents and help teams build safer software and habits.',
+    skills: ['Network security', 'Threat analysis', 'Incident response', 'Ethical hacking', 'Risk assessment', 'Clear reporting'],
+    qualifications: "A Bachelor's degree in Computer Science, Information Security or a related field, plus industry certifications such as CompTIA Security+ or CEH.",
+    workExperience: 'Many analysts start in IT support or networking, then move into security. Hands-on lab work and capture-the-flag events count as experience.',
+    universities: ['Federal University of Technology Akure', 'University of Lagos', 'University of Pretoria', 'Carnegie Mellon University'],
+    responsibilities: ['Monitor networks and systems for suspicious activity.', 'Investigate and respond to security incidents.', 'Run vulnerability scans and recommend fixes.', 'Train staff on phishing and safe practices.', 'Maintain security policies and reports.'],
+    subjects: ['Mathematics', 'Physics', 'Computer Studies', 'English Language'],
+    pathway: [
+      ['education', '1-3 years', 'Learn how computers and networks work', 'Understand operating systems, networks and basic scripting.', ['Set up a home lab', 'Learn Linux basics', 'Study how the internet works']],
+      ['education', '3-4 years', 'Degree plus security certification', 'Study computing and earn an entry-level security certificate.', ['Pass Security+', 'Join a university security club', 'Compete in capture-the-flag events']],
+      ['professional', '1-2 years', 'IT support or SOC trainee', 'Get hands-on with real alerts under supervision.', ['Triage your first incident', 'Learn a SIEM tool', 'Write an incident report']],
+      ['professional', '3+ years', 'Security analyst', 'Lead investigations and strengthen defences across the organisation.', ['Run a security audit', 'Specialise in cloud or forensics', 'Mentor juniors']],
+    ],
+    salaries: [['United States', '80,000', '170,000'], ['Nigeria', '5,400,000', '30,000,000'], ['United Kingdom', '38,000', '90,000']],
+    videos: [['A career in cybersecurity', 'SecureNaija', 'cybersecurity career path'], ['How phishing works', 'Safe Online', 'how phishing attacks work']],
+    articles: [['Capture the flag: the best way to practise security', 'Ethan Robinson', 5, ['Capture-the-flag competitions give you safe, legal puzzles to practise breaking and defending systems.', 'Teams solve challenges in areas such as web security, cryptography and forensics, earning points for each flag found.', 'Beginners can start with online platforms that offer guided rooms, then join local competitions to meet other learners.']]],
+    links: [['TryHackMe learning paths', 'TryHackMe', 'Course', 'https://tryhackme.com/'], ['OWASP Top 10', 'OWASP', 'Tool', 'https://owasp.org/www-project-top-ten/']],
+    mentorRoles: ['Cybersecurity'],
+  },
+  {
+    name: 'Medical Doctor', category: 'Healthcare', growth: '16%', education: 'Medical Degree (MBBS)',
+    about: 'Medical doctors diagnose illnesses, treat patients and guide communities toward better health. The path is long and demanding, but it offers the chance to make a direct difference to people at their most vulnerable.',
+    skills: ['Clinical knowledge', 'Empathy and compassion', 'Decision making under pressure', 'Patient communication', 'Teamwork', 'Attention to detail'],
+    qualifications: 'A six-year medical degree (MBBS or MBChB), followed by a one-year internship (housemanship) and registration with the national medical council. Specialists complete further residency training.',
+    workExperience: 'Clinical placements run through medical school, with supervised hospital rotations in medicine, surgery, paediatrics and obstetrics.',
+    universities: ['University of Ibadan', 'University of Lagos', 'University of Nigeria Nsukka', 'University of Cape Town'],
+    responsibilities: ['Examine patients and take medical histories.', 'Order and interpret tests and scans.', 'Diagnose conditions and prescribe treatment.', 'Perform procedures and refer patients to specialists.', 'Keep accurate records and explain care plans clearly.'],
+    subjects: ['Biology', 'Chemistry', 'Physics', 'Mathematics', 'English Language'],
+    pathway: [
+      ['education', '1-6 years', 'Excel in sciences', 'Secure strong grades in Biology, Chemistry and Physics and pass the university entrance exams.', ['Score highly in JAMB/UTME', 'Volunteer at a clinic', 'Shadow a doctor']],
+      ['education', '6 years', 'Medical school', 'Complete pre-clinical and clinical training with hospital rotations.', ['Pass professional exams', 'Complete clinical rotations', 'Join a medical students\' association']],
+      ['professional', '1 year', 'Housemanship / internship', 'Work under supervision across core departments before full registration.', ['Complete rotations', 'Register with the medical council', 'Choose a specialty']],
+      ['professional', '4-7 years', 'Residency and specialisation', 'Train as a specialist such as a surgeon, paediatrician or physician.', ['Pass fellowship exams', 'Publish research', 'Teach junior doctors']],
+    ],
+    salaries: [['United States', '210,000', '350,000'], ['Nigeria', '5,000,000', '24,000,000'], ['United Kingdom', '36,000', '110,000']],
+    videos: [['What medical school is really like', 'Future Doctors NG', 'what medical school is like'], ['A day in the life of a junior doctor', 'Hospital Life', 'day in the life junior doctor'], ['How to choose a medical specialty', 'MedPath', 'how to choose a medical specialty'], ['Study techniques for medical students', 'StudySmart', 'study techniques medical students']],
+    articles: [
+      ['Is medicine right for you? Five honest questions', 'Dr. Ngozi Adeyemi', 6, ['Medicine rewards people who enjoy science, like working with people and can stay calm when things are uncertain.', 'Ask yourself whether you can cope with long study years, night shifts and difficult conversations, and whether helping others gives you energy.', 'Spend time in a clinic or hospital if you can. Seeing the work first-hand is the best test.']],
+      ['Preparing for the entrance exams', 'Dr. Kunle Balogun', 5, ['Start early with past questions in Biology, Chemistry and Physics, and time yourself under exam conditions.', 'Build a weekly timetable that mixes new topics with revision, and review every mistake until you understand it.', 'Rest matters too. Sleep and breaks improve how well you remember.']],
+    ],
+    links: [['Khan Academy: Health and Medicine', 'Khan Academy', 'Course', 'https://www.khanacademy.org/science/health-and-medicine'], ['Medical students\' scholarships', 'Education Hub', 'Opportunity', 'https://www.scholars4dev.com/'], ['Anki flashcards', 'Anki', 'Tool', 'https://apps.ankiweb.net/']],
+    mentorRoles: ['Medicine'],
+  },
+  {
+    name: 'Registered Nurse', category: 'Healthcare', growth: '12%', education: "Bachelor's Degree in Nursing",
+    about: 'Registered nurses provide and coordinate patient care, educate patients and families, and are often the first and last person a patient sees. Nursing offers many specialities, from midwifery to intensive care.',
+    skills: ['Patient monitoring', 'Compassion', 'Medical terminology', 'Triage', 'Communication', 'Time management'],
+    qualifications: "A Bachelor's degree in Nursing or an approved nursing programme, followed by registration with the nursing and midwifery council.",
+    workExperience: 'Supervised clinical placements form a large part of training. New nurses usually begin on general wards before specialising.',
+    universities: ['University of Ibadan', 'Obafemi Awolowo University', 'University of Ghana', 'University of Nairobi'],
+    responsibilities: ['Assess patients and record vital signs.', 'Give medication and treatments safely.', 'Support doctors during procedures.', 'Educate patients on managing their health.', 'Coordinate care with the wider team.'],
+    subjects: ['Biology', 'Chemistry', 'Physics', 'English Language', 'Mathematics'],
+    pathway: [
+      ['education', '1-3 years', 'Prepare in the sciences', 'Do well in Biology and Chemistry and explore caring roles through volunteering.', ['Volunteer at a clinic', 'Learn first aid', 'Research nursing schools']],
+      ['education', '4-5 years', 'Nursing degree', 'Combine classroom learning with clinical placements.', ['Complete ward rotations', 'Pass licensing exams', 'Join a student nurses\' association']],
+      ['professional', '1-2 years', 'Staff nurse', 'Gain confidence on a general ward and build core skills.', ['Complete a preceptorship', 'Learn handover and documentation', 'Choose an area of interest']],
+      ['professional', '3+ years', 'Specialist or nurse leader', 'Specialise in areas like midwifery, theatre or intensive care, or move into teaching and management.', ['Earn a specialist certificate', 'Lead a ward team', 'Teach student nurses']],
+    ],
+    salaries: [['United States', '62,000', '110,000'], ['Nigeria', '2,400,000', '9,000,000'], ['United Kingdom', '28,000', '48,000']],
+    videos: [['A day in the life of a nurse', 'Nursing Stories', 'day in the life of a nurse'], ['Nursing specialities explained', 'Care Careers', 'nursing specialties explained']],
+    articles: [['Five qualities every great nurse shares', 'Matron Folasade Ojo', 5, ['Great nurses combine kindness with sharp observation. They notice small changes in a patient and act on them early.', 'They stay calm in emergencies, communicate clearly with families and know when to ask for help.', 'Above all, they keep learning, because medicine changes constantly.']]],
+    links: [['Nursing and Midwifery Council guidance', 'NMCN', 'Opportunity', 'https://www.nmcn.gov.ng/'], ['First aid basics', 'Red Cross', 'Course', 'https://www.redcross.org/take-a-class/first-aid']],
+    mentorRoles: ['Medicine'],
+  },
+  {
+    name: 'Pharmacist', category: 'Science and pharmaceuticals', growth: '9%', education: 'Doctor of Pharmacy (PharmD)',
+    about: 'Pharmacists make sure medicines are safe, effective and used correctly. They dispense prescriptions, advise patients, and work in hospitals, community pharmacies, industry and research.',
+    skills: ['Pharmacology', 'Accuracy and attention to detail', 'Patient counselling', 'Regulatory knowledge', 'Chemistry', 'Business management'],
+    qualifications: 'A five- to six-year degree in Pharmacy (PharmD or BPharm), a period of supervised internship and registration with the pharmacists\' council.',
+    workExperience: 'Internships in hospital and community pharmacies are part of training. Industrial placements are available for those interested in drug manufacturing.',
+    universities: ['University of Nigeria Nsukka', 'University of Benin', 'Kwame Nkrumah University of Science and Technology', 'University of Nottingham'],
+    responsibilities: ['Check and dispense prescriptions accurately.', 'Advise patients on dosage, side effects and interactions.', 'Manage stock and ensure medicines are stored safely.', 'Work with doctors to review treatment plans.', 'Follow regulations and keep detailed records.'],
+    subjects: ['Chemistry', 'Biology', 'Physics', 'Mathematics', 'English Language'],
+    pathway: [
+      ['education', '1-3 years', 'Focus on chemistry and biology', 'Build a strong science base and explore pharmacy through a pharmacy visit.', ['Shadow a pharmacist', 'Learn about drug safety', 'Prepare for entrance exams']],
+      ['education', '5-6 years', 'Pharmacy degree', 'Study pharmacology, pharmaceutics and clinical practice.', ['Complete practical modules', 'Do an industrial placement', 'Pass final exams']],
+      ['professional', '1 year', 'Internship and registration', 'Work under supervision and register with the council.', ['Complete the internship', 'Register', 'Choose hospital, community or industry']],
+      ['professional', '3+ years', 'Pharmacist', 'Practise independently or grow into clinical, regulatory or management roles.', ['Open or manage a pharmacy', 'Complete a specialist qualification', 'Mentor interns']],
+    ],
+    salaries: [['United States', '125,000', '165,000'], ['Nigeria', '3,600,000', '14,400,000'], ['United Kingdom', '38,000', '65,000']],
+    videos: [['What pharmacists really do', 'Pharma Careers', 'what does a pharmacist do'], ['Studying pharmacy: what to expect', 'RxStudent', 'studying pharmacy what to expect']],
+    articles: [['Beyond the counter: careers in pharmacy', 'Mia Martinez', 5, ['Most people picture a pharmacist behind a counter, but pharmacy also covers hospital care, drug research, regulation and public health.', 'Pharmacists in industry help develop and test new medicines, while those in regulation make sure products are safe before they reach patients.', 'This variety means you can shape a pharmacy career around the part of science you enjoy most.']]],
+    links: [['Pharmacists Council of Nigeria', 'PCN', 'Opportunity', 'https://www.pcn.gov.ng/'], ['Drug interaction checker', 'Drugs.com', 'Tool', 'https://www.drugs.com/drug_interactions.html']],
+    mentorRoles: ['Pharmacy'],
+  },
+  {
+    name: 'Civil Engineer', category: 'Engineering and manufacturing', growth: '11%', education: "Bachelor's Degree",
+    about: 'Civil engineers plan, design and oversee the construction of roads, bridges, buildings, water systems and other infrastructure that societies depend on.',
+    skills: ['Structural analysis', 'AutoCAD and design software', 'Project management', 'Mathematics', 'Site supervision', 'Problem-solving'],
+    qualifications: "A Bachelor's degree in Civil Engineering, followed by professional registration with the national engineering regulator.",
+    workExperience: 'Industrial training placements during university introduce site work. Chartered status typically needs three to four years of supervised practice.',
+    universities: ['University of Lagos', 'Ahmadu Bello University', 'University of Cape Town', 'Imperial College London'],
+    responsibilities: ['Survey sites and assess ground conditions.', 'Prepare designs and technical drawings.', 'Estimate costs, materials and timelines.', 'Supervise construction and check quality.', 'Ensure projects meet safety and environmental standards.'],
+    subjects: ['Mathematics', 'Further Mathematics', 'Physics', 'Chemistry', 'Technical Drawing'],
+    pathway: [
+      ['education', '1-3 years', 'Build maths and physics skills', 'Learn the fundamentals of forces, materials and geometry.', ['Visit a construction site', 'Practise technical drawing', 'Join an STEM club']],
+      ['education', '5 years', 'Engineering degree', 'Study structures, geotechnics, hydraulics and transport engineering.', ['Complete industrial training', 'Finish a final-year project', 'Join an engineering society']],
+      ['professional', '3-4 years', 'Graduate engineer', 'Work under chartered engineers on real projects.', ['Keep a training log', 'Learn project software', 'Visit different project phases']],
+      ['professional', '4+ years', 'Registered engineer', 'Lead design or site teams and take responsibility for projects.', ['Gain professional registration', 'Manage a budget', 'Specialise in an area']],
+    ],
+    salaries: [['United States', '70,000', '135,000'], ['Nigeria', '3,000,000', '15,000,000'], ['United Kingdom', '30,000', '70,000']],
+    videos: [['How bridges are built', 'Engineering Explained', 'how bridges are built'], ['A day on a construction site', 'BuildWise', 'day in the life of a civil engineer']],
+    articles: [['Why civil engineers shape every city', 'Noah Garcia', 6, ['Every road you walk on, every building you shelter in and every tap that delivers clean water was designed by a civil engineer.', 'Their decisions affect safety, cost and the environment, which is why accuracy and ethics matter so much.', 'Rapid urban growth means skilled civil engineers are needed everywhere.']]],
+    links: [['Nigerian Society of Engineers', 'NSE', 'Opportunity', 'https://www.nse.org.ng/'], ['AutoCAD student access', 'Autodesk', 'Tool', 'https://www.autodesk.com/education/edu-software/overview']],
+    mentorRoles: ['Civil Engineering', 'Engineering'],
+  },
+  {
+    name: 'Mechanical Engineer', category: 'Engineering and manufacturing', growth: '10%', education: "Bachelor's Degree",
+    about: 'Mechanical engineers design and improve machines and systems, from car engines and wind turbines to medical devices and robots.',
+    skills: ['CAD software', 'Thermodynamics', 'Materials science', 'Problem-solving', 'Project management', 'Prototyping'],
+    qualifications: "A Bachelor's degree in Mechanical Engineering, with professional registration as a goal after a few years of practice.",
+    workExperience: 'Workshop practice and industrial training placements are standard. Graduate roles in manufacturing, energy and automotive companies build practical skills.',
+    universities: ['University of Ibadan', 'Federal University of Technology Minna', 'University of the Witwatersrand', 'University of Cambridge'],
+    responsibilities: ['Design parts and machines using CAD.', 'Test prototypes and analyse failures.', 'Improve efficiency and reduce costs.', 'Work with manufacturing teams to make designs buildable.', 'Write technical reports and maintenance plans.'],
+    subjects: ['Mathematics', 'Further Mathematics', 'Physics', 'Chemistry', 'Technical Drawing'],
+    pathway: [
+      ['education', '1-3 years', 'Tinker and build', 'Take apart simple machines, learn basic electronics and strengthen maths.', ['Build a small robot', 'Learn sketching', 'Visit a factory']],
+      ['education', '5 years', 'Mechanical engineering degree', 'Study mechanics, fluids, materials and design.', ['Do industrial training', 'Complete a design project', 'Learn CAD thoroughly']],
+      ['professional', '2-3 years', 'Graduate engineer', 'Rotate through design, production and maintenance teams.', ['Own a design task', 'Learn quality standards', 'Pursue registration']],
+      ['professional', '4+ years', 'Senior or specialist engineer', 'Lead projects in fields like energy, robotics or aerospace.', ['Lead a team', 'Specialise', 'Mentor graduates']],
+    ],
+    salaries: [['United States', '72,000', '140,000'], ['Nigeria', '3,000,000', '16,000,000'], ['United Kingdom', '30,000', '72,000']],
+    videos: [['What do mechanical engineers do?', 'Engineering Explained', 'what do mechanical engineers do'], ['Intro to CAD design', 'Design Studio', 'intro to cad for beginners'], ['Robotics for beginners', 'RoboKids', 'robotics for beginners']],
+    articles: [['From sketch to prototype: how a machine is born', 'Liam Rodriguez', 6, ['Every machine starts as a problem and a sketch. Engineers explore ideas on paper, then model them in CAD to test how parts fit together.', 'Prototypes are built and tested, often failing in useful ways. Each failure shows what to improve.', 'Only when a design is safe, efficient and affordable does it move into production.']]],
+    links: [['Fusion 360 for students', 'Autodesk', 'Tool', 'https://www.autodesk.com/products/fusion-360/education'], ['MIT OpenCourseWare: Mechanical Engineering', 'MIT', 'Course', 'https://ocw.mit.edu/courses/mechanical-engineering/']],
+    mentorRoles: ['Mechanical Engineering', 'Aerospace Engineering', 'Engineering'],
+  },
+  {
+    name: 'Chartered Accountant', category: 'Accountancy, banking and finance', growth: '8%', education: "Bachelor's Degree plus professional qualification",
+    about: 'Chartered accountants prepare and audit financial records, advise on tax and strategy, and help organisations stay healthy and honest with their money.',
+    skills: ['Financial reporting', 'Auditing', 'Excel and accounting software', 'Tax knowledge', 'Analytical thinking', 'Integrity'],
+    qualifications: "A Bachelor's degree in Accounting, Finance or a related subject, followed by professional exams such as ICAN or ACCA.",
+    workExperience: 'Trainees complete supervised work experience, often in an audit firm, over three years while sitting professional exams.',
+    universities: ['University of Lagos', 'Covenant University', 'University of Ghana', 'London School of Economics'],
+    responsibilities: ['Prepare financial statements and tax returns.', 'Audit accounts and test internal controls.', 'Advise on budgets and cost control.', 'Spot risk and fraud.', 'Explain figures to managers and clients.'],
+    subjects: ['Mathematics', 'Economics', 'Accounting', 'English Language', 'Commerce'],
+    pathway: [
+      ['education', '1-3 years', 'Master maths and accounting basics', 'Study Mathematics, Economics and Accounting in school.', ['Learn bookkeeping', 'Join a business club', 'Explore professional bodies']],
+      ['education', '3-4 years', 'Accounting degree', 'Study financial accounting, auditing, tax and law.', ['Start professional exams', 'Do an internship', 'Learn accounting software']],
+      ['professional', '3 years', 'Trainee accountant', 'Work in audit or advisory while qualifying.', ['Pass professional exams', 'Complete work experience log', 'Work on client audits']],
+      ['professional', '3+ years', 'Chartered accountant', 'Qualify and move into audit, advisory, finance leadership or your own practice.', ['Gain chartered status', 'Specialise in tax or forensic work', 'Lead a team']],
+    ],
+    salaries: [['United States', '70,000', '150,000'], ['Nigeria', '3,600,000', '20,000,000'], ['United Kingdom', '32,000', '85,000']],
+    videos: [['Becoming a chartered accountant', 'Finance Futures', 'how to become a chartered accountant'], ['Audit explained simply', 'Money Matters', 'what is an audit explained']],
+    articles: [['ICAN or ACCA? Choosing your route', 'Robert Taylor', 5, ['Both qualifications are respected worldwide. ICAN is rooted in Nigerian practice and regulation, while ACCA is designed for international mobility.', 'Think about where you want to work, how much study time you have and which employers you hope to join.', 'Speak to accountants who have taken each route before you decide.']]],
+    links: [['ICAN student resources', 'ICAN', 'Opportunity', 'https://www.icanig.org/'], ['ACCA qualifications', 'ACCA', 'Course', 'https://www.accaglobal.com/'], ['Microsoft Excel training', 'Microsoft', 'Tool', 'https://support.microsoft.com/excel']],
+    mentorRoles: ['Finance', 'Business'],
+  },
+  {
+    name: 'Lawyer', category: 'Law', growth: '10%', education: 'Law Degree (LLB) and Bar qualification',
+    about: 'Lawyers advise and represent people and organisations, interpret the law, negotiate settlements and argue cases in court. The work depends on careful reading, clear writing and sound judgement.',
+    skills: ['Legal research', 'Persuasive writing', 'Public speaking', 'Negotiation', 'Critical thinking', 'Ethics'],
+    qualifications: 'A law degree (LLB) followed by Law School and a call to the Bar, or the equivalent qualification in other countries.',
+    workExperience: 'Pupillage or internships in chambers and law firms teach court procedure, drafting and client care.',
+    universities: ['University of Lagos', 'University of Ibadan', 'University of Ghana', 'University of Oxford'],
+    responsibilities: ['Research law and prepare legal opinions.', 'Draft contracts and court documents.', 'Represent clients in negotiations and court.', 'Advise on rights and obligations.', 'Protect client confidentiality.'],
+    subjects: ['English Language', 'Literature', 'Government', 'Economics', 'History'],
+    pathway: [
+      ['education', '1-3 years', 'Build reading and debating skills', 'Read widely, debate and follow current affairs.', ['Join the debate club', 'Visit a court', 'Practise essay writing']],
+      ['education', '4-5 years', 'Law degree', 'Study constitutional, criminal, contract and commercial law.', ['Join moot court', 'Intern at a firm', 'Write a dissertation']],
+      ['education', '1 year', 'Law School', 'Complete professional training and be called to the Bar.', ['Pass Bar exams', 'Attend the call ceremony', 'Choose a practice area']],
+      ['professional', '3+ years', 'Practising lawyer', 'Build a practice in litigation, corporate, human rights or another area.', ['Handle your first case', 'Find a mentor at the Bar', 'Specialise']],
+    ],
+    salaries: [['United States', '80,000', '200,000'], ['Nigeria', '2,400,000', '24,000,000'], ['United Kingdom', '30,000', '120,000']],
+    videos: [['A day in the life of a lawyer', 'Legal Eagles', 'day in the life of a lawyer'], ['How to win a moot court competition', 'Advocacy Lab', 'moot court tips for beginners']],
+    articles: [['What it takes to argue a case', 'Barr. Chuka Obi', 6, ['Winning a case begins long before the hearing. Lawyers study the facts, find the relevant law and build an argument that is easy to follow.', 'In court, clarity matters more than volume. Judges value precise questions and honest answers.', 'Practise speaking in debates and moots to build confidence early.']]],
+    links: [['Nigerian Bar Association', 'NBA', 'Opportunity', 'https://nigerianbar.org.ng/'], ['Legal writing basics', 'edX', 'Course', 'https://www.edx.org/learn/legal-writing']],
+    mentorRoles: ['Law'],
+  },
+  {
+    name: 'UX/UI Designer', category: 'Creative arts and design', growth: '23%', education: "Bachelor's Degree or equivalent portfolio",
+    about: 'UX/UI designers make digital products easy and enjoyable to use. They research what people need, sketch and prototype solutions and test them with real users.',
+    skills: ['User research', 'Wireframing and prototyping', 'Visual design', 'Figma', 'Empathy', 'Storytelling'],
+    qualifications: 'A degree in design, psychology or computing helps, but a strong portfolio of case studies matters most to employers.',
+    workExperience: 'Freelance projects, internships and redesigns of existing apps are common ways to build experience.',
+    universities: ['Yaba College of Technology', 'University of Lagos', 'University of Cape Town', 'Royal College of Art'],
+    responsibilities: ['Interview users and map their needs.', 'Create wireframes and interactive prototypes.', 'Design clear, accessible interfaces.', 'Test designs and refine them.', 'Hand over specs to developers.'],
+    subjects: ['Fine Art', 'Computer Studies', 'English Language', 'Mathematics'],
+    pathway: [
+      ['education', '1-2 years', 'Train your eye', 'Study visual design, colour and layout, and sketch daily.', ['Redesign a favourite app', 'Learn Figma basics', 'Follow design communities']],
+      ['education', '2-4 years', 'Study design or build skills independently', 'Take a design degree or a structured UX programme.', ['Complete 2-3 case studies', 'Join a design challenge', 'Get portfolio feedback']],
+      ['professional', '6-12 months', 'Junior designer or intern', 'Work in a product team, learning how design meets engineering.', ['Run a usability test', 'Ship your first design', 'Present to stakeholders']],
+      ['professional', '3+ years', 'Product designer', 'Lead design for a product area and mentor others.', ['Own a design system', 'Lead research', 'Mentor juniors']],
+    ],
+    salaries: [['United States', '75,000', '150,000'], ['Nigeria', '4,200,000', '24,000,000'], ['United Kingdom', '32,000', '78,000']],
+    videos: [['UX design in 10 minutes', 'Design Basics', 'ux design explained for beginners'], ['Build your first Figma prototype', 'Figma Fridays', 'figma prototype tutorial beginners'], ['Portfolio tips for designers', 'Design Careers', 'ux portfolio tips']],
+    articles: [['Designing for people, not for screens', 'Evelyn Wright', 5, ['Good design starts with understanding people. Before drawing anything, designers talk to users to learn what frustrates them.', 'Only then do they sketch ideas and test them, throwing away what does not work.', 'The result is a product that feels obvious to use because someone worked hard to make it so.']]],
+    links: [['Figma', 'Figma', 'Tool', 'https://www.figma.com/education/'], ['Google UX Design Certificate', 'Coursera', 'Course', 'https://www.coursera.org/professional-certificates/google-ux-design'], ['Dribbble design inspiration', 'Dribbble', 'Opportunity', 'https://dribbble.com/']],
+    mentorRoles: ['Design'],
+  },
+  {
+    name: 'Digital Marketer', category: 'Marketing, advertising and PR', growth: '18%', education: "Bachelor's Degree or professional certification",
+    about: 'Digital marketers help brands reach and grow audiences online through search, social media, email, content and paid advertising, then measure what works.',
+    skills: ['SEO', 'Content strategy', 'Social media management', 'Analytics', 'Copywriting', 'Paid advertising'],
+    qualifications: "A degree in Marketing, Communications or Business is common; certifications from Google or Meta also carry weight.",
+    workExperience: 'Running social pages, writing a blog or managing a small business campaign is valuable proof of skill.',
+    universities: ['University of Lagos', 'Lagos Business School', 'University of Ghana', 'University of Leeds'],
+    responsibilities: ['Plan and run online campaigns.', 'Write content for websites and social media.', 'Track results in analytics tools.', 'Optimise pages for search engines.', 'Report on return on investment.'],
+    subjects: ['English Language', 'Economics', 'Commerce', 'Computer Studies', 'Literature'],
+    pathway: [
+      ['education', '1-2 years', 'Learn how brands talk', 'Study ads you like, write posts and learn basic design.', ['Start a small blog', 'Learn Canva', 'Follow marketing creators']],
+      ['education', '3-4 years', 'Study marketing or certify', 'Take a degree or professional certifications in digital marketing.', ['Earn a Google certification', 'Run a campaign for a club', 'Learn analytics']],
+      ['professional', '1-2 years', 'Marketing assistant', 'Support campaigns and learn tools used by teams.', ['Manage a social calendar', 'Report on a campaign', 'Learn email marketing']],
+      ['professional', '3+ years', 'Digital marketing manager', 'Lead strategy and budgets and manage specialists.', ['Own a budget', 'Lead a launch', 'Mentor juniors']],
+    ],
+    salaries: [['United States', '55,000', '120,000'], ['Nigeria', '2,400,000', '14,400,000'], ['United Kingdom', '26,000', '65,000']],
+    videos: [['Digital marketing for beginners', 'Growth Academy', 'digital marketing for beginners'], ['SEO basics', 'Search School', 'seo basics tutorial'], ['Write copy that sells', 'Copy Lab', 'copywriting basics']],
+    articles: [['How a small business grew with social media', 'Charlotte Lewis', 5, ['A bakery in Abuja grew from a handful of customers to hundreds of weekly orders by posting short videos of its process.', 'The owner tracked which posts brought orders and made more of those, rather than guessing.', 'Small experiments and honest measurement are the heart of digital marketing.']]],
+    links: [['Google Digital Garage', 'Google', 'Course', 'https://learndigital.withgoogle.com/digitalgarage'], ['Canva for Education', 'Canva', 'Tool', 'https://www.canva.com/education/'], ['HubSpot Academy', 'HubSpot', 'Course', 'https://academy.hubspot.com/']],
+    mentorRoles: ['Marketing', 'Public Relations'],
+  },
+  {
+    name: 'Architect', category: 'Property and construction', growth: '8%', education: "Bachelor's and Master's in Architecture",
+    about: 'Architects design buildings and spaces that are safe, useful and beautiful, balancing creativity with engineering, budgets and regulations.',
+    skills: ['Architectural design', 'AutoCAD and Revit', 'Spatial awareness', 'Building codes', 'Sketching', 'Presentation'],
+    qualifications: 'A five- to six-year architecture programme (degree plus Master\'s) and professional registration after supervised practice.',
+    workExperience: 'Studio projects build design skill; placements in architecture firms teach drawings, site visits and client work.',
+    universities: ['Covenant University', 'University of Lagos', 'University of Cape Town', 'University of Westminster'],
+    responsibilities: ['Meet clients to understand their needs.', 'Produce concept designs and detailed drawings.', 'Coordinate with engineers and contractors.', 'Ensure designs meet regulations.', 'Visit sites to check progress.'],
+    subjects: ['Mathematics', 'Physics', 'Fine Art', 'Technical Drawing', 'English Language'],
+    pathway: [
+      ['education', '1-3 years', 'Draw and observe', 'Sketch buildings, study spaces and build a small portfolio.', ['Sketch local buildings', 'Learn technical drawing', 'Visit architecture exhibitions']],
+      ['education', '5-6 years', 'Architecture degree', 'Complete design studios and technical modules.', ['Build physical models', 'Complete placements', 'Present to a jury']],
+      ['professional', '2 years', 'Architectural assistant', 'Draw plans and support senior architects.', ['Produce working drawings', 'Visit active sites', 'Log practice hours']],
+      ['professional', '3+ years', 'Registered architect', 'Lead projects and run your own practice if you choose.', ['Pass professional exams', 'Lead a project', 'Mentor assistants']],
+    ],
+    salaries: [['United States', '65,000', '140,000'], ['Nigeria', '3,000,000', '15,000,000'], ['United Kingdom', '30,000', '75,000']],
+    videos: [['How architects think', 'Design Matters', 'how architects think'], ['Revit for beginners', 'BIM Basics', 'revit tutorial for beginners']],
+    articles: [['Sustainable buildings for hot climates', 'David Smith', 6, ['Good design can keep buildings cool without heavy air-conditioning, using shade, cross-ventilation and local materials.', 'Architects study the sun\'s path and wind direction before drawing a single wall.', 'These choices cut energy bills and make homes more comfortable.']]],
+    links: [['Nigerian Institute of Architects', 'NIA', 'Opportunity', 'https://www.nia.org.ng/'], ['SketchUp for students', 'Trimble', 'Tool', 'https://www.sketchup.com/plans-and-pricing/sketchup-for-education']],
+    mentorRoles: ['Architecture', 'Interior Design'],
+  },
+  {
+    name: 'Secondary School Teacher', category: 'Teacher training and education', growth: '7%', education: "Bachelor's in Education",
+    about: 'Teachers inspire and guide young people, planning lessons, assessing progress and creating a safe space where students can grow in knowledge and confidence.',
+    skills: ['Lesson planning', 'Classroom management', 'Communication', 'Patience', 'Assessment', 'Mentoring'],
+    qualifications: "A Bachelor's degree in Education or in a teaching subject plus a teaching qualification, and registration with the teachers' council.",
+    workExperience: 'Teaching practice placements in schools are a required part of training.',
+    universities: ['University of Ibadan', 'University of Nigeria Nsukka', 'University of Education Winneba', 'University College London'],
+    responsibilities: ['Plan and deliver engaging lessons.', 'Assess work and give useful feedback.', 'Support students\' wellbeing and behaviour.', 'Communicate with parents and guardians.', 'Contribute to school activities.'],
+    subjects: ['English Language', 'Mathematics', 'The subject you want to teach', 'Government', 'Literature'],
+    pathway: [
+      ['education', '1-3 years', 'Find your subject', 'Excel in the subject you love and help classmates learn it.', ['Tutor a classmate', 'Lead a study group', 'Volunteer at a school']],
+      ['education', '4 years', 'Education degree', 'Study subject knowledge and teaching methods.', ['Complete teaching practice', 'Observe experienced teachers', 'Design a unit plan']],
+      ['professional', '1-2 years', 'Newly qualified teacher', 'Build routines and confidence with support from a mentor.', ['Manage a class', 'Plan a term', 'Receive classroom observations']],
+      ['professional', '4+ years', 'Senior teacher or school leader', 'Lead a department, mentor new teachers or move into school leadership.', ['Lead a subject team', 'Mentor trainees', 'Run a school project']],
+    ],
+    salaries: [['United States', '48,000', '85,000'], ['Nigeria', '1,800,000', '6,000,000'], ['United Kingdom', '30,000', '48,000']],
+    videos: [['Why I became a teacher', 'Teach Africa', 'why become a teacher'], ['Classroom management tips', 'Teaching Toolkit', 'classroom management tips new teachers']],
+    articles: [['Making lessons students remember', 'Isabella Garcia', 5, ['Students remember lessons that connect to their own lives. Starting with a real question or story helps them see why a topic matters.', 'Short activities, clear examples and time to practise keep attention high.', 'Ending with a quick check shows what to revisit next time.']]],
+    links: [['Teachers Registration Council', 'TRCN', 'Opportunity', 'https://trcn.gov.ng/'], ['Khan Academy for teachers', 'Khan Academy', 'Tool', 'https://www.khanacademy.org/teacher']],
+    mentorRoles: ['Education'],
+  },
+  {
+    name: 'Agricultural Scientist', category: 'Environment and agriculture', growth: '9%', education: "Bachelor's Degree",
+    about: 'Agricultural scientists improve how food is grown, from better crop varieties and healthier soils to smarter water use, helping farmers produce more with less harm to the environment.',
+    skills: ['Soil and crop science', 'Data collection', 'Sustainability', 'Problem-solving', 'Field research', 'Communication with farmers'],
+    qualifications: "A Bachelor's degree in Agriculture, Agronomy or a related life science; research roles often need a Master's or PhD.",
+    workExperience: 'Farm attachments and research placements are part of study and build practical know-how.',
+    universities: ['Federal University of Agriculture Abeokuta', 'University of Ibadan', 'Wageningen University', 'University of Nairobi'],
+    responsibilities: ['Run field trials on crops and livestock.', 'Analyse soil and water samples.', 'Advise farmers on better practices.', 'Develop pest and disease control methods.', 'Report findings to policymakers and industry.'],
+    subjects: ['Biology', 'Chemistry', 'Agricultural Science', 'Mathematics', 'Geography'],
+    pathway: [
+      ['education', '1-3 years', 'Explore farming', 'Learn how crops grow and visit a farm or research station.', ['Start a school garden', 'Visit a research institute', 'Study Agricultural Science']],
+      ['education', '4-5 years', 'Agriculture degree', 'Study crop science, soils, animal science and agribusiness.', ['Complete farm attachment', 'Do a research project', 'Join an agribusiness club']],
+      ['professional', '1-2 years', 'Research or extension officer', 'Support trials or advise farmers in the field.', ['Run a field trial', 'Train a farmers\' group', 'Collect data']],
+      ['professional', '4+ years', 'Agricultural scientist or agripreneur', 'Lead research, consult or start an agribusiness.', ['Publish findings', 'Launch an agri-venture', 'Advise on policy']],
+    ],
+    salaries: [['United States', '60,000', '110,000'], ['Nigeria', '2,400,000', '10,800,000'], ['Kenya', '1,200,000', '4,800,000']],
+    videos: [['Agripreneurs changing Africa', 'Agri Africa', 'agripreneurs africa success'], ['Soil health explained', 'Farm Science', 'soil health explained']],
+    articles: [['Smart farming for small farms', 'William Brown', 5, ['Simple tools such as soil tests, mulching and drip irrigation can raise yields without large investments.', 'Agricultural scientists test these methods on real farms and share what works.', 'Farmers who adopt them often cut costs and protect the land for future seasons.']]],
+    links: [['FAO e-learning academy', 'FAO', 'Course', 'https://elearning.fao.org/'], ['Young Africa agribusiness programmes', 'AGRA', 'Opportunity', 'https://agra.org/']],
+    mentorRoles: ['Agriculture', 'Environmental Science', 'Veterinary Medicine'],
+  },
+  {
+    name: 'Airline Pilot', category: 'Transport and logistics', growth: '12%', education: 'Commercial Pilot Licence and Type Rating',
+    about: 'Airline pilots fly passengers and cargo safely across the world, making constant decisions about weather, fuel, routes and safety.',
+    skills: ['Situational awareness', 'Decision making', 'Teamwork and crew resource management', 'Technical knowledge', 'Calm under pressure', 'Communication'],
+    qualifications: 'A commercial pilot licence with an instrument rating, a medical certificate, English proficiency and a type rating for the aircraft flown.',
+    workExperience: 'Airlines require flying-hour milestones, often built as a flight instructor or on smaller aircraft before joining an airline.',
+    universities: ['Nigerian College of Aviation Technology', 'Ethiopian Aviation Academy', 'Oxford Aviation Academy', 'Embry-Riddle Aeronautical University'],
+    responsibilities: ['Plan routes, fuel and weather checks.', 'Operate the aircraft safely.', 'Brief and lead the cabin crew.', 'Communicate with air traffic control.', 'Follow strict safety and regulatory procedures.'],
+    subjects: ['Mathematics', 'Physics', 'English Language', 'Geography'],
+    pathway: [
+      ['education', '1-3 years', 'Meet the entry requirements', 'Excel in Mathematics, Physics and English, and obtain an aviation medical.', ['Pass a class 1 medical', 'Try a trial flight', 'Research flight schools']],
+      ['vocation', '18-24 months', 'Flight training', 'Learn to fly and complete theory exams for your commercial licence.', ['Fly your first solo', 'Pass the theory exams', 'Gain instrument rating']],
+      ['professional', '1-3 years', 'Build hours', 'Gain flying experience as an instructor or on smaller aircraft.', ['Reach required flying hours', 'Complete multi-crew training', 'Apply to airlines']],
+      ['professional', '5+ years', 'First officer to captain', 'Join an airline, progress to captain and perhaps train others.', ['Complete type rating', 'Upgrade to captain', 'Become a training captain']],
+    ],
+    salaries: [['United States', '95,000', '300,000'], ['Nigeria', '12,000,000', '60,000,000'], ['United Kingdom', '45,000', '150,000']],
+    videos: [['What it takes to be an airline pilot', 'Sky Careers', 'how to become an airline pilot'], ['A day in the cockpit', 'Cockpit View', 'day in the life airline pilot']],
+    articles: [['Teamwork in the cockpit', 'Alexander King', 5, ['Pilots work as a crew, with the captain and first officer sharing tasks and checking each other.', 'Crew resource management teaches pilots to speak up, listen and decide together.', 'This culture of teamwork is one reason flying is so safe.']]],
+    links: [['Nigerian Civil Aviation Authority', 'NCAA', 'Opportunity', 'https://ncaa.gov.ng/'], ['Flight simulator for practice', 'Microsoft', 'Tool', 'https://www.flightsimulator.com/']],
+    mentorRoles: ['Aerospace Engineering'],
+  },
+  {
+    name: 'Human Resources Manager', category: 'Recruitment and HR', growth: '9%', education: "Bachelor's Degree",
+    about: 'Human resources managers recruit, support and develop an organisation\'s people, from hiring and onboarding to training, wellbeing and fair workplace policies.',
+    skills: ['Recruitment and interviewing', 'Employment law basics', 'Conflict resolution', 'Communication', 'Data and reporting', 'Empathy'],
+    qualifications: "A Bachelor's degree in HR, Psychology, Business or a related field, with professional certification such as CIPM or SHRM.",
+    workExperience: 'Many begin as HR assistants or recruiters, learning hiring systems and employee records.',
+    universities: ['University of Lagos', 'Lagos Business School', 'University of Ghana', 'University of Manchester'],
+    responsibilities: ['Source, interview and hire candidates.', 'Run onboarding and training.', 'Handle employee relations and grievances.', 'Manage payroll and benefits with finance.', 'Keep policies fair and legally sound.'],
+    subjects: ['English Language', 'Economics', 'Government', 'Psychology', 'Commerce'],
+    pathway: [
+      ['education', '1-3 years', 'Develop people skills', 'Join teams, lead groups and practise listening.', ['Lead a club project', 'Volunteer to organise events', 'Learn basic psychology']],
+      ['education', '3-4 years', 'Degree in HR or business', 'Study organisational behaviour, employment law and recruitment.', ['Do an HR internship', 'Learn HR software', 'Join a student HR society']],
+      ['professional', '1-3 years', 'HR officer or recruiter', 'Support hiring, records and employee queries.', ['Run a hiring process', 'Build a training plan', 'Earn a certification']],
+      ['professional', '4+ years', 'HR manager', 'Lead HR strategy and a team.', ['Design a policy', 'Manage a budget', 'Advise leadership']],
+    ],
+    salaries: [['United States', '70,000', '135,000'], ['Nigeria', '3,000,000', '18,000,000'], ['United Kingdom', '32,000', '75,000']],
+    videos: [['A career in human resources', 'People First', 'careers in human resources'], ['Interviewing skills for HR', 'Hire Smart', 'interviewing skills for recruiters']],
+    articles: [['Hiring for potential, not just CVs', 'Ava Clark', 5, ['A strong CV shows what a person has done, but not always what they can learn. Good recruiters also look at curiosity and attitude.', 'Structured interviews and practical tasks make hiring fairer and more reliable.', 'People hired this way tend to settle in faster and stay longer.']]],
+    links: [['CIPM Nigeria', 'CIPM', 'Opportunity', 'https://cipmnigeria.org/'], ['HR fundamentals', 'Coursera', 'Course', 'https://www.coursera.org/browse/business/leadership-and-management']],
+    mentorRoles: ['Human Resources'],
+  },
+  {
+    name: 'Social Worker', category: 'Social care', growth: '9%', education: "Bachelor's Degree in Social Work",
+    about: 'Social workers support individuals, children and families facing hardship, helping them find safety, services and ways to rebuild their lives.',
+    skills: ['Active listening', 'Case management', 'Empathy', 'Advocacy', 'Resilience', 'Report writing'],
+    qualifications: "A Bachelor's degree in Social Work or a related field and registration with the relevant professional body.",
+    workExperience: 'Supervised field placements with agencies, schools or hospitals form a key part of training.',
+    universities: ['University of Nigeria Nsukka', 'University of Ibadan', 'University of Ghana', 'University of Edinburgh'],
+    responsibilities: ['Assess the needs of individuals and families.', 'Connect people to services and support.', 'Protect vulnerable children and adults.', 'Keep careful records.', 'Work with schools, health teams and the community.'],
+    subjects: ['English Language', 'Government', 'Sociology', 'Psychology', 'Biology'],
+    pathway: [
+      ['education', '1-3 years', 'Build community experience', 'Volunteer with youth, charity or community groups.', ['Volunteer weekly', 'Learn about child protection', 'Join a service club']],
+      ['education', '4 years', 'Social work degree', 'Study human behaviour, social policy and practice, with field placements.', ['Complete placements', 'Learn case recording', 'Reflect with a supervisor']],
+      ['professional', '1-2 years', 'Caseworker', 'Support families under supervision.', ['Manage your first cases', 'Attend safeguarding training', 'Learn local services']],
+      ['professional', '4+ years', 'Senior social worker', 'Lead complex cases, supervise others or shape policy.', ['Supervise a team', 'Specialise', 'Contribute to policy']],
+    ],
+    salaries: [['United States', '50,000', '85,000'], ['Nigeria', '1,800,000', '6,600,000'], ['United Kingdom', '30,000', '50,000']],
+    videos: [['A day in the life of a social worker', 'Care Careers', 'day in the life of a social worker'], ['Child safeguarding basics', 'Safe Kids', 'child safeguarding basics']],
+    articles: [['Listening first: the heart of social work', 'James Wilson', 5, ['Before offering solutions, social workers listen. People are more likely to accept help when they feel understood.', 'Careful questions and patience reveal what is really going on.', 'Good listening builds trust, and trust makes change possible.']]],
+    links: [['Social work resources', 'Social Work Hub', 'Course', 'https://www.socialworkhelper.com/'], ['Volunteer opportunities', 'VolunteerMatch', 'Opportunity', 'https://www.volunteermatch.org/']],
+    mentorRoles: ['Psychology'],
+  },
+  {
+    name: 'Journalist', category: 'Media and internet', growth: '6%', education: "Bachelor's Degree",
+    about: 'Journalists find, verify and tell the stories that keep people informed, across newspapers, radio, television and online media.',
+    skills: ['Writing and editing', 'Interviewing', 'Fact-checking', 'Research', 'Multimedia storytelling', 'Ethics'],
+    qualifications: "A degree in Journalism, Mass Communication or English is common, but a strong set of published stories matters most.",
+    workExperience: 'Student newspapers, internships and freelance pieces build a portfolio of published work.',
+    universities: ['University of Lagos', 'Pan-Atlantic University', 'University of Ghana', 'Columbia University'],
+    responsibilities: ['Research and verify stories.', 'Interview sources and attend events.', 'Write, record or film reports to deadline.', 'Edit work for accuracy and clarity.', 'Follow ethics and the law.'],
+    subjects: ['English Language', 'Literature', 'Government', 'History', 'Economics'],
+    pathway: [
+      ['education', '1-3 years', 'Write and read widely', 'Write for the school paper and follow quality news.', ['Join the press club', 'Start a blog', 'Practise interviews']],
+      ['education', '3-4 years', 'Study journalism or communications', 'Learn reporting, media law and multimedia production.', ['Publish stories', 'Intern at a newsroom', 'Learn audio and video editing']],
+      ['professional', '1-2 years', 'Reporter or junior producer', 'Cover local stories and build contacts.', ['Break a local story', 'Work with an editor', 'Build a byline portfolio']],
+      ['professional', '4+ years', 'Senior reporter or editor', 'Lead coverage, investigations or a newsroom team.', ['Run an investigation', 'Edit a section', 'Mentor reporters']],
+    ],
+    salaries: [['United States', '45,000', '95,000'], ['Nigeria', '1,800,000', '9,600,000'], ['United Kingdom', '25,000', '55,000']],
+    videos: [['How to become a journalist', 'Media Careers', 'how to become a journalist'], ['Interviewing tips for reporters', 'Newsroom Skills', 'interview tips for journalists']],
+    articles: [['Fact-checking: protecting the truth', 'Sophie Martin', 5, ['Before a story is published, good journalists confirm every claim with at least two reliable sources.', 'They check photos and videos for signs of manipulation and correct mistakes openly.', 'In a world of rumours, careful verification is what earns the audience\'s trust.']]],
+    links: [['Journalism essentials', 'Poynter', 'Course', 'https://www.poynter.org/'], ['Hemingway Editor', 'Hemingway', 'Tool', 'https://hemingwayapp.com/']],
+    mentorRoles: ['Journalism', 'Content Manager'],
+  },
+  {
+    name: 'Hotel Manager', category: 'Hospitality and events management', growth: '10%', education: "Bachelor's Degree or Diploma",
+    about: 'Hotel managers run the day-to-day operations of hotels and resorts, making sure guests are comfortable, teams are motivated and the business is profitable.',
+    skills: ['Customer service', 'Leadership', 'Budgeting', 'Problem-solving', 'Organisation', 'Communication'],
+    qualifications: 'A degree or diploma in Hospitality Management, often with practical placements in hotels.',
+    workExperience: 'Most managers progress from front-desk, housekeeping or food-and-beverage roles.',
+    universities: ['Pan-Atlantic University', 'Lagos State University', 'University of Cape Town', 'Cornell University'],
+    responsibilities: ['Oversee front desk, housekeeping and dining teams.', 'Handle guest feedback and complaints.', 'Manage budgets and staffing.', 'Ensure safety and hygiene standards.', 'Promote the hotel and plan events.'],
+    subjects: ['English Language', 'Economics', 'Food and Nutrition', 'Commerce', 'Geography'],
+    pathway: [
+      ['education', '1-2 years', 'Learn service', 'Work part-time in a cafe, shop or event to learn customer care.', ['Volunteer at events', 'Learn a second language', 'Visit a hotel']],
+      ['education', '2-4 years', 'Hospitality qualification', 'Study operations, tourism and management with placements.', ['Complete a hotel placement', 'Learn booking systems', 'Run a student event']],
+      ['professional', '2-3 years', 'Supervisor', 'Lead a department such as front desk or housekeeping.', ['Manage a shift', 'Train new staff', 'Handle complaints']],
+      ['professional', '4+ years', 'Hotel manager', 'Run the property and its budget.', ['Own a profit target', 'Lead a rebrand', 'Mentor supervisors']],
+    ],
+    salaries: [['United States', '55,000', '120,000'], ['Nigeria', '2,400,000', '12,000,000'], ['United Kingdom', '28,000', '65,000']],
+    videos: [['A career in hospitality', 'Hotel Careers', 'career in hospitality management'], ['How hotels are run', 'Behind the Desk', 'how hotels are run']],
+    articles: [['Turning complaints into loyal guests', 'Olivia White', 5, ['When something goes wrong, guests remember how it was handled. A quick, sincere response can win a customer for life.', 'Listen without interrupting, apologise, fix the problem and follow up.', 'Teams that are trained and trusted to solve problems deliver better service.']]],
+    links: [['Hospitality management basics', 'edX', 'Course', 'https://www.edx.org/learn/hospitality-management'], ['Hotel industry jobs', 'Hosco', 'Opportunity', 'https://www.hosco.com/']],
+    mentorRoles: ['Hospitality'],
+  },
+];
+
+/** Builds the full career records stored by the admin library. */
+export function buildSampleCareers(mentorRoles: string[]) {
+  const norm = (s: string) => s.trim().toLowerCase();
+  const roles = mentorRoles.map(norm);
+  return SPECS.map((c, i) => {
+    const id = 10001 + i;
+    const d = new Date(Date.UTC(2026, 7, 5 + i * 4, 9, 30));
+    const articleItems = c.articles.map(([title, author, minutes, paragraphs], n) => ({
+      id: `a${id}-${n + 1}`, title, author, thumbnail: `https://picsum.photos/seed/art${id}${n}/400/200`,
+      about: paragraphs.map(p => `<p>${p}</p>`).join(''), readTimeMinutes: minutes, readTime: `${minutes} mins read`,
+    }));
+    const videoItems = c.videos.map(([title, ownedBy, search], n) => ({
+      id: `v${id}-${n + 1}`, title, ownedBy, thumbnail: `https://picsum.photos/seed/vid${id}${n}/400/200`,
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(search)}`,
+    }));
+    const linkItems = c.links.map(([title, from, type, url], n) => ({
+      id: `l${id}-${n + 1}`, title, from, type, url, thumbnail: `https://picsum.photos/seed/lnk${id}${n}/400/200`,
+    }));
+    const salaries = c.salaries.map(([country, min, max]) => ({ country, currency: CURRENCY[country], min, max }));
+    return {
+      id,
+      name: c.name,
+      title: c.name, // the student portal reads `title`
+      category: c.category,
+      mentors: roles.filter(r => c.mentorRoles.map(norm).includes(r)).length,
+      date: d.toISOString().slice(0, 10),
+      videos: videoItems.length,
+      articles: articleItems.length,
+      resources: linkItems.length,
+      image: `https://picsum.photos/seed/career${id}/600/400`,
+      description: c.about,
+      skills: c.skills,
+      qualifications: c.qualifications,
+      workExperience: c.workExperience,
+      topUniversities: c.universities,
+      responsibilities: c.responsibilities,
+      subjects: c.subjects,
+      pathway: c.pathway.map(([type, duration, step, description, milestones]) => ({ type, duration, step, description, milestones })),
+      salaries,
+      salaryMin: salaries[0].min,
+      salaryMax: salaries[0].max,
+      salary: `$${salaries[0].min} - $${salaries[0].max}`,
+      growth: c.growth,
+      education: c.education,
+      articleItems,
+      articlesList: articleItems,
+      videoItems,
+      linkItems,
+    };
+  });
+}
+
+export const SAMPLE_CAREER_COUNT = SPECS.length;
+export const SAMPLE_CAREER_CATEGORIES = [...new Set(SPECS.map(s => s.category))];

@@ -19,7 +19,7 @@ import {
   Clock
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { careersStorage } from '../../../utils/storage';
+import { careersStorage, careerCategoriesStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 import RichTextEditor from '../../Common/RichTextEditor';
 import AdminArticleViewModal from './AdminArticleViewModal';
@@ -38,16 +38,17 @@ export default function AdminCreateCareer() {
   const [newSubject, setNewSubject] = useState('');
   const [newMilestones, setNewMilestones] = useState<{ [key: number]: string }>({});
 
+  // Categories are the managed list, which matches the platform's recommendation industries.
+  const categoryOptions: string[] = (careerCategoriesStorage.get() as { name: string }[]).map(c => c.name);
+
   const [formData, setFormData] = useState({
     step: '',
-    category: 'Science',
+    category: categoryOptions[0] ?? '',
     about: '',
-    skills: ['Software testing and quality assurance', 'Problem-solving skills'],
-    responsibilities: [
-      'Design, build, and deploy scalable software and cloud system architectures.',
-      'Conduct code reviews, automated testing, and continuous integration workflows.'
-    ],
-    subjects: ['Computer Science', 'Mathematics'],
+    // Start blank so a new career never inherits another career's skills, duties or subjects.
+    skills: [] as string[],
+    responsibilities: [] as string[],
+    subjects: [] as string[],
     pathway: [
       {
         type: 'education',
@@ -159,23 +160,8 @@ export default function AdminCreateCareer() {
     setFormData({ ...formData, salaries: newSalaries });
   };
 
-  const [resources, setResources] = useState({
-    videos: [
-      { id: 'v1', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v1/400/200', url: 'https://youtube.com/watch?v=1' },
-      { id: 'v2', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v2/400/200', url: 'https://youtube.com/watch?v=2' },
-      { id: 'v3', title: 'Tech design requirements', ownedBy: 'James Brown', thumbnail: 'https://picsum.photos/seed/v3/400/200', url: 'https://youtube.com/watch?v=3' }
-    ],
-    articles: [
-      { id: 'a1', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a1/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 5, readTime: '5 mins read' },
-      { id: 'a2', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a2/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 8, readTime: '8 mins read' },
-      { id: 'a3', title: 'Tech design requirements', author: 'James Brown', thumbnail: 'https://picsum.photos/seed/a3/400/200', about: 'Detailed summary about this article...', readTimeMinutes: 12, readTime: '12 mins read' }
-    ],
-    links: [
-      { id: 'l1', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l1/400/200', type: 'Opportunity', from: 'Coursera' },
-      { id: 'l2', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l2/400/200', type: 'Opportunity', from: 'Coursera' },
-      { id: 'l3', title: 'Tech design requirements', url: 'www.weblink.com', thumbnail: 'https://picsum.photos/seed/l3/400/200', type: 'Opportunity', from: 'Coursera' }
-    ]
-  });
+  // A new career starts with no resources; add videos, articles and links with the buttons on this tab.
+  const [resources, setResources] = useState<{ videos: any[]; articles: any[]; links: any[] }>({ videos: [], articles: [], links: [] });
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'video' | 'article' | 'resource' | null>(null);
@@ -265,14 +251,17 @@ export default function AdminCreateCareer() {
     const newCareer = {
       id: Date.now(),
       name: formData.title,
+      title: formData.title, // the student portal reads `title`
       category: formData.category,
       mentors: 0,
-      date: new Date().toLocaleString(),
+      date: new Date().toISOString().slice(0, 10),
       videos: resources.videos.length,
       articles: resources.articles.length,
       resources: resources.links.length,
       articleItems: resources.articles,
       articlesList: resources.articles,
+      videoItems: resources.videos,
+      linkItems: resources.links,
       image: bgImage || 'https://picsum.photos/seed/new/100/100',
       description: formData.about,
       salaries: formData.salaries,
@@ -281,7 +270,8 @@ export default function AdminCreateCareer() {
       subjects: formData.subjects,
       pathway: formData.pathway,
       salaryMin: formData.salaries[0]?.min || '100,000',
-      salaryMax: formData.salaries[0]?.max || '500,000'
+      salaryMax: formData.salaries[0]?.max || '500,000',
+      salary: '$' + (formData.salaries[0]?.min || '100,000') + ' - $' + (formData.salaries[0]?.max || '500,000')
     };
 
     careersStorage.save([...currentCareers, newCareer]);
@@ -382,12 +372,9 @@ export default function AdminCreateCareer() {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-bold text-slate-700 appearance-none"
                   >
-                    <option value="Science">Science</option>
-                    <option value="Arts">Arts</option>
-                    <option value="Commercial">Commercial</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Creative">Creative</option>
-                    <option value="Business">Business</option>
+                    {categoryOptions.map(name => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -236,9 +236,13 @@ function seedReportData(students: StudentRecord[]) {
   ]);
 }
 
-/** Wipes the school/teacher/parent/student data and seeds the demo data again. */
+/**
+ * Wipes the school/teacher/parent/student data and seeds the demo data again. The admin career
+ * library and its categories and article reactions are restored to the sample content too.
+ */
 export function resetDemoData() {
-  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', REPORT_FLAG, FLAG, 'app_demo_student_seeded_v1']
+  ['app_school', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity', 'app_inbox', 'app_student_progress', 'app_mentor_sessions', REPORT_FLAG, FLAG, 'app_demo_student_seeded_v1',
+    'app_careers', 'app_careers_seeded_v1', 'app_career_categories', 'app_career_categories_seeded_v1', 'oaicc_article_reactions_v1']
     .forEach(k => localStorage.removeItem(k));
   Object.keys(localStorage).filter(k => k.startsWith('app_notif_prefs_')).forEach(k => localStorage.removeItem(k));
   sessionStore.clear();

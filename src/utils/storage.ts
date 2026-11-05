@@ -1,5 +1,9 @@
 import type { School, SchoolClass } from '../types';
+import { buildSampleCareers, SAMPLE_CAREER_COUNT } from '../data/sampleCareers';
+import { careerGlossary } from '../data/careers';
 
+const STORAGE_KEY_CAREERS_SEEDED = 'app_careers_seeded_v1';
+const STORAGE_KEY_CATEGORIES_SEEDED = 'app_career_categories_seeded_v1';
 
 const STORAGE_KEY_CAREERS = 'app_careers';
 const STORAGE_KEY_CAREER_CATEGORIES = 'app_career_categories';
@@ -81,34 +85,48 @@ export const schoolClassesStorage = {
   remove: (id: string) => schoolClassesStorage.save(schoolClassesStorage.get().filter(c => c.id !== id)),
 };
 
+/**
+ * The admin career library. The first time it is read it is filled with the sample careers
+ * (data/sampleCareers.ts), keeping any careers an admin already created. Previously, whichever
+ * page read this key first with an empty fallback locked in an empty library.
+ */
 export const careersStorage = {
-  get: (initialData: any = [
-    { id: 1, title: 'Software Engineering', description: 'Design, develop, and maintain software systems.', category: 'Technology', image: 'https://picsum.photos/seed/1/800/600', salary: '$100k - $200k', growth: 'High' },
-    { id: 2, title: 'Medicine', description: 'Diagnose and treat illnesses.', category: 'Healthcare', image: 'https://picsum.photos/seed/2/800/600', salary: '$150k - $400k', growth: 'High' },
-    { id: 3, title: 'Data Science', description: 'Analyze complex data.', category: 'Technology', image: 'https://picsum.photos/seed/3/800/600', salary: '$120k - $220k', growth: 'Very High' },
-    { id: 4, title: 'UX Design', description: 'Create user-centered designs.', category: 'Design', image: 'https://picsum.photos/seed/4/800/600', salary: '$80k - $150k', growth: 'High' },
-    { id: 5, title: 'Mechanical Engineering', description: 'Design mechanical systems.', category: 'Engineering', image: 'https://picsum.photos/seed/5/800/600', salary: '$75k - $140k', growth: 'Medium' },
-    { id: 6, title: 'Financial Analysis', description: 'Guide investment decisions.', category: 'Finance', image: 'https://picsum.photos/seed/6/800/600', salary: '$70k - $130k', growth: 'Medium' },
-    { id: 7, title: 'Digital Marketing', description: 'Manage digital campaigns.', category: 'Marketing', image: 'https://picsum.photos/seed/7/800/600', salary: '$50k - $100k', growth: 'High' },
-    { id: 8, title: 'Nursing', description: 'Provide patient care.', category: 'Healthcare', image: 'https://picsum.photos/seed/8/800/600', salary: '$60k - $110k', growth: 'High' },
-    { id: 9, title: 'Architecture', description: 'Design buildings.', category: 'Architecture', image: 'https://picsum.photos/seed/9/800/600', salary: '$70k - $130k', growth: 'Medium' },
-    { id: 10, title: 'Law', description: 'Represent clients.', category: 'Legal', image: 'https://picsum.photos/seed/10/800/600', salary: '$90k - $250k', growth: 'Medium' },
-    { id: 11, title: 'Teaching', description: 'Educate students.', category: 'Education', image: 'https://picsum.photos/seed/11/800/600', salary: '$40k - $80k', growth: 'Medium' },
-    { id: 12, title: 'Graphic Design', description: 'Create visual concepts.', category: 'Design', image: 'https://picsum.photos/seed/12/800/600', salary: '$45k - $90k', growth: 'Medium' },
-    { id: 13, title: 'Project Management', description: 'Lead projects.', category: 'Business', image: 'https://picsum.photos/seed/13/800/600', salary: '$80k - $160k', growth: 'High' },
-    { id: 14, title: 'Psychology', description: 'Study human behavior.', category: 'Healthcare', image: 'https://picsum.photos/seed/14/800/600', salary: '$60k - $120k', growth: 'High' },
-    { id: 15, title: 'Cybersecurity', description: 'Protect digital systems.', category: 'Technology', image: 'https://picsum.photos/seed/15/800/600', salary: '$90k - $180k', growth: 'Very High' }
-  ]) => getStoredData(STORAGE_KEY_CAREERS, initialData),
+  get: (initialData: any = []) => {
+    if (!localStorage.getItem(STORAGE_KEY_CAREERS_SEEDED)) {
+      let stored: any[] = [];
+      try { stored = JSON.parse(localStorage.getItem(STORAGE_KEY_CAREERS) || '[]'); } catch { stored = []; }
+      // keep careers created in the admin portal (they have a `name`); the old placeholder schema is dropped
+      const sampleIds = new Set(buildSampleCareers([]).map(c => c.id));
+      const custom = (Array.isArray(stored) ? stored : []).filter(c => c && typeof c.name === 'string' && !sampleIds.has(c.id));
+      const seeded = [...buildSampleCareers(rawDefaultMentors.map(m => m.role)), ...custom];
+      saveStoredData(STORAGE_KEY_CAREERS, seeded);
+      localStorage.setItem(STORAGE_KEY_CAREERS_SEEDED, String(SAMPLE_CAREER_COUNT));
+      return seeded;
+    }
+    return getStoredData(STORAGE_KEY_CAREERS, initialData);
+  },
   save: (data: any) => saveStoredData(STORAGE_KEY_CAREERS, data),
 };
 
+/** Career categories are the platform's 24 industries, which is also what recommendations group by. */
 export const careerCategoriesStorage = {
-  get: (initialData: any = [
-    { id: 1, name: 'Technology', createdAt: '2026-07-01' },
-    { id: 2, name: 'Healthcare', createdAt: '2026-07-02' },
-    { id: 3, name: 'Design', createdAt: '2026-07-03' },
-    { id: 4, name: 'Engineering', createdAt: '2026-07-04' }
-  ]) => getStoredData(STORAGE_KEY_CAREER_CATEGORIES, initialData),
+  get: (initialData: any = []) => {
+    if (!localStorage.getItem(STORAGE_KEY_CATEGORIES_SEEDED)) {
+      let stored: any[] = [];
+      try { stored = JSON.parse(localStorage.getItem(STORAGE_KEY_CAREER_CATEGORIES) || '[]'); } catch { stored = []; }
+      const industries = Object.keys(careerGlossary);
+      const legacy = new Set(['Technology', 'Healthcare', 'Design', 'Engineering']); // the four old placeholders
+      const base = industries.map((name, i) => ({ id: i + 1, name, createdAt: `2026-07-${String((i % 28) + 1).padStart(2, '0')}` }));
+      const custom = (Array.isArray(stored) ? stored : [])
+        .filter(c => c && typeof c.name === 'string' && !industries.includes(c.name) && !legacy.has(c.name))
+        .map((c, i) => ({ ...c, id: industries.length + 1 + i }));
+      const seeded = [...base, ...custom];
+      saveStoredData(STORAGE_KEY_CAREER_CATEGORIES, seeded);
+      localStorage.setItem(STORAGE_KEY_CATEGORIES_SEEDED, '1');
+      return seeded;
+    }
+    return getStoredData(STORAGE_KEY_CAREER_CATEGORIES, initialData);
+  },
   save: (data: any) => saveStoredData(STORAGE_KEY_CAREER_CATEGORIES, data),
 };
 

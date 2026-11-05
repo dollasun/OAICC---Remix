@@ -6,7 +6,7 @@ import { schoolClassesStorage, schoolStorage } from '../../../utils/storage';
 import { fullName, studentsOfSchool } from '../../../utils/schoolData';
 import { downloadCsv } from '../../../utils/download';
 import {
-  BULK_ROLES, failedRowsCsv, inviteLinksCsv, inviteOne,
+  BULK_ROLES, failedRowsCsv, inviteOne,
   type BulkResult, type InviteRole,
 } from '../../../utils/invitations';
 import BulkInvitePanel from './BulkInvitePanel';
@@ -192,7 +192,7 @@ function ResultView({ result, copied, onCopy, onClose }: { result: Result; copie
     );
   }
 
-  const { invited, attached, failed, links } = result.data;
+  const { invited, attached, failed } = result.data;
   const nothingWorked = invited + attached === 0;
   return (
     <div className="space-y-6">
@@ -212,11 +212,6 @@ function ResultView({ result, copied, onCopy, onClose }: { result: Result; copie
         </ul>
       )}
       <div className="flex flex-col gap-2">
-        {links.length > 0 && (
-          <button type="button" onClick={() => downloadCsv(inviteLinksCsv(links), 'oaicc-invite-links.csv')} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <Download className="w-4 h-4" /> Download invite links
-          </button>
-        )}
         {failed.length > 0 && (
           <button type="button" onClick={() => downloadCsv(failedRowsCsv(failed), 'oaicc-invite-problems.csv')} className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all">
             <Download className="w-4 h-4" /> Download rows with problems

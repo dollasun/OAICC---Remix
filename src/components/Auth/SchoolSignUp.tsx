@@ -30,33 +30,34 @@ export default function SchoolSignUp() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsError, setTermsError] = useState(false);
 
-  const isStep1Valid = Boolean(
+
+  const isSchoolInfoValid = Boolean(
+    formData.schoolName.trim() &&
+    formData.location.trim() &&
+    formData.schoolTypes.length > 0 &&
+    formData.numClasses &&
+    formData.numStudents
+  );
+
+  const isContactValid = Boolean(
     formData.firstName.trim() &&
     formData.lastName.trim() &&
     formData.email.trim() &&
     formData.email.includes('@') &&
     formData.password.length >= 6 &&
-    formData.password === formData.confirmPassword
-  );
-
-  const isStep2Valid = Boolean(
-    formData.schoolName.trim() &&
-    formData.location.trim() &&
-    formData.schoolTypes.length > 0 &&
-    formData.numClasses &&
-    formData.numStudents &&
+    formData.password === formData.confirmPassword &&
     termsAccepted
   );
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isStep1Valid) return;
-    setStep(s => s + 1);
+    if (!isSchoolInfoValid) return;
+    setStep(2);
   };
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isStep2Valid) {
+    if (!isContactValid) {
       if (!termsAccepted) setTermsError(true);
       return;
     }
@@ -89,6 +90,7 @@ export default function SchoolSignUp() {
     }));
   };
 
+
   const renderStep = () => {
     switch(step) {
       case 1:
@@ -101,11 +103,124 @@ export default function SchoolSignUp() {
             <div className="mb-10">
               <Logo size="lg" className="mb-6" />
               <p className="text-sm text-slate-500 mb-2">Have an account? <button onClick={() => navigate('/auth/signin?role=school')} className="text-brand font-bold hover:underline">Sign in</button></p>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Sign up as a school</h1>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">School information</h1>
               <p className="text-slate-500">Do you want to sign up as a <button onClick={() => navigate('/auth/signup?role=student')} className="text-brand font-bold hover:underline">student instead?</button></p>
             </div>
 
             <form onSubmit={handleNext} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Name of school</label>
+                <input 
+                  type="text" 
+                  placeholder="Caleb secondary school" 
+                  className="input-field"
+                  required
+                  value={formData.schoolName}
+                  onChange={e => setFormData({...formData, schoolName: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">Location</label>
+                <div className="input-with-icon">
+                  <div className="icon-wrapper"><MapPin className="w-5 h-5" /></div>
+                  <input 
+                    type="text" 
+                    placeholder="Ogudu, Lagos, Nigeria" 
+                    className="input-field"
+                    required
+                    value={formData.location}
+                    onChange={e => setFormData({...formData, location: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">School type</label>
+                <div className="flex flex-wrap gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 min-h-[50px]">
+                  {formData.schoolTypes.map(type => (
+                    <span key={type} className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
+                      {type}
+                      <button type="button" onClick={() => toggleSchoolType(type)} className="hover:text-brand-hover">×</button>
+                    </span>
+                  ))}
+                  <select 
+                    className="bg-transparent outline-none text-xs font-medium flex-1 min-w-[100px]"
+                    onChange={(e) => {
+                      if (e.target.value) toggleSchoolType(e.target.value);
+                      e.target.value = '';
+                    }}
+                  >
+                    <option value="">Select school type</option>
+                    <option value="Primary">Primary</option>
+                    <option value="Junior Secondary">Junior Secondary</option>
+                    <option value="Senior Secondary">Senior Secondary</option>
+                    <option value="Undergraduate programs">Undergraduate programs</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">number of classes</label>
+                <select 
+                  className="input-field appearance-none bg-white"
+                  required
+                  value={formData.numClasses}
+                  onChange={e => setFormData({...formData, numClasses: e.target.value})}
+                >
+                  <option value="">Select range</option>
+                  <option value="1 - 10">1 - 10</option>
+                  <option value="10 - 12">10 - 12</option>
+                  <option value="12 - 20">12 - 20</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-700">number of students</label>
+                <select 
+                  className="input-field appearance-none bg-white"
+                  required
+                  value={formData.numStudents}
+                  onChange={e => setFormData({...formData, numStudents: e.target.value})}
+                >
+                  <option value="">Select range</option>
+                  <option value="1 - 100">1 - 100</option>
+                  <option value="100 - 400">100 - 400</option>
+                  <option value="400 - 1000">400 - 1000</option>
+                </select>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={!isSchoolInfoValid}
+                className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
+                  isSchoolInfoValid 
+                    ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
+                }`}
+              >
+                Next
+              </button>
+            </form>
+          </motion.div>
+        );
+      case 2:
+        return (
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-full max-w-md"
+          >
+            <button onClick={() => setStep(1)} className="flex items-center gap-2 text-brand font-bold mb-6 hover:gap-3 transition-all">
+              <ChevronLeft className="w-5 h-5" /> Back
+            </button>
+            
+            <div className="mb-10">
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">Contact person information</h1>
+              <p className="text-slate-500">The person who will manage {formData.schoolName.trim() || 'your school'} on OAICC.</p>
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700">First Name</label>
@@ -180,119 +295,6 @@ export default function SchoolSignUp() {
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={!isStep1Valid}
-                className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
-                  isStep1Valid 
-                    ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
-                }`}
-              >
-                Next
-              </button>
-            </form>
-          </motion.div>
-        );
-      case 2:
-        return (
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="w-full max-w-md"
-          >
-            <button onClick={() => setStep(1)} className="flex items-center gap-2 text-brand font-bold mb-6 hover:gap-3 transition-all">
-              <ChevronLeft className="w-5 h-5" /> Back
-            </button>
-            
-            <div className="mb-10">
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">You're one step away!</h1>
-              <p className="text-slate-500">Supporting text here</p>
-            </div>
-
-            <form onSubmit={handleRegister} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Name of school</label>
-                <input 
-                  type="text" 
-                  placeholder="Caleb secondary school" 
-                  className="input-field"
-                  required
-                  value={formData.schoolName}
-                  onChange={e => setFormData({...formData, schoolName: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">Location</label>
-                <div className="input-with-icon">
-                  <div className="icon-wrapper"><MapPin className="w-5 h-5" /></div>
-                  <input 
-                    type="text" 
-                    placeholder="Ogudu, Lagos, Nigeria" 
-                    className="input-field"
-                    required
-                    value={formData.location}
-                    onChange={e => setFormData({...formData, location: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">School type</label>
-                <div className="flex flex-wrap gap-2 p-2 bg-slate-50 rounded-lg border border-slate-200 min-h-[50px]">
-                  {formData.schoolTypes.map(type => (
-                    <span key={type} className="bg-brand/10 text-brand px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-2">
-                      {type}
-                      <button onClick={() => toggleSchoolType(type)} className="hover:text-brand-hover">×</button>
-                    </span>
-                  ))}
-                  <select 
-                    className="bg-transparent outline-none text-xs font-medium flex-1 min-w-[100px]"
-                    onChange={(e) => {
-                      if (e.target.value) toggleSchoolType(e.target.value);
-                      e.target.value = '';
-                    }}
-                  >
-                    <option value="">Select school type</option>
-                    <option value="Primary">Primary</option>
-                    <option value="Junior Secondary">Junior Secondary</option>
-                    <option value="Senior Secondary">Senior Secondary</option>
-                    <option value="Undergraduate programs">Undergraduate programs</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">number of classes</label>
-                <select 
-                  className="input-field appearance-none bg-white"
-                  required
-                  value={formData.numClasses}
-                  onChange={e => setFormData({...formData, numClasses: e.target.value})}
-                >
-                  <option value="">Select range</option>
-                  <option value="1 - 10">1 - 10</option>
-                  <option value="10 - 12">10 - 12</option>
-                  <option value="12 - 20">12 - 20</option>
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-slate-700">number of students</label>
-                <select 
-                  className="input-field appearance-none bg-white"
-                  required
-                  value={formData.numStudents}
-                  onChange={e => setFormData({...formData, numStudents: e.target.value})}
-                >
-                  <option value="">Select range</option>
-                  <option value="1 - 100">1 - 100</option>
-                  <option value="100 - 400">100 - 400</option>
-                  <option value="400 - 1000">400 - 1000</option>
-                </select>
               </div>
 
               {/* School Mandatory Policy Acceptance */}
@@ -371,9 +373,9 @@ export default function SchoolSignUp() {
 
               <button 
                 type="submit" 
-                disabled={!isStep2Valid}
+                disabled={!isContactValid}
                 className={`w-full py-4 font-bold rounded-xl transition-all shadow-sm flex items-center justify-center text-sm ${
-                  isStep2Valid 
+                  isContactValid 
                     ? 'bg-brand hover:bg-brand-hover text-white cursor-pointer hover:scale-[1.01] active:scale-[0.99]' 
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-60'
                 }`}

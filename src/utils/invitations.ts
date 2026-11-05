@@ -215,18 +215,16 @@ export interface BulkResult {
   /** Existing OAICC students added straight to the school. */
   attached: number;
   failed: { line: number; email: string; error: string }[];
-  /** Invite links for people who were emailed, for sharing manually while email is not connected. */
-  links: { email: string; link: string }[];
 }
 
 /** Invites every valid row. Rows with validation errors are skipped and reported, never silently dropped. */
 export function runBulkInvite(school: Pick<School, 'id' | 'name'>, role: InviteRole, rows: PreviewRow[]): BulkResult {
-  const result: BulkResult = { invited: 0, attached: 0, failed: [], links: [] };
+  const result: BulkResult = { invited: 0, attached: 0, failed: [] };
   rows.forEach(row => {
     if (row.errors.length) { result.failed.push({ line: row.line, email: row.email, error: row.errors.join(' ') }); return; }
     const r = inviteOne(school, { role, email: row.email, classIds: row.classIds });
     if (r.ok === false) { result.failed.push({ line: row.line, email: row.email, error: r.error }); return; }
-    if (r.value.kind === 'invited') { result.invited++; result.links.push({ email: row.email, link: r.value.link }); }
+    if (r.value.kind === 'invited') result.invited++;
     else result.attached++;
   });
   return result;
@@ -235,6 +233,3 @@ export function runBulkInvite(school: Pick<School, 'id' | 'name'>, role: InviteR
 /** A CSV listing rows that could not be imported, so they can be fixed and re-uploaded. */
 export const failedRowsCsv = (failed: BulkResult['failed']) =>
   Papa.unparse({ fields: ['line', 'email', 'problem'], data: failed.map(f => [f.line, f.email, f.error]) }, { escapeFormulae: true });
-
-export const inviteLinksCsv = (links: BulkResult['links']) =>
-  Papa.unparse({ fields: ['email', 'invite link'], data: links.map(l => [l.email, l.link]) }, { escapeFormulae: true });

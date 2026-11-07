@@ -1,19 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Camera, 
-  Lock, 
-  LogOut, 
-  ChevronDown,
-  CheckCircle2,
+import {
+  User,
+  Lock,
+  ShieldCheck,
   X,
-  Eye,
-  EyeOff,
-  Shield,
   Bell,
   Trash2,
   Briefcase,
@@ -22,15 +13,17 @@ import {
   Users,
   Plus,
   Edit2,
-  Calendar,
-  Clock,
   Star,
-  Check
 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
-import PlatformPoliciesSection from '../PlatformPoliciesSection';
+import { notifPrefs } from '../../../utils/schoolData';
+import {
+  NotificationsPanel, PoliciesPanel, SaveBar, SecurityPanel, SettingsPanel, SettingsShell, SignOutModal, savedNow, shrinkImage, usePolicies,
+  type NotificationItem,
+} from '../Shared/SettingsLayout';
 import { 
+  counselingSessionsStorage,
   counselorProfileStorage, 
   counselorsStorage, 
   CounselorProfileData,
@@ -53,11 +46,19 @@ const POPULAR_EXPERTISE_SUGGESTIONS = [
   'Mental Wellbeing'
 ];
 
+type CounselorSection = 'personal' | 'professional' | 'security' | 'notifications' | 'policies';
+const SECTIONS: CounselorSection[] = ['personal', 'professional', 'security', 'notifications', 'policies'];
+
+const COUNSELOR_NOTIFICATIONS: NotificationItem[] = [
+  { id: 'sessions', title: 'Session Requests & Reminders', desc: 'Alerts when a student books, reschedules or is about to start a session.', badge: 'Recommended' },
+  { id: 'messages', title: 'Student Messages', desc: 'Alerts when a student or parent sends you a message.' },
+  { id: 'assignments', title: 'New Student Assignments', desc: 'Alerts when a student is matched with you.' },
+];
+
 export default function CounselorProfile() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load counselor profile data from persistent storage
   const [profile, setProfile] = useState<CounselorProfileData>(() => counselorProfileStorage.get());
@@ -81,9 +82,9 @@ export default function CounselorProfile() {
   // Expertise input state
   const [newExpertiseInput, setNewExpertiseInput] = useState('');
 
-  // Accordion active state: 'personal' open by default, plus 'security', 'notifications', and 'policies'
-  const initialAccordion = searchParams.get('tab') === 'policies' ? 'policies' : 'personal';
-  const [activeAccordion, setActiveAccordion] = useState<string | null>(initialAccordion);
+  // Which settings section is open (?tab=… deep-links, e.g. ?tab=policies).
+  const tabParam = searchParams.get('tab') as CounselorSection | null;
+  const initialSection: CounselorSection = tabParam && SECTIONS.includes(tabParam) ? tabParam : 'personal';
 
   // Modals for Service, Education, Experience, Password, Sign Out
   const [serviceModal, setServiceModal] = useState<{ isOpen: boolean; item?: CounselorService; index?: number }>({
@@ -101,17 +102,7 @@ export default function CounselorProfile() {
   });
   const [experienceFormData, setExperienceFormData] = useState({ role: '', school: '', period: '' });
 
-  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isSignOutOpen, setIsSignOutOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-
-  const [notifications, setNotifications] = useState({
-    email: true,
-    push: true,
-    sessions: true,
-    messages: true
-  });
 
   // Sync formData whenever profile changes
   useEffect(() => {
@@ -165,23 +156,6 @@ export default function CounselorProfile() {
 
     if (successMessage) {
       showToast(successMessage, 'success');
-    }
-  };
-
-  // Image Upload
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        saveProfileData({ image: result }, 'Profile photo updated successfully!');
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -364,123 +338,77 @@ export default function CounselorProfile() {
     }, 'Profile information updated successfully!');
   };
 
-  // Security toggles
-  const handleToggle2FA = () => {
-    setIs2FAEnabled(!is2FAEnabled);
-    showToast(`Two-Factor Authentication ${!is2FAEnabled ? 'enabled' : 'disabled'}`);
+  const [activeSection, setActiveSection] = useState<CounselorSection>(initialSection);
+  const policies = usePolicies('counselor');
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [prefs, setPrefs] = useState<Record<string, boolean>>(() => notifPrefs.get('counselor', String(profile.id)));
+  const isOn = (id: string) => prefs[id] !== false;
+  const writePrefs = (next: Record<string, boolean>) => { setPrefs(next); notifPrefs.set('counselor', String(profile.id), next); };
+
+  const changeSection = (id: string) => {
+    setActiveSection(id as CounselorSection);
+    setSearchParams(id === 'personal' ? {} : { tab: id });
   };
 
-  const handleToggleNotification = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
-    showToast('Notification preference updated');
+  const savePersonal = (e: React.FormEvent) => {
+    handleSaveProfileSection(e);
+    setSavedAt(savedNow());
   };
+
+  const signOut = () => {
+    localStorage.removeItem('counselor_auth');
+    localStorage.removeItem('user_role');
+    navigate('/counselor/signin');
+  };
+
+  // Overview numbers from this counsellor's real sessions.
+  const mySessions = (counselingSessionsStorage.get() as { counselorId?: number; counselorName?: string; status?: string; studentRef?: unknown; studentId?: unknown }[])
+    .filter(s => s.counselorId === profile.id || s.counselorName === profile.name);
+  const studentsServed = new Set(mySessions.map(s => String(s.studentRef ?? s.studentId))).size;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-24">
-      {/* Page Title Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Profile & Settings</h1>
-        <p className="text-sm font-medium text-slate-500 mt-1">
-          Manage your counselor profile, advisory expertise, counseling services, qualifications, and account settings.
-        </p>
-      </div>
-
-      {/* Top Profile Summary Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          {/* Avatar with Camera upload trigger */}
-          <div className="relative group cursor-pointer" onClick={handleImageClick}>
-            <img 
-              src={profile.image} 
-              alt={profile.name} 
-              className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover border-4 border-slate-50 dark:border-slate-800 shadow-sm group-hover:opacity-90 transition-all"
-            />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-2xl">
-              <div className="p-2 rounded-xl bg-white/20 backdrop-blur-md text-white">
-                <Camera className="w-5 h-5" />
-              </div>
-            </div>
-            {profile.isVerified && (
-              <div className="absolute -bottom-1 -right-1 bg-brand text-white p-1.5 rounded-lg border-2 border-white dark:border-slate-900 shadow-sm" title="Verified Counselor">
-                <CheckCircle2 className="w-4 h-4" />
-              </div>
-            )}
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleImageChange} 
-              className="hidden" 
-              accept="image/*"
-            />
-          </div>
-
-          {/* Info Summary */}
-          <div className="flex-1 text-center sm:text-left">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              {profile.name || `${profile.firstName} ${profile.lastName}`}
-            </h2>
-            <p className="text-base font-bold text-brand mt-0.5">{profile.title}</p>
-            <p className="text-sm font-bold text-slate-500 dark:text-slate-400 mt-0.5">{profile.school}</p>
-            
-            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 text-xs font-bold text-slate-400 dark:text-slate-500 mt-3">
-              <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-brand" /> {profile.location}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4 text-brand" /> {profile.email}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Star className="w-4 h-4 fill-amber-400 text-amber-400" /> {profile.rating} ({profile.reviews} reviews)
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-brand" /> {profile.availability}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Accordion / Sections Stack */}
-      <div className="space-y-6">
-        {/* ========================================================================= */}
-        {/* SECTION 1: COUNSELOR'S INFORMATION / PROFILE INFORMATION (The first part) */}
-        {/* ========================================================================= */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-          <button 
-            type="button"
-            onClick={() => setActiveAccordion(activeAccordion === 'personal' ? null : 'personal')}
-            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-brand/10 dark:bg-brand/20 rounded-xl flex items-center justify-center text-brand">
-                <User className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Counselor Profile Information</h3>
-                <p className="text-sm font-medium text-slate-500">
-                  Update your personal details, expertise, about me section, counseling services, education, and professional history
-                </p>
-              </div>
-            </div>
-            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform duration-200 ${activeAccordion === 'personal' ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <AnimatePresence initial={false}>
-            {activeAccordion === 'personal' && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="border-t border-slate-100 dark:border-slate-800"
-              >
-                <form onSubmit={handleSaveProfileSection} className="p-6 sm:p-8 space-y-10">
-                  
+    <>
+      <SettingsShell
+        subtitle="Manage your counsellor profile, expertise, services, security and notification preferences."
+        banner={{
+          avatarUrl: profile.image || `https://picsum.photos/seed/counselor-${profile.id}/200/200`,
+          onAvatarFile: async file => {
+            try { saveProfileData({ image: await shrinkImage(file) }, 'Profile photo updated successfully!'); }
+            catch { showToast('That image could not be used. Try a different file.', 'error'); }
+          },
+          name: `${formData.firstName} ${formData.lastName}`.trim() || profile.name || 'Your account',
+          roleLabel: 'Counsellor',
+          email: formData.email,
+          meta: [
+            formData.school || 'Institution not set',
+            <><Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" /> {profile.rating ?? '—'} ({profile.reviews ?? 0} reviews)</>,
+            profile.availability || 'Availability not set',
+          ],
+          statusLabel: 'Active account',
+          verified: profile.isVerified,
+        }}
+        nav={[
+          { id: 'personal', label: 'Personal Information', description: 'Profile identity & contact info', icon: User },
+          { id: 'professional', label: 'Professional Profile', description: 'Expertise, services & history', icon: Briefcase },
+          { id: 'security', label: 'Security & Access', description: 'Password & active sessions', icon: Lock },
+          { id: 'notifications', label: 'Notifications', description: 'Alerts & activity updates', icon: Bell },
+          { id: 'policies', label: 'Platform Policies', description: 'Legal terms & compliance', icon: ShieldCheck, badge: `${policies.length} Docs` },
+        ]}
+        active={activeSection}
+        onSelect={changeSection}
+        summary={{ title: 'Counselling Overview', items: [
+          { label: 'Students', value: studentsServed },
+          { label: 'Sessions', value: mySessions.length },
+          { label: 'Upcoming', value: mySessions.filter(s => s.status !== 'Completed').length },
+          { label: 'Rating', value: profile.rating ?? '—' },
+        ] }}
+        onSignOutClick={() => setIsSignOutOpen(true)}
+      >
+        {activeSection === 'personal' && (
+          <SettingsPanel panelKey="personal" icon={User} title="Personal Information" description="Update your name, role, institution and contact details shown to students.">
+            <form onSubmit={savePersonal} className="p-6 sm:p-8 space-y-6">
                   {/* PART 1A: Basic Personal & Contact Details */}
                   <div className="space-y-4">
-                    <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">
-                      Personal & Contact Details
-                    </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">First Name</label>
@@ -552,7 +480,14 @@ export default function CounselorProfile() {
                       </div>
                     </div>
                   </div>
+              <SaveBar savedAt={savedAt} />
+            </form>
+          </SettingsPanel>
+        )}
 
+        {activeSection === 'professional' && (
+          <SettingsPanel panelKey="professional" icon={Briefcase} tone="bg-amber-50 text-amber-600" title="Professional Profile" description="What students see when choosing a counsellor: about you, expertise, services, education and history.">
+            <form onSubmit={savePersonal} className="p-6 sm:p-8 space-y-10">
                   {/* PART 1B: About Me Section */}
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -849,171 +784,27 @@ export default function CounselorProfile() {
                       </div>
                     </div>
                   </div>
+              <SaveBar savedAt={savedAt} label="Save Profile" />
+            </form>
+          </SettingsPanel>
+        )}
 
-                  {/* Save Profile Button */}
-                  <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <button 
-                      type="submit"
-                      className="px-8 py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/10 hover:scale-105 transition-all text-sm"
-                    >
-                      Save Profile Information
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        {activeSection === 'security' && <SecurityPanel onSignOutClick={() => setIsSignOutOpen(true)} />}
 
-        {/* ========================================================================= */}
-        {/* SECTION 2: SECURITY & PASSWORD ACCORDION                                  */}
-        {/* ========================================================================= */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-          <button 
-            type="button"
-            onClick={() => setActiveAccordion(activeAccordion === 'security' ? null : 'security')}
-            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-950/40 rounded-xl flex items-center justify-center text-blue-500">
-                <Shield className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Security & Password</h3>
-                <p className="text-sm font-medium text-slate-500">Manage your login credentials and two-factor authentication</p>
-              </div>
-            </div>
-            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform duration-200 ${activeAccordion === 'security' ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <AnimatePresence initial={false}>
-            {activeAccordion === 'security' && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="border-t border-slate-100 dark:border-slate-800"
-              >
-                <div className="p-6 sm:p-8 space-y-6">
-                  <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Account Password</h4>
-                      <p className="text-xs font-medium text-slate-500 mt-0.5">Last updated recently</p>
-                    </div>
-                    <button 
-                      type="button"
-                      onClick={() => setIsChangePasswordOpen(true)}
-                      className="px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-bold text-xs rounded-xl hover:border-brand hover:text-brand transition-all"
-                    >
-                      Change Password
-                    </button>
-                  </div>
+        {activeSection === 'notifications' && (
+          <NotificationsPanel
+            description="Choose which session and student activity appears in your notification inbox."
+            items={COUNSELOR_NOTIFICATIONS}
+            isOn={isOn}
+            onToggle={id => { writePrefs({ ...prefs, [id]: !isOn(id) }); showToast('Notification preference updated'); }}
+            onSetAll={enable => { writePrefs(Object.fromEntries(COUNSELOR_NOTIFICATIONS.map(n => [n.id, enable]))); showToast(enable ? 'All notifications enabled' : 'All notifications muted'); }}
+          />
+        )}
 
-                  <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800">
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Two-Factor Authentication (2FA)</h4>
-                      <p className="text-xs font-medium text-slate-500 mt-0.5">Protect your counselor account with an extra verification step</p>
-                    </div>
-                    <button 
-                      type="button"
-                      onClick={handleToggle2FA}
-                      className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${is2FAEnabled ? 'bg-brand' : 'bg-slate-200 dark:bg-slate-700'}`}
-                    >
-                      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${is2FAEnabled ? 'right-1' : 'left-1'}`}></div>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* SECTION 3: NOTIFICATIONS ACCORDION                                        */}
-        {/* ========================================================================= */}
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-          <button 
-            type="button"
-            onClick={() => setActiveAccordion(activeAccordion === 'notifications' ? null : 'notifications')}
-            className="w-full flex items-center justify-between p-6 sm:p-8 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all text-left"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-50 dark:bg-amber-950/40 rounded-xl flex items-center justify-center text-amber-500">
-                <Bell className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Notifications</h3>
-                <p className="text-sm font-medium text-slate-500">Configure how you receive session alerts and student messages</p>
-              </div>
-            </div>
-            <ChevronDown className={`w-6 h-6 text-slate-400 transition-transform duration-200 ${activeAccordion === 'notifications' ? 'rotate-180' : ''}`} />
-          </button>
-          
-          <AnimatePresence initial={false}>
-            {activeAccordion === 'notifications' && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="border-t border-slate-100 dark:border-slate-800"
-              >
-                <div className="p-6 sm:p-8 space-y-4">
-                  {[
-                    { id: 'email', label: 'Session Reminders', desc: 'Get notified before your scheduled counseling sessions' },
-                    { id: 'push', label: 'New Student Assignments', desc: 'Get notified when a new student is assigned to your roster' },
-                    { id: 'sessions', label: 'Student Advisory Messages', desc: 'Get notified when a student sends you an advisory question' },
-                    { id: 'messages', label: 'System & Curriculum Updates', desc: 'Receive notifications about career updates and platform alerts' }
-                  ].map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800/60 last:border-none">
-                      <div>
-                        <h5 className="font-bold text-slate-900 dark:text-slate-100 text-sm">{item.label}</h5>
-                        <p className="text-xs font-medium text-slate-500 mt-0.5">{item.desc}</p>
-                      </div>
-                      <div 
-                        onClick={() => handleToggleNotification(item.id as keyof typeof notifications)}
-                        className={`relative inline-block w-12 h-6 rounded-full transition-colors cursor-pointer ${notifications[item.id as keyof typeof notifications] ? 'bg-brand' : 'bg-slate-200 dark:bg-slate-700'}`}
-                      >
-                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${notifications[item.id as keyof typeof notifications] ? 'right-1' : 'left-1'}`}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* PLATFORM POLICIES                                                         */}
-        {/* ========================================================================= */}
-        <PlatformPoliciesSection 
-          userRole="counselor"
-          isOpen={activeAccordion === 'policies'}
-          onToggle={() => setActiveAccordion(activeAccordion === 'policies' ? null : 'policies')}
-        />
-
-        {/* ========================================================================= */}
-        {/* SECTION 4: DANGER ZONE                                                    */}
-        {/* ========================================================================= */}
-        <div className="pt-4 flex flex-col sm:flex-row gap-4">
-          <button 
-            type="button"
-            onClick={() => setIsSignOutOpen(true)}
-            className="flex-1 flex items-center justify-center gap-2 py-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-2xl hover:bg-red-50 hover:text-red-500 hover:border-red-100 dark:hover:bg-red-950/20 transition-all text-sm shadow-sm"
-          >
-            <LogOut className="w-4 h-4" /> Sign Out
-          </button>
-          <button 
-            type="button"
-            onClick={() => showToast('Account deletion request submitted. An administrator will contact you.')}
-            className="flex-1 flex items-center justify-center gap-2 py-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 font-bold rounded-2xl hover:bg-red-50 hover:text-red-500 hover:border-red-100 dark:hover:bg-red-950/20 transition-all text-sm shadow-sm"
-          >
-            <Trash2 className="w-4 h-4" /> Delete Account
-          </button>
-        </div>
-      </div>
+        {activeSection === 'policies' && (
+          <PoliciesPanel role="counselor" governance="Counsellors work directly with students and must follow the counsellor code of conduct and safeguarding policies below." />
+        )}
+      </SettingsShell>
 
       {/* ========================================================================= */}
       {/* MODALS                                                                    */}
@@ -1290,130 +1081,8 @@ export default function CounselorProfile() {
         )}
       </AnimatePresence>
 
-      {/* Modal 4: Change Password Modal */}
-      <AnimatePresence>
-        {isChangePasswordOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsChangePasswordOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-xl overflow-hidden p-8 sm:p-10 space-y-6"
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Change Password</h2>
-                <button onClick={() => setIsChangePasswordOpen(false)} className="p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Current Password</label>
-                  <div className="relative">
-                    <input 
-                      type={showPassword ? 'text' : 'password'} 
-                      className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 dark:text-slate-200 text-sm" 
-                    />
-                    <button 
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">New Password</label>
-                  <input 
-                    type={showPassword ? 'text' : 'password'} 
-                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 dark:text-slate-200 text-sm" 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Confirm New Password</label>
-                  <input 
-                    type={showPassword ? 'text' : 'password'} 
-                    className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-800 border-none rounded-xl outline-none focus:ring-2 focus:ring-brand/20 font-medium text-slate-700 dark:text-slate-200 text-sm" 
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <button 
-                    onClick={() => setIsChangePasswordOpen(false)}
-                    className="py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setIsChangePasswordOpen(false);
-                      showToast('Password updated successfully!');
-                    }}
-                    className="py-3.5 bg-brand text-white font-bold rounded-xl shadow-sm hover:scale-105 transition-all text-sm"
-                  >
-                    Update Password
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
-      {/* Modal 5: Sign Out Modal */}
-      <AnimatePresence>
-        {isSignOutOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSignOutOpen(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-8 sm:p-10 text-center"
-            >
-              <div className="w-20 h-20 bg-red-50 dark:bg-red-950/40 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
-                <LogOut className="w-10 h-10" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Sign Out?</h2>
-              <p className="text-slate-500 font-medium mb-8 text-sm">Are you sure you want to sign out of your account?</p>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => setIsSignOutOpen(false)}
-                  className="py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={() => {
-                    localStorage.removeItem('counselor_auth');
-                    localStorage.removeItem('user_role');
-                    navigate('/counselor/signin');
-                  }}
-                  className="py-3.5 bg-red-500 text-white font-bold rounded-xl shadow-sm hover:scale-105 transition-all text-sm"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+      <SignOutModal open={isSignOutOpen} onClose={() => setIsSignOutOpen(false)} portalName="Counsellor Portal" onConfirm={signOut} />
+    </>
   );
 }

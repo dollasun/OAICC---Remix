@@ -107,6 +107,7 @@ export interface StudentRecord {
   createdAt: string;
   /** Last time this student signed in. */
   lastLoginAt?: string;
+  avatar?: string;
 }
 
 export interface ParentRecord {

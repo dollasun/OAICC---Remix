@@ -1,7 +1,7 @@
 import React from 'react';
 import Papa from 'papaparse';
 import { triggerDownload } from './download';
-import { schoolClassesStorage, schoolStorage, counselingSessionsStorage } from './storage';
+import type { AccountStatus } from '../types';import { schoolClassesStorage, schoolStorage, counselingSessionsStorage } from './storage';
 import { fullName, initialsOf, mentorSessionsStore, progressStore, studentsStore } from './schoolData';
 
 export interface ReportData {
@@ -10,7 +10,7 @@ export interface ReportData {
   initials: string;
   className: string;
   schoolName: string;
-  accountStatus: 'active' | 'invited';
+  accountStatus: AccountStatus;
   lastLogin: { label: string; relative: string; iso: string } | null;
   quiz: { answered: number; total: number; percent: number; status: 'Complete' | 'In progress' | 'Not started'; unlocked: boolean };
   recommended: { title: string; category: string; match: number }[];

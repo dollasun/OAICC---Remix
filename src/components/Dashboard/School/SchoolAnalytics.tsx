@@ -7,24 +7,24 @@ import {
 import { BarList, ChartCard, FunnelChart, LineChart, Segmented, StatTile } from '../../Charts/Charts';
 import { ACTIVE_WINDOW_DAYS, growthSeries, schoolAnalytics, type GrowthPeriod } from '../../../utils/analytics';
 import { className as classNameOf, fullName } from '../../../utils/schoolData';
-import { AllHiddenNote, DashRow, type SectionDef } from '../Shared/DashboardSections';
+import { DashRow, type SectionDef } from '../Shared/DashboardSections';
 import type { StudentRecord } from '../../../types';
 
 /** Sections a school can switch off. The user totals above them are always shown. */
 export const SCHOOL_SECTIONS: SectionDef[] = [
-  { id: 'attention', label: 'Needs attention', description: 'Students and classes to follow up' },
-  { id: 'actions', label: 'Quick actions', description: 'Invite, classes, report, messages' },
-  { id: 'growth', label: 'Student growth', description: 'Students joining over time' },
-  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active' },
-  { id: 'topStudents', label: 'Top students by engagement', description: 'Most engaged students' },
-  { id: 'classProgress', label: 'Career assessment by class', description: 'Progress per class' },
-  { id: 'interests', label: 'What students are interested in', description: 'Industries students want' },
+  { id: 'attention', label: 'Needs attention', description: 'Students and classes to follow up', defaultOn: true },
+  { id: 'actions', label: 'Quick actions', description: 'Invite, classes, report, messages', defaultOn: true },
+  { id: 'growth', label: 'Student growth', description: 'Students joining over time', defaultOn: true },
+  { id: 'users', label: 'Users table', description: 'Your teachers, students and parents', defaultOn: true },
+  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active', defaultOn: false },
+  { id: 'topStudents', label: 'Top students by engagement', description: 'Most engaged students', defaultOn: false },
+  { id: 'classProgress', label: 'Career assessment by class', description: 'Progress per class', defaultOn: false },
+  { id: 'interests', label: 'What students are interested in', description: 'Industries students want', defaultOn: false },
 ];
 
 interface Props {
   isVisible: (id: string) => boolean;
-  hiddenCount: number;
-  onShowAll: () => void;
+  onReviewUsers: () => void;
   schoolId: string;
   /** Changes whenever the page's data changes, so the analytics re-read it. */
   version: number;
@@ -37,7 +37,7 @@ const PERIODS: { id: GrowthPeriod; label: string }[] = [
 ];
 const PERIOD_HINT: Record<GrowthPeriod, string> = { daily: 'last 14 days', weekly: 'last 12 weeks', monthly: 'last 12 months', yearly: 'last 5 years' };
 
-export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloadReport, isVisible, hiddenCount, onShowAll }: Props) {
+export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloadReport, isVisible, onReviewUsers }: Props) {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<GrowthPeriod>('monthly');
   const a = useMemo(() => schoolAnalytics(schoolId), [schoolId, version]);
@@ -66,7 +66,7 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
             <AttentionRow icon={MailWarning} tone="text-amber-600 bg-amber-50" label="Invitations not yet accepted"
               count={attention.pendingByRole.students + attention.pendingByRole.teachers + attention.pendingByRole.parents}
               summary={[`${attention.pendingByRole.students} students`, `${attention.pendingByRole.teachers} teachers`, `${attention.pendingByRole.parents} parents`].join(' · ')}
-              actionLabel="Review in users list" onAction={() => document.getElementById('school-users')?.scrollIntoView({ behavior: 'smooth' })} />
+              actionLabel="Review in users list" onAction={onReviewUsers} />
             <AttentionRow icon={Layers} tone="text-red-600 bg-red-50" label="Classes without a form teacher" count={attention.classesWithoutTeacher.length}
               people={attention.classesWithoutTeacher.map(c => ({ id: c.id, label: c.name, onClick: () => navigate(`/school/classes/${c.id}`) }))}
               actionLabel="Assign teachers" onAction={() => navigate('/school/classes')} />
@@ -148,7 +148,6 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
           ) },
       ]} />
 
-      {hiddenCount === SCHOOL_SECTIONS.length && <AllHiddenNote onShowAll={onShowAll} />}
     </div>
   );
 }

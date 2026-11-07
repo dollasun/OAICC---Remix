@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { STATUS_BADGE } from '../../../utils/accountStatus';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Download, Filter, MoreVertical, Search, Trash2, User } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
@@ -161,8 +162,8 @@ export default function SchoolClassDetails() {
                   </td>
                   <td className="px-8 py-5"><p className="text-sm text-slate-500 font-medium">{s.email}</p></td>
                   <td className="px-8 py-5">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${s.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                      {s.status === 'active' ? 'Active' : 'Invited'}
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[s.status].className}`}>
+                      {STATUS_BADGE[s.status].label}
                     </span>
                   </td>
                   <td className="px-8 py-5"><p className="text-sm text-slate-500 font-medium">{new Date(s.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p></td>

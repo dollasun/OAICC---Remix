@@ -73,6 +73,10 @@ export default function SignIn({ defaultRole }: SignInProps) {
     // record for this email; in demo mode a missing demo account is created on the fly.
     if (['school', 'teacher', 'parent', 'student'].includes(role) && !signInByEmail(role, email)) {
       const existing = findByEmail(role, email);
+      if (existing && 'status' in existing && existing.status === 'inactive') {
+        showToast('This account has been deactivated. Please contact your school or OAICC support.', 'error');
+        return;
+      }
       if (existing && 'status' in existing && existing.status === 'invited') {
         showToast('Please accept your invitation first using the link you were sent.', 'error');
         return;

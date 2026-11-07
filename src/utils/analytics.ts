@@ -184,7 +184,7 @@ export function schoolAnalytics(schoolId: string, now = Date.now()) {
     totals: { users: count([...students, ...teachers, ...parents]), students: count(students), teachers: count(teachers), parents: count(parents) },
     topStudents: engagement.slice(0, 8),
     averageEngagement: engagement.length ? Math.round(engagement.reduce((a, e) => a + e.engagement.total, 0) / engagement.length) : 0,
-    funnel: { invited: students.length, accepted: active.length, active: students.filter(s => isActiveRecently(s, now)).length } as Funnel,
+    funnel: { invited: students.length, accepted: students.filter(s => s.status !== 'invited').length, active: students.filter(s => isActiveRecently(s, now)).length } as Funnel,
     joinDates: students.map(s => joinedAt(s, accepted)),
     classProgress,
     careerInterest: careerInterest(active),
@@ -225,10 +225,10 @@ export function platformAnalytics(now = Date.now()) {
       school,
       students: mine.length,
       enrolled: enrolled.length,
-      pending: mine.length - enrolled.length,
+      pending: mine.filter(s => s.status === 'invited').length,
       teachers: teachers.filter((t: TeacherRecord) => t.schoolId === school.id).length,
       active30: enrolled.filter(s => isActiveRecently(s, now)).length,
-      activation: mine.length ? Math.round((enrolled.length / mine.length) * 100) : 0,
+      activation: mine.length ? Math.round((mine.filter(s => s.status !== 'invited').length / mine.length) * 100) : 0,
       avgEngagement: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
     };
   });
@@ -258,7 +258,7 @@ export function platformAnalytics(now = Date.now()) {
       recentMentoring,
     },
     perSchool,
-    funnel: { invited: schoolInvited.length, accepted: schoolInvited.filter(s => s.status === 'active').length, active: schoolInvited.filter(s => isActiveRecently(s, now)).length } as Funnel,
+    funnel: { invited: schoolInvited.length, accepted: schoolInvited.filter(s => s.status !== 'invited').length, active: schoolInvited.filter(s => isActiveRecently(s, now)).length } as Funnel,
     joinDates: {
       students: students.map(s => joinedAt(s, accepted)),
       teachers: teachers.map(t => joinedAt(t, accepted)),

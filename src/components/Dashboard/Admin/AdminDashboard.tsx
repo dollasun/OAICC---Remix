@@ -18,9 +18,10 @@ import {
   Scale,
   ChevronDown,
   FileText,
-  Tag
+  Tag,
+  UsersRound
 } from 'lucide-react';
-import { Link, useLocation, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, Routes, Route, Navigate } from 'react-router-dom';
 import Logo from '../../Logo';
 
 // Import Admin Pages
@@ -29,6 +30,7 @@ import AdminCareers from './Careers';
 import AdminCareerCategories from './CareerCategories';
 import AdminCreateCareer from './CreateCareer';
 import AdminEditCareer from './EditCareer';
+import AdminCareerView from './CareerView';
 import AdminMentors from './Mentors';
 import AdminCreateMentor from './CreateMentor';
 import AdminEditMentor from './EditMentor';
@@ -40,13 +42,21 @@ import AdminUsers from './AdminUsers';
 import AdminEvents from './Events';
 import AdminInterestQuiz from './InterestQuiz';
 import AdminSettings from './Settings';
-import AdminStudentView from './StudentView';
+import PlatformUsers from './PlatformUsers';
+import PlatformUserDetail from './PlatformUserDetail';
 import NotificationDropdown from '../../Notifications/NotificationDropdown';
 import NotificationPage from '../../Notifications/NotificationPage';
 import ThemeToggle from '../../ThemeToggle';
 
+/** Older links to /admin/students/:id open the student's page in the Users module. */
+function StudentRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/admin/all-users/student/${id}`} replace />;
+}
+
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+  { icon: UsersRound, label: 'Users', path: '/admin/all-users' },
   { icon: Briefcase, label: 'Career', path: '/admin/careers' },
   { icon: Tag, label: 'Career Category', path: '/admin/career-categories' },
   { icon: Users, label: 'Mentor', path: '/admin/mentors' },
@@ -271,6 +281,7 @@ export default function AdminDashboard() {
             <Route path="career-categories" element={<AdminCareerCategories />} />
             <Route path="careers/create" element={<AdminCreateCareer />} />
             <Route path="careers/edit/:id" element={<AdminEditCareer />} />
+            <Route path="careers/:id" element={<AdminCareerView />} />
             <Route path="mentors" element={<AdminMentors />} />
             <Route path="mentors/create" element={<AdminCreateMentor />} />
             <Route path="mentors/:id" element={<AdminMentorDetails />} />
@@ -282,7 +293,9 @@ export default function AdminDashboard() {
             <Route path="events" element={<AdminEvents />} />
             <Route path="quiz" element={<AdminInterestQuiz />} />
             <Route path="settings" element={<AdminSettings />} />
-            <Route path="students/:id" element={<AdminStudentView />} />
+            <Route path="all-users" element={<PlatformUsers />} />
+            <Route path="all-users/:kind/:id" element={<PlatformUserDetail />} />
+            <Route path="students/:id" element={<StudentRedirect />} />
             <Route path="notifications" element={<NotificationPage />} />
             <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Routes>

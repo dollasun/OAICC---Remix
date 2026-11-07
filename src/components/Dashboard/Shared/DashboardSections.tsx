@@ -4,32 +4,53 @@
  * this browser (a convenience, so storage failures just fall back to showing everything).
  */
 import React, { useEffect, useRef, useState } from 'react';
-import { Check, Eye, SlidersHorizontal } from 'lucide-react';
+import { Check, Eye, RotateCcw, SlidersHorizontal } from 'lucide-react';
 
-export interface SectionDef { id: string; label: string; description?: string }
+export interface SectionDef {
+  id: string;
+  label: string;
+  description?: string;
+  /** Whether the section is shown until the viewer changes it. */
+  defaultOn: boolean;
+}
 
+/**
+ * Which optional sections are shown. A viewer who hasn't chosen anything sees each section's default;
+ * their choices are then remembered per viewer in this browser (a convenience, so a storage failure
+ * just falls back to the defaults).
+ */
 export function useDashboardSections(storageKey: string, sections: SectionDef[]) {
+  const defaults = () => new Set<string>(sections.filter(s => s.defaultOn).map(s => s.id));
   const read = () => {
-    try { return new Set<string>(JSON.parse(localStorage.getItem(storageKey) || '[]')); } catch { return new Set<string>(); }
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return defaults();
+      const saved = new Set<string>(JSON.parse(raw));
+      return new Set<string>(sections.filter(s => saved.has(s.id)).map(s => s.id)); // ignore sections that no longer exist
+    } catch { return defaults(); }
   };
-  const [hidden, setHidden] = useState<Set<string>>(read);
-  useEffect(() => { setHidden(read()); }, [storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [visible, setVisible] = useState<Set<string>>(read);
+  useEffect(() => { setVisible(read()); }, [storageKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persist = (next: Set<string>) => {
-    setHidden(next);
+    setVisible(next);
     try { localStorage.setItem(storageKey, JSON.stringify([...next])); } catch { /* keep the in-memory choice */ }
   };
   const toggle = (id: string) => {
-    const next = new Set<string>(hidden);
+    const next = new Set<string>(visible);
     if (next.has(id)) next.delete(id); else next.add(id);
     persist(next);
   };
+  const isDefault = sections.every(s => visible.has(s.id) === s.defaultOn);
   return {
     sections,
-    isVisible: (id: string) => !hidden.has(id),
+    isVisible: (id: string) => visible.has(id),
     toggle,
-    showAll: () => persist(new Set()),
-    hiddenCount: sections.filter(s => hidden.has(s.id)).length,
+    showAll: () => persist(new Set(sections.map(s => s.id))),
+    resetToDefault: () => { setVisible(defaults()); try { localStorage.removeItem(storageKey); } catch { /* ignore */ } },
+    isDefault,
+    visibleCount: sections.filter(s => visible.has(s.id)).length,
+    hiddenCount: sections.filter(s => !visible.has(s.id)).length,
   };
 }
 
@@ -49,13 +70,12 @@ export function SectionToggleMenu({ controls, align = 'right', lockedNote }: { c
     return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
   }, [open]);
 
-  const visibleCount = controls.sections.length - controls.hiddenCount;
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(o => !o)} aria-expanded={open} aria-haspopup="true"
         className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
         <SlidersHorizontal className="w-5 h-5" /> Customize
-        {controls.hiddenCount > 0 && <span className="ml-0.5 px-2 py-0.5 rounded-full bg-brand/10 text-brand text-xs">{visibleCount}/{controls.sections.length}</span>}
+        <span className="ml-0.5 px-2 py-0.5 rounded-full bg-brand/10 text-brand text-xs tabular-nums">{controls.visibleCount}/{controls.sections.length}</span>
       </button>
       {open && (
         <div role="menu" aria-label="Dashboard sections"
@@ -83,10 +103,14 @@ export function SectionToggleMenu({ controls, align = 'right', lockedNote }: { c
               );
             })}
           </div>
-          <div className="border-t border-slate-100 mt-2 pt-2 px-1">
+          <div className="border-t border-slate-100 mt-2 pt-2 px-1 grid grid-cols-2 gap-1">
             <button onClick={controls.showAll} disabled={controls.hiddenCount === 0}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold text-brand hover:bg-brand/5 disabled:text-slate-300 disabled:hover:bg-transparent">
-              <Eye className="w-4 h-4" /> Show all sections
+              className="flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-bold text-brand hover:bg-brand/5 disabled:text-slate-300 disabled:hover:bg-transparent">
+              <Eye className="w-4 h-4" /> Show all
+            </button>
+            <button onClick={controls.resetToDefault} disabled={controls.isDefault}
+              className="flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-bold text-brand hover:bg-brand/5 disabled:text-slate-300 disabled:hover:bg-transparent">
+              <RotateCcw className="w-4 h-4" /> Reset
             </button>
           </div>
         </div>

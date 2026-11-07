@@ -57,6 +57,8 @@ export interface School {
   phone?: string;
   about?: string;
   avatar?: string;
+  /** Missing means active. */
+  status?: AccountStatus;
   createdAt: string;
 }
 
@@ -70,7 +72,8 @@ export interface SchoolClass {
 }
 
 export type PortalRole = 'school' | 'teacher' | 'parent' | 'student';
-export type AccountStatus = 'invited' | 'active';
+/** invited = hasn't accepted yet; inactive = switched off by a platform admin (can't sign in). */
+export type AccountStatus = 'invited' | 'active' | 'inactive';
 
 export interface Session {
   role: PortalRole;

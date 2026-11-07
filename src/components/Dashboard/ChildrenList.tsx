@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { STATUS_BADGE } from '../../utils/accountStatus';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Plus, UserPlus, Mail, X, Check, ChevronRight, Users, Activity as ActivityIcon, Target, Copy } from 'lucide-react';
@@ -144,8 +145,8 @@ export default function ChildrenList() {
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${child.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
-                  <Check className="w-3 h-3" /> {child.status === 'active' ? 'Active' : 'Invited'}
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[child.status].className}`}>
+                  <Check className="w-3 h-3" /> {STATUS_BADGE[child.status].label}
                 </span>
                 <div className="text-brand font-bold text-sm flex items-center group-hover:gap-1 transition-all">
                   View Progress <ChevronRight className="w-4 h-4" />

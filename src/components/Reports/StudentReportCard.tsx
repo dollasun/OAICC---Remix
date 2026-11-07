@@ -205,7 +205,7 @@ function Report({ data }: { data: ReportData }) {
                     <Text style={s.muted}>{data.className} · Student</Text>
                   </View>
                   <View style={{ backgroundColor: active ? T.statusActiveBg : T.statusInvitedBg, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2.5 }}>
-                    <Text style={{ fontSize: 6.5, fontWeight: 700, letterSpacing: 0.8, color: active ? (T.name === 'dark' ? T.green : '#0B7A55') : (T.name === 'dark' ? T.orange : '#C2570C') }}>{active ? 'ACTIVE' : 'INVITED'}</Text>
+                    <Text style={{ fontSize: 6.5, fontWeight: 700, letterSpacing: 0.8, color: active ? (T.name === 'dark' ? T.green : '#0B7A55') : (T.name === 'dark' ? T.orange : '#C2570C') }}>{active ? 'ACTIVE' : data.accountStatus === 'inactive' ? 'INACTIVE' : 'INVITED'}</Text>
                   </View>
                 </View>
                 <View style={{ height: 1, backgroundColor: T.cardLine, marginVertical: 10 }} />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAccountGuard } from '../../utils/useAccountGuard';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -30,6 +31,7 @@ import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 import { currentIdentity } from '../../utils/portalIdentity';
 
 export default function ParentDashboard() {
+  useAccountGuard();
   const location = useLocation();
   const navigate = useNavigate();
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(true);

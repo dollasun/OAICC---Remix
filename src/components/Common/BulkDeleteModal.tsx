@@ -21,6 +21,8 @@ interface BulkDeleteModalProps {
   itemType: string;
   items?: DeletableItemSummary[];
   isDeleting?: boolean;
+  /** Extra consequence to spell out, e.g. what else is removed with the items. */
+  note?: React.ReactNode;
 }
 
 export default function BulkDeleteModal({
@@ -30,7 +32,8 @@ export default function BulkDeleteModal({
   itemCount,
   itemType,
   items = [],
-  isDeleting = false
+  isDeleting = false,
+  note
 }: BulkDeleteModalProps) {
   if (!isOpen) return null;
 
@@ -97,6 +100,12 @@ export default function BulkDeleteModal({
                 ? This action cannot be undone and will immediately remove the records.
               </div>
             </div>
+
+            {note && (
+              <div className="mt-3 p-4 rounded-xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 text-xs leading-relaxed text-amber-900 dark:text-amber-200 font-medium">
+                {note}
+              </div>
+            )}
 
             {/* Items Preview */}
             {items.length > 0 && (

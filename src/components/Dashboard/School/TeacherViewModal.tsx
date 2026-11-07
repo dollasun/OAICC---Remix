@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { STATUS_BADGE } from '../../../utils/accountStatus';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Calendar, Check, Link2, Mail, MapPin, Phone, Repeat, X } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
@@ -110,8 +111,8 @@ export default function TeacherViewModal({ teacher, initialMode = 'view', onClos
                     <h2 id="teacher-view-title" className="text-3xl font-bold text-slate-900 truncate">{name}</h2>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-slate-500 font-medium">Teacher</span>
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${t.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                        {t.status === 'active' ? 'Active' : 'Invited'}
+                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${STATUS_BADGE[t.status].className}`}>
+                        {STATUS_BADGE[t.status].label}
                       </span>
                     </div>
                   </div>

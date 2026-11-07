@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAccountGuard } from '../../utils/useAccountGuard';
 import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -45,6 +46,7 @@ import { currentIdentity } from '../../utils/portalIdentity';
 import { schoolStorage } from '../../utils/storage';
 
 export default function SchoolDashboard() {
+  useAccountGuard();
   const location = useLocation();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);

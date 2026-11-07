@@ -8,7 +8,7 @@ import Papa from 'papaparse';
 import { BarList, ChartCard, FunnelChart, Legend, LineChart, Segmented, StatTile } from '../../Charts/Charts';
 import { ACTIVE_WINDOW_DAYS, growthSeries, platformAnalytics, type GrowthPeriod } from '../../../utils/analytics';
 import { downloadCsv } from '../../../utils/download';
-import { AllHiddenNote, DashRow, type SectionDef } from '../Shared/DashboardSections';
+import { DashRow, type SectionDef } from '../Shared/DashboardSections';
 
 const PERIODS: { id: GrowthPeriod; label: string }[] = [
   { id: 'daily', label: 'Daily' }, { id: 'weekly', label: 'Weekly' }, { id: 'monthly', label: 'Monthly' }, { id: 'yearly', label: 'Yearly' },
@@ -25,14 +25,15 @@ const TOP_INDUSTRIES = 4;
 
 /** Sections the admin can switch off. The headline numbers above them are always shown. */
 export const ADMIN_SECTIONS: SectionDef[] = [
-  { id: 'growth', label: 'Platform growth', description: 'Users joining over time' },
-  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active' },
-  { id: 'topSize', label: 'Top schools by students', description: 'The 3 largest schools' },
-  { id: 'topEngagement', label: 'Top schools by engagement', description: 'The 3 most engaged schools' },
-  { id: 'performance', label: 'School performance', description: 'Top 3 schools, sortable' },
-  { id: 'demand', label: 'Career demand by industry', description: 'Top 4 industries' },
-  { id: 'counsellors', label: 'Counsellor workload', description: 'Sessions and coverage' },
-  { id: 'attention', label: 'Needs attention', description: 'Follow-ups and quick links' },
+  { id: 'growth', label: 'Platform growth', description: 'Users joining over time', defaultOn: true },
+  { id: 'recentUsers', label: 'Recent users', description: 'The latest people to join', defaultOn: true },
+  { id: 'attention', label: 'Needs attention', description: 'Follow-ups and quick links', defaultOn: true },
+  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active', defaultOn: false },
+  { id: 'topSize', label: 'Top schools by students', description: 'The 3 largest schools', defaultOn: false },
+  { id: 'topEngagement', label: 'Top schools by engagement', description: 'The 3 most engaged schools', defaultOn: false },
+  { id: 'performance', label: 'School performance', description: 'Top 3 schools, sortable', defaultOn: false },
+  { id: 'demand', label: 'Career demand by industry', description: 'Top 4 industries', defaultOn: false },
+  { id: 'counsellors', label: 'Counsellor workload', description: 'Sessions and coverage', defaultOn: false },
 ];
 
 type SortKey = 'name' | 'students' | 'teachers' | 'activation' | 'active30' | 'avgEngagement';
@@ -48,7 +49,7 @@ export function exportSchoolsCsv() {
   return a.perSchool.length;
 }
 
-export default function AdminAnalytics({ isVisible, hiddenCount, onShowAll }: { isVisible: (id: string) => boolean; hiddenCount: number; onShowAll: () => void }) {
+export default function AdminAnalytics({ isVisible }: { isVisible: (id: string) => boolean }) {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<GrowthPeriod>('monthly');
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'students', desc: true });
@@ -226,7 +227,6 @@ export default function AdminAnalytics({ isVisible, hiddenCount, onShowAll }: { 
           ) },
       ]} />
 
-      {hiddenCount === ADMIN_SECTIONS.length && <AllHiddenNote onShowAll={onShowAll} />}
     </div>
   );
 }

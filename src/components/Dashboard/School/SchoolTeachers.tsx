@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { STATUS_BADGE } from '../../../utils/accountStatus';
 import { BookOpen, ChevronLeft, ChevronRight, Link2, Trash2, Users } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
 import { schoolStorage } from '../../../utils/storage';
@@ -99,8 +100,8 @@ export default function SchoolTeachers() {
                         <p className="text-sm text-slate-900 font-bold">{taught.length ? taught.map(c => c.name).join(', ') : <span className="text-slate-400 font-medium">Not assigned</span>}</p>
                       </td>
                       <td className="px-8 py-5">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${t.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                          {t.status === 'active' ? 'Active' : 'Invited'}
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[t.status].className}`}>
+                          {STATUS_BADGE[t.status].label}
                         </span>
                       </td>
                       <td className="px-8 py-5">

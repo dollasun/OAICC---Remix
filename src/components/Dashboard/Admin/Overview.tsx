@@ -1,136 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Users,     
-  ArrowUpRight, 
-  MoreHorizontal,
-  Trash2,
-  X,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin,
-  ExternalLink
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { mentorsStorage, counselorsStorage, studentsStorage } from '../../../utils/storage';
+import React, { useMemo } from 'react';
+import { ArrowUpRight, ChevronRight, Users } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../../../context/ToastContext';
-import BulkActionBar from '../../Common/BulkActionBar';
+import { STATUS_BADGE } from '../../../utils/accountStatus';
+import { KIND_LABEL, listPlatformUsers, userPath, type UserKind } from '../../../utils/platformUsers';
 import AdminAnalytics, { ADMIN_SECTIONS, exportSchoolsCsv } from './AdminAnalytics';
-import { SectionToggleMenu, useDashboardSections } from '../Shared/DashboardSections';
-import BulkDeleteModal, { DeletableItemSummary } from '../../Common/BulkDeleteModal';
+import { AllHiddenNote, SectionToggleMenu, useDashboardSections } from '../Shared/DashboardSections';
+
+const RECENT_COUNT = 7;
+const ROLE_TONE: Record<UserKind, string> = { school: 'bg-violet-50 text-violet-600', student: 'bg-brand/10 text-brand', teacher: 'bg-amber-50 text-amber-600', parent: 'bg-indigo-50 text-indigo-500' };
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 export default function AdminOverview() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [recentUsers, setRecentUsers] = useState<any[]>([]);
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('All Roles');
-  const [selectedUserKeys, setSelectedUserKeys] = useState<string[]>([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const sections = useDashboardSections('oaicc_dashboard_sections_admin', ADMIN_SECTIONS);
-
-  useEffect(() => {
-    const mentors = mentorsStorage.get([]);
-    const counselors = counselorsStorage.get([]);
-    const students = studentsStorage.get([]);
-
-    // Combine some users for the "Recent Users" table
-    const combined = [
-      ...students.map(s => ({ ...s, role: 'Student', date: 'Oct 20, 2024' })),
-      ...mentors.map(m => ({ ...m, role: 'Mentor', date: 'Oct 15, 2024' })),
-      ...counselors.map(c => ({ ...c, role: 'Counselor', date: 'Oct 10, 2024' }))
-    ].sort(() => 0.5 - Math.random()).slice(0, 7);
-
-    setRecentUsers(combined);
-  }, []);
-
-  const handleUserClick = (user: any) => {
-    if (user.role === 'Student') {
-      navigate(`/admin/students/${user.id}`);
-    } else {
-      setSelectedUser(user);
-    }
-  };
-
-  const filteredUsers = recentUsers.filter(u => {
-    if (selectedRoleFilter === 'Students') return u.role === 'Student';
-    if (selectedRoleFilter === 'Mentors') return u.role === 'Mentor';
-    if (selectedRoleFilter === 'Counselors') return u.role === 'Counselor';
-    if (selectedRoleFilter === 'Parents') return u.role === 'Parent';
-    if (selectedRoleFilter === 'Teachers') return u.role === 'Teacher';
-    if (selectedRoleFilter === 'Schools') return u.role === 'School';
-    return true;
-  });
-
-  const getUserKey = (user: any) => `${user.role}-${user.id}`;
-
-  const isAllSelected = filteredUsers.length > 0 && filteredUsers.every(u => selectedUserKeys.includes(getUserKey(u)));
-  const isIndeterminate = selectedUserKeys.length > 0 && !isAllSelected;
-
-  const toggleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedUserKeys([]);
-    } else {
-      setSelectedUserKeys(filteredUsers.map(getUserKey));
-    }
-  };
-
-  const toggleSelectUser = (user: any) => {
-    const key = getUserKey(user);
-    setSelectedUserKeys(prev => 
-      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
-    );
-  };
-
-  const handlePromptSingleDelete = (user: any, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setItemsToDelete([user]);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handlePromptBulkDelete = () => {
-    const selectedUsers = recentUsers.filter(u => selectedUserKeys.includes(getUserKey(u)));
-    setItemsToDelete(selectedUsers);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    setIsDeleting(true);
-    try {
-      const keysToDelete = new Set(itemsToDelete.map(getUserKey));
-      
-      // Update underlying storages
-      const students = studentsStorage.get([]);
-      const mentors = mentorsStorage.get([]);
-      const counselors = counselorsStorage.get([]);
-
-      itemsToDelete.forEach(user => {
-        if (user.role === 'Student') {
-          studentsStorage.save(students.filter((s: any) => s.id !== user.id));
-        } else if (user.role === 'Mentor') {
-          mentorsStorage.save(mentors.filter((m: any) => m.id !== user.id));
-        } else if (user.role === 'Counselor') {
-          counselorsStorage.save(counselors.filter((c: any) => c.id !== user.id));
-        }
-      });
-
-      // Update recent users
-      const updatedRecent = recentUsers.filter(u => !keysToDelete.has(getUserKey(u)));
-      setRecentUsers(updatedRecent);
-
-      // Deselect deleted
-      setSelectedUserKeys(prev => prev.filter(k => !keysToDelete.has(k)));
-
-      showToast(`Successfully deleted ${itemsToDelete.length} user${itemsToDelete.length === 1 ? '' : 's'}!`);
-      setIsDeleteModalOpen(false);
-      setItemsToDelete([]);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  const sections = useDashboardSections('oaicc_dashboard_sections_admin_v2', ADMIN_SECTIONS);
+  const recent = useMemo(() => listPlatformUsers().sort((a, b) => b.joinedAt.localeCompare(a.joinedAt)).slice(0, RECENT_COUNT), []);
 
   return (
     <div className="space-y-8">
@@ -140,271 +25,57 @@ export default function AdminOverview() {
           <p className="text-slate-500 font-medium mt-1">How schools and students are using OAICC, and what needs your attention.</p>
         </div>
         <div className="flex items-center gap-3">
-        <SectionToggleMenu controls={sections} align="right" lockedNote="Headline totals and usage numbers always stay on." />
-        <button onClick={() => { const n = exportSchoolsCsv(); showToast(`Exported performance data for ${n} ${n === 1 ? 'school' : 'schools'}.`); }}
-          className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
-          <ArrowUpRight className="w-5 h-5" /> Export Data
-        </button>
+          <SectionToggleMenu controls={sections} align="right" lockedNote="Headline totals and usage numbers always stay on." />
+          <button onClick={() => { const n = exportSchoolsCsv(); showToast(`Exported performance data for ${n} ${n === 1 ? 'school' : 'schools'}.`); }}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
+            <ArrowUpRight className="w-5 h-5" /> Export Data
+          </button>
         </div>
       </div>
 
-      <AdminAnalytics isVisible={sections.isVisible} hiddenCount={sections.hiddenCount} onShowAll={sections.showAll} />
+      <AdminAnalytics isVisible={sections.isVisible} />
 
-      {/* Recent Users Table */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-slate-900">Recent Users</h2>
-            {selectedUserKeys.length > 0 && (
-              <span className="px-3 py-1 bg-brand/10 text-brand text-xs font-bold rounded-lg">
-                {selectedUserKeys.length} selected
-              </span>
-            )}
+      {sections.hiddenCount === ADMIN_SECTIONS.length && <AllHiddenNote onShowAll={sections.showAll} />}
+
+      {sections.isVisible('recentUsers') && <section className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="p-6 sm:p-8 border-b border-slate-50 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Recent users</h2>
+            <p className="text-xs font-medium text-slate-500 mt-0.5">The latest schools, students, teachers and parents to join OAICC</p>
           </div>
-          <div className="flex items-center gap-4">
-            <select 
-              value={selectedRoleFilter}
-              onChange={(e) => setSelectedRoleFilter(e.target.value)}
-              className="px-4 py-2 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-600 outline-none focus:ring-2 focus:ring-brand/20 cursor-pointer"
-            >
-              <option value="All Roles">All Roles</option>
-              <option value="Students">Students</option>
-              <option value="Mentors">Mentors</option>
-              <option value="Counselors">Counselors</option>
-              <option value="Parents">Parents</option>
-              <option value="Teachers">Teachers</option>
-              <option value="Schools">Schools</option>
-            </select>
-            <button className="p-2 hover:bg-slate-50 rounded-lg transition-colors text-slate-400">
-              <MoreHorizontal className="w-5 h-5" />
-            </button>
-          </div>
+          <Link to="/admin/all-users" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-brand hover:underline">View all users <ChevronRight className="w-4 h-4" /></Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[720px]">
             <thead>
-              <tr className="bg-slate-50/50">
-                <th className="px-6 py-4 w-12 text-center">
-                  <input
-                    type="checkbox"
-                    aria-label="Select all visible users"
-                    checked={isAllSelected}
-                    ref={(el) => {
-                      if (el) el.indeterminate = isIndeterminate;
-                    }}
-                    onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
-                  />
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">User</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Role</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Date Joined</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Action</th>
+              <tr className="bg-slate-50/60">
+                {['User', 'Email', 'School', 'Role', 'Date joined', 'Status'].map(h => <th key={h} className="px-6 py-3.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">{h}</th>)}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filteredUsers.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-8 py-10 text-center text-sm font-medium text-slate-400">
-                    No users found matching the filter.
+              {recent.length === 0 && <tr><td colSpan={6} className="px-8 py-12 text-center text-sm font-medium text-slate-400"><Users className="w-8 h-8 text-slate-200 mx-auto mb-2" />No users yet.</td></tr>}
+              {recent.map(u => (
+                <tr key={u.key} onClick={() => navigate(userPath(u.kind, u.id))} className="group cursor-pointer hover:bg-slate-50/70 transition-colors">
+                  <td className="px-6 py-3.5">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img src={u.avatar} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                      <span className="font-bold text-slate-900 truncate group-hover:text-brand transition-colors">{u.name}</span>
+                    </div>
                   </td>
+                  <td className="px-6 py-3.5 text-sm font-medium text-slate-500 max-w-[220px] truncate">{u.email}</td>
+                  <td className="px-6 py-3.5 text-sm font-semibold text-slate-700">{u.kind !== 'school' && u.schoolName ? u.schoolName : <span className="text-slate-300">—</span>}</td>
+                  <td className="px-6 py-3.5"><span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${ROLE_TONE[u.kind]}`}>{KIND_LABEL[u.kind]}</span></td>
+                  <td className="px-6 py-3.5 text-sm font-medium text-slate-500 whitespace-nowrap">{fmtDate(u.joinedAt)}</td>
+                  <td className="px-6 py-3.5"><span className={`px-3 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[u.status].className}`}>{STATUS_BADGE[u.status].label}</span></td>
                 </tr>
-              ) : (
-                filteredUsers.map((user) => {
-                  const key = getUserKey(user);
-                  const isSelected = selectedUserKeys.includes(key);
-                  return (
-                    <tr 
-                      key={key} 
-                      onClick={() => handleUserClick(user)}
-                      className={`hover:bg-slate-50/70 transition-colors group cursor-pointer ${
-                        isSelected ? 'bg-brand/[0.04]' : ''
-                      }`}
-                    >
-                      <td className="px-6 py-4 w-12 text-center" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          aria-label={`Select ${user.name}`}
-                          checked={isSelected}
-                          onChange={() => toggleSelectUser(user)}
-                          className="w-4 h-4 rounded border-slate-300 text-brand focus:ring-brand/20 cursor-pointer transition-all accent-brand"
-                        />
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <img src={user.avatar || user.image} alt={user.name} className="w-10 h-10 rounded-lg object-cover" />
-                          <span className="font-bold text-slate-900">{user.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.email}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                          user.role === 'Student' ? 'bg-brand/10 text-brand' :
-                          user.role === 'Parent' ? 'bg-indigo-50 text-indigo-500' :
-                          user.role === 'Mentor' ? 'bg-amber-50 text-amber-500' :
-                          user.role === 'Counselor' ? 'bg-emerald-50 text-emerald-500' :
-                          'bg-slate-100 text-slate-500'
-                        }`}>
-                          {user.role}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-500">{user.date}</td>
-                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <button 
-                          onClick={(e) => handlePromptSingleDelete(user, e)}
-                          title="Delete user"
-                          className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
+              ))}
             </tbody>
           </table>
         </div>
-        <div className="p-6 border-t border-slate-50 text-center">
-          <button className="text-brand font-bold text-sm hover:underline">View All Users</button>
+        <div className="p-5 border-t border-slate-50 text-center">
+          <Link to="/admin/all-users" className="text-brand font-bold text-sm hover:underline">View all users</Link>
         </div>
-      </div>
-
-      {/* Floating Bulk Action Bar */}
-      <BulkActionBar
-        selectedCount={selectedUserKeys.length}
-        totalCount={filteredUsers.length}
-        itemLabel="user"
-        onClearSelection={() => setSelectedUserKeys([])}
-        onSelectAll={() => setSelectedUserKeys(filteredUsers.map(getUserKey))}
-        onDeleteSelected={handlePromptBulkDelete}
-        isDeleting={isDeleting}
-      />
-
-      {/* Confirmation Modal */}
-      <BulkDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          if (!isDeleting) {
-            setIsDeleteModalOpen(false);
-            setItemsToDelete([]);
-          }
-        }}
-        onConfirm={handleConfirmDelete}
-        itemCount={itemsToDelete.length}
-        itemType="User"
-        items={itemsToDelete.map(u => ({
-          id: getUserKey(u),
-          name: u.name,
-          role: u.role,
-          email: u.email,
-          avatar: u.avatar || u.image
-        }))}
-        isDeleting={isDeleting}
-      />
-
-      {/* User Detail Modal */}
-      <AnimatePresence>
-        {selectedUser && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedUser(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden"
-            >
-              <div className="p-8 sm:p-12">
-                <button 
-                  onClick={() => setSelectedUser(null)}
-                  className="absolute top-8 right-8 p-2 text-slate-400 hover:bg-slate-50 rounded-lg transition-all"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-
-                <div className="flex flex-col sm:flex-row items-center gap-8 mb-10">
-                  <img src={selectedUser.avatar || selectedUser.image} className="w-24 h-24 rounded-2xl object-cover border-4 border-slate-50 shadow-sm" alt={selectedUser.name} />
-                  <div className="text-center sm:text-left">
-                    <h2 className="text-2xl font-bold text-slate-900">{selectedUser.name}</h2>
-                    <p className="text-slate-500 font-medium">{selectedUser.role}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Email Address</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Mail className="w-4 h-4 text-brand" /> {selectedUser.email}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone Number</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Phone className="w-4 h-4 text-brand" /> +123 456 7890</p>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">User ID</p>
-                      <p className="font-bold text-slate-700">recR23ortRikranhx</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Joined</p>
-                      <p className="font-bold text-slate-700 flex items-center gap-2"><Calendar className="w-4 h-4 text-brand" /> {selectedUser.date}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {selectedUser.role === 'Teacher' && (
-                  <div className="mt-10 pt-8 border-t border-slate-50 grid grid-cols-2 gap-8">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Class Assigned</p>
-                      <p className="font-bold text-slate-700">SS3</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Students</p>
-                      <div className="flex items-center -space-x-2 mt-1">
-                        {[1, 2, 3, 4].map(i => (
-                          <img key={i} src={`https://picsum.photos/seed/s${i}/100/100`} className="w-8 h-8 rounded-full border-2 border-white" alt="Student" />
-                        ))}
-                        <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">+344</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedUser.role === 'Parent' && (
-                  <div className="mt-10 pt-8 border-t border-slate-50 grid grid-cols-2 gap-8">
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Profession</p>
-                      <p className="font-bold text-slate-700">Medical Doctor</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Children</p>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        <span className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold flex items-center gap-1.5"><Users className="w-3 h-3" /> Chika Adanne</span>
-                        <span className="px-3 py-1 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold flex items-center gap-1.5"><Users className="w-3 h-3" /> Daniel Ake</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-12 flex gap-4">
-                  <button onClick={() => setSelectedUser(null)} className="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Close</button>
-                  <button className="flex-1 py-4 bg-brand text-white font-bold rounded-xl shadow-sm shadow-brand/5 hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
-                    View Full Profile <ExternalLink className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      </section>}
     </div>
   );
 }

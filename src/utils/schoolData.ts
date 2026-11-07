@@ -5,7 +5,7 @@
  */
 import type {
   ActivityEntry, InboxNotification, InviteRecord, MentorSession, ParentRecord, PortalRole, SchoolClass,
-  Session, StudentProgress, StudentRecord, TeacherRecord,
+  Session, StudentProgress, StudentRecord, TeacherRecord, AccountStatus,
 } from '../types';
 import { schoolClassesStorage, schoolStorage } from './storage';
 
@@ -227,10 +227,21 @@ export function findByEmail(role: string, email: string) {
 /** Signs in if an account with this email exists for the role. Returns false when none does. */
 export function signInByEmail(role: string, email: string): boolean {
   const rec = findByEmail(role, email);
-  if (!rec || ('status' in rec && rec.status === 'invited')) return false;
+  if (!rec || ('status' in rec && (rec.status === 'invited' || rec.status === 'inactive'))) return false;
   sessionStore.set({ role: role as PortalRole, userId: rec.id });
   if (role === 'student') studentsStore.update(rec.id, { lastLoginAt: new Date().toISOString() });
   return true;
+}
+
+/** The signed-in person's account status, or undefined when nobody of a record-backed role is signed in. */
+export function sessionAccountStatus(): AccountStatus | undefined {
+  const s = sessionStore.get();
+  if (!s) return undefined;
+  if (s.role === 'teacher') return teachersStore.get(s.userId)?.status;
+  if (s.role === 'student') return studentsStore.get(s.userId)?.status;
+  if (s.role === 'parent') return parentsStore.get(s.userId)?.status;
+  if (s.role === 'school') { const sc = schoolStorage.get(); return sc && sc.id === s.userId ? sc.status ?? 'active' : undefined; }
+  return undefined;
 }
 
 export function markOnboarded(role: 'teacher' | 'parent' | 'student', userId: string) {

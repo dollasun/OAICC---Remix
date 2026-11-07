@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAccountGuard } from '../../utils/useAccountGuard';
 import { Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -43,6 +44,7 @@ import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
 
 export default function StudentDashboard() {
+  useAccountGuard();
   // Keep this student's progress snapshot (used by the school's report card) up to date.
   React.useEffect(() => {
     snapshotCurrentStudent();

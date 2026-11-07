@@ -11,7 +11,8 @@ import {
 import InviteUserModal from './InviteUserModal';
 import TeacherViewModal from './TeacherViewModal';
 import { downloadStudentsCsv } from '../../../utils/studentReport';
-import SchoolAnalytics from './SchoolAnalytics';
+import SchoolAnalytics, { SCHOOL_SECTIONS } from './SchoolAnalytics';
+import { SectionToggleMenu, useDashboardSections } from '../Shared/DashboardSections';
 import { StatTile } from '../../Charts/Charts';
 
 type UserRole = 'Teacher' | 'Parent' | 'Student';
@@ -37,6 +38,7 @@ export default function SchoolOverview() {
   const [roleFilter, setRoleFilter] = useState<UserRole | 'All'>('All');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
+  const sections = useDashboardSections(`oaicc_dashboard_sections_school_${school?.id ?? 'none'}`, SCHOOL_SECTIONS);
 
   void version; // re-read localStorage after each change
   const toRow = (r: { id: string; firstName: string; lastName: string; email: string; status: string; createdAt: string }, role: UserRole): Row => ({
@@ -94,12 +96,15 @@ export default function SchoolOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-wrap justify-between items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-          <button onClick={() => setIsExportModalOpen(true)} className="flex items-center gap-2 text-slate-500 font-bold mt-2 hover:text-brand transition-all">
-            <Download className="w-4 h-4" /> Export users
-          </button>
+          <div className="flex flex-wrap items-center gap-4 mt-3">
+            {users.length > 0 && <SectionToggleMenu controls={sections} align="left" lockedNote="The user totals always stay on." />}
+            <button onClick={() => setIsExportModalOpen(true)} className="flex items-center gap-2 text-slate-500 font-bold hover:text-brand transition-all">
+              <Download className="w-4 h-4" /> Export users
+            </button>
+          </div>
         </div>
         {users.length > 0 && (
           <div className="flex items-center gap-3">
@@ -117,7 +122,7 @@ export default function SchoolOverview() {
       </div>
 
       {school && users.length > 0 ? (
-        <SchoolAnalytics schoolId={school.id} version={version} onInvite={() => setIsInviteModalOpen(true)} onDownloadReport={handleDownloadReport} />
+        <SchoolAnalytics schoolId={school.id} version={version} isVisible={sections.isVisible} hiddenCount={sections.hiddenCount} onShowAll={sections.showAll} onInvite={() => setIsInviteModalOpen(true)} onDownloadReport={handleDownloadReport} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
           <StatTile label="Total users" value={0} icon={Users} tone="bg-brand/10 text-brand" />

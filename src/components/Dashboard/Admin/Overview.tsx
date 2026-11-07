@@ -16,7 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { mentorsStorage, counselorsStorage, studentsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 import BulkActionBar from '../../Common/BulkActionBar';
-import AdminAnalytics, { exportSchoolsCsv } from './AdminAnalytics';
+import AdminAnalytics, { ADMIN_SECTIONS, exportSchoolsCsv } from './AdminAnalytics';
+import { SectionToggleMenu, useDashboardSections } from '../Shared/DashboardSections';
 import BulkDeleteModal, { DeletableItemSummary } from '../../Common/BulkDeleteModal';
 
 export default function AdminOverview() {
@@ -29,6 +30,7 @@ export default function AdminOverview() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
+  const sections = useDashboardSections('oaicc_dashboard_sections_admin', ADMIN_SECTIONS);
 
   useEffect(() => {
     const mentors = mentorsStorage.get([]);
@@ -132,18 +134,21 @@ export default function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
           <p className="text-slate-500 font-medium mt-1">How schools and students are using OAICC, and what needs your attention.</p>
         </div>
+        <div className="flex items-center gap-3">
+        <SectionToggleMenu controls={sections} align="right" lockedNote="Headline totals and usage numbers always stay on." />
         <button onClick={() => { const n = exportSchoolsCsv(); showToast(`Exported performance data for ${n} ${n === 1 ? 'school' : 'schools'}.`); }}
           className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
           <ArrowUpRight className="w-5 h-5" /> Export Data
         </button>
+        </div>
       </div>
 
-      <AdminAnalytics />
+      <AdminAnalytics isVisible={sections.isVisible} hiddenCount={sections.hiddenCount} onShowAll={sections.showAll} />
 
       {/* Recent Users Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

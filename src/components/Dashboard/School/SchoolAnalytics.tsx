@@ -7,9 +7,24 @@ import {
 import { BarList, ChartCard, FunnelChart, LineChart, Segmented, StatTile } from '../../Charts/Charts';
 import { ACTIVE_WINDOW_DAYS, growthSeries, schoolAnalytics, type GrowthPeriod } from '../../../utils/analytics';
 import { className as classNameOf, fullName } from '../../../utils/schoolData';
+import { AllHiddenNote, DashRow, type SectionDef } from '../Shared/DashboardSections';
 import type { StudentRecord } from '../../../types';
 
+/** Sections a school can switch off. The user totals above them are always shown. */
+export const SCHOOL_SECTIONS: SectionDef[] = [
+  { id: 'attention', label: 'Needs attention', description: 'Students and classes to follow up' },
+  { id: 'actions', label: 'Quick actions', description: 'Invite, classes, report, messages' },
+  { id: 'growth', label: 'Student growth', description: 'Students joining over time' },
+  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active' },
+  { id: 'topStudents', label: 'Top students by engagement', description: 'Most engaged students' },
+  { id: 'classProgress', label: 'Career assessment by class', description: 'Progress per class' },
+  { id: 'interests', label: 'What students are interested in', description: 'Industries students want' },
+];
+
 interface Props {
+  isVisible: (id: string) => boolean;
+  hiddenCount: number;
+  onShowAll: () => void;
   schoolId: string;
   /** Changes whenever the page's data changes, so the analytics re-read it. */
   version: number;
@@ -22,7 +37,7 @@ const PERIODS: { id: GrowthPeriod; label: string }[] = [
 ];
 const PERIOD_HINT: Record<GrowthPeriod, string> = { daily: 'last 14 days', weekly: 'last 12 weeks', monthly: 'last 12 months', yearly: 'last 5 years' };
 
-export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloadReport }: Props) {
+export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloadReport, isVisible, hiddenCount, onShowAll }: Props) {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<GrowthPeriod>('monthly');
   const a = useMemo(() => schoolAnalytics(schoolId), [schoolId, version]);
@@ -44,8 +59,9 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
       </div>
 
       {/* What needs doing */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <ChartCard title="Needs attention" subtitle="Things holding students back. Open an item to see who it affects." className="xl:col-span-2">
+      <DashRow isVisible={isVisible} items={[
+          { id: 'attention', span: 2, node: (
+        <ChartCard title="Needs attention" subtitle="Things holding students back. Open an item to see who it affects.">
           <div className="divide-y divide-slate-100">
             <AttentionRow icon={MailWarning} tone="text-amber-600 bg-amber-50" label="Invitations not yet accepted"
               count={attention.pendingByRole.students + attention.pendingByRole.teachers + attention.pendingByRole.parents}
@@ -65,28 +81,32 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
               actionLabel="Invite parents" onAction={onInvite} />
           </div>
         </ChartCard>
-
+          ) },
+          { id: 'actions', node: (
         <ChartCard title="Quick actions">
-          <div className="grid grid-cols-1 gap-3">
+          <div className="@container"><div className="grid grid-cols-1 @lg:grid-cols-2 @4xl:grid-cols-4 gap-3">
             <QuickAction icon={UserPlus} label="Invite users" hint="One at a time or a CSV upload" onClick={onInvite} />
             <QuickAction icon={Layers} label="Manage classes" hint="Create classes and assign form teachers" onClick={() => navigate('/school/classes')} />
             <QuickAction icon={Download} label="Download school report" hint="CSV of every student's progress" onClick={onDownloadReport} />
             <QuickAction icon={MessageSquare} label="Message teachers & parents" hint="Start or continue a conversation" onClick={() => navigate('/school/messages')} />
-          </div>
+          </div></div>
           {attention.upcomingCounselling > 0 && (
             <p className="text-xs font-medium text-slate-500 mt-4">{attention.upcomingCounselling} counselling {attention.upcomingCounselling === 1 ? 'session is' : 'sessions are'} booked by your students.</p>
           )}
         </ChartCard>
-      </div>
+          ) },
+      ]} />
 
       {/* Growth and conversion */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <ChartCard title="Student growth" subtitle={`Students who have joined, ${PERIOD_HINT[period]} · ${growthAdded} new in this range`} className="xl:col-span-2"
+      <DashRow isVisible={isVisible} items={[
+          { id: 'growth', span: 2, node: (
+        <ChartCard title="Student growth" subtitle={`Students who have joined, ${PERIOD_HINT[period]} · ${growthAdded} new in this range`}
           action={<Segmented label="Time period" value={period} options={PERIODS} onChange={setPeriod} />}>
           <LineChart labels={growth.map(p => p.label)} series={[{ name: 'Students', color: 'var(--viz-1)', values: growth.map(p => p.total) }]}
             tooltipExtra={i => [`+${growth[i].added} joined in this ${period === 'daily' ? 'day' : period.replace('ly', '')}`]} />
         </ChartCard>
-
+          ) },
+          { id: 'funnel', node: (
         <ChartCard title="Student invitation funnel" subtitle="From invitation to regular use">
           <FunnelChart stages={[
             { label: 'Invited', value: a.funnel.invited, hint: 'Invitations sent to students' },
@@ -94,10 +114,12 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
             { label: `Active (last ${ACTIVE_WINDOW_DAYS} days)`, value: a.funnel.active, hint: `Signed in within ${ACTIVE_WINDOW_DAYS} days` },
           ]} />
         </ChartCard>
-      </div>
+          ) },
+      ]} />
 
       {/* Who is engaging, where classes stand, what students want */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <DashRow isVisible={isVisible} items={[
+          { id: 'topStudents', node: (
         <ChartCard title="Top students by engagement" subtitle={`Score out of 100 · school average ${a.averageEngagement}`}>
           <BarList max={100} empty="No active students yet."
             items={a.topStudents.map(({ student, engagement: e }) => ({
@@ -107,7 +129,8 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
             }))} />
           <p className="text-[11px] text-slate-500 mt-4">Based on assessment progress, counselling and mentoring sessions, saved careers and how recently they signed in.</p>
         </ChartCard>
-
+          ) },
+          { id: 'classProgress', node: (
         <ChartCard title="Career assessment by class" subtitle="Average progress through the assessment">
           <BarList max={100} format={v => `${v}%`} empty="Create classes to compare them."
             items={a.classProgress.map(c => ({
@@ -116,12 +139,16 @@ export default function SchoolAnalytics({ schoolId, version, onInvite, onDownloa
               details: [`${c.students} students joined`, `${c.completed} completed the assessment`, `Average progress ${c.avgProgress}%`],
             }))} />
         </ChartCard>
-
+          ) },
+          { id: 'interests', node: (
         <ChartCard title="What students are interested in" subtitle="Students per industry, from their top matches and saved careers">
           <BarList empty="Interests appear once students take the career assessment."
             items={a.careerInterest.map(c => ({ id: c.label, label: c.label, value: c.students, note: c.students === 1 ? 'student' : 'students', details: [`Popular: ${c.topCareers.join(', ')}`] }))} />
         </ChartCard>
-      </div>
+          ) },
+      ]} />
+
+      {hiddenCount === SCHOOL_SECTIONS.length && <AllHiddenNote onShowAll={onShowAll} />}
     </div>
   );
 }

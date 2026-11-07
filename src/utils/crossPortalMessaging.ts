@@ -11,6 +11,11 @@ export interface ChatMessage {
   time: string;
   timestamp: number;
   status?: 'sent' | 'delivered' | 'read';
+  /** 'kudos' messages celebrate someone and render as a card. */
+  kind?: 'text' | 'kudos';
+  kudos?: { badge: string };
+  /** Emoji -> ids of the people who reacted with it. */
+  reactions?: Record<string, string[]>;
 }
 
 export interface ChatParticipant {
@@ -165,7 +170,8 @@ export const saveCrossPortalThreads = (threads: ChatThread[]): void => {
 export const sendMessageToThread = (
   threadId: string, 
   sender: { id: string; role: UserRole; name: string }, 
-  text: string
+  text: string,
+  extra: Pick<ChatMessage, 'kind' | 'kudos'> = {}
 ): ChatThread[] => {
   const threads = getCrossPortalThreads();
   const timeFormatted = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -181,7 +187,8 @@ export const sendMessageToThread = (
         text: text.trim(),
         time: timeFormatted,
         timestamp,
-        status: 'delivered'
+        status: 'delivered',
+        ...extra
       };
 
       const newUnreadCount = { ...thread.unreadCount };
@@ -275,7 +282,7 @@ export const findOrCreateThread = (userA: ChatParticipant, userB: ChatParticipan
  * Sends a message to a contact, opening a conversation with them first if there isn't one.
  * Returns the thread id.
  */
-export const startConversation = (me: ChatParticipant, contact: ChatParticipant, text: string): string => {
+export const startConversation = (me: ChatParticipant, contact: ChatParticipant, text: string, extra: Pick<ChatMessage, 'kind' | 'kudos'> = {}): string => {
   const threads = getCrossPortalThreads();
   const existing = threads.find(t => t.participants.some(p => p.id === me.id) && t.participants.some(p => p.id === contact.id));
   let threadId = existing?.id;
@@ -286,8 +293,27 @@ export const startConversation = (me: ChatParticipant, contact: ChatParticipant,
       unreadCount: { [me.id]: 0, [contact.id]: 0 }, messages: [],
     }, ...threads]);
   }
-  sendMessageToThread(threadId, { id: me.id, role: me.role, name: me.name }, text);
+  sendMessageToThread(threadId, { id: me.id, role: me.role, name: me.name }, text, extra);
   return threadId;
+};
+
+/** Adds or removes one person's emoji reaction on a message. */
+export const toggleReaction = (threadId: string, messageId: string, emoji: string, userId: string): void => {
+  const threads = getCrossPortalThreads().map(t => {
+    if (t.id !== threadId) return t;
+    return {
+      ...t,
+      messages: t.messages.map(m => {
+        if (m.id !== messageId) return m;
+        const reactions = { ...(m.reactions ?? {}) };
+        const who = reactions[emoji] ?? [];
+        reactions[emoji] = who.includes(userId) ? who.filter(id => id !== userId) : [...who, userId];
+        if (reactions[emoji].length === 0) delete reactions[emoji];
+        return { ...m, reactions };
+      }),
+    };
+  });
+  saveCrossPortalThreads(threads);
 };
 
 /** A small initials avatar as an inline SVG, so real people never get a random stock photo. */

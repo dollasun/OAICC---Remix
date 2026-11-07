@@ -154,28 +154,32 @@ html.dark .from-indigo-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: r
 html.dark .via-cyan-50\/30:not([class*="dark:via-"]) { --tw-gradient-via: rgb(6 182 212 / .12); }
 html.dark .to-indigo-50\/40:not([class*="dark:to-"]) { --tw-gradient-to: rgb(99 102 241 / .12); }
 
-/* ───── Data visualisation tokens (validated palette: series 1-3 + an ordinal blue ramp) ───── */
+/* ───── Data visualisation tokens: OAICC ocean blue first, validated with the palette checker ───── */
 .viz {
-  --viz-1: #2a78d6;
+  --viz-1: #00B4D8;      /* brand ocean blue */
   --viz-2: #eb6834;
-  --viz-3: #1baf7a;
-  --viz-ord-1: #86b6ef;
-  --viz-ord-2: #3987e5;
-  --viz-ord-3: #1c5cab;
+  --viz-3: #6250d6;
+  --viz-ord-1: #00B4D8;  /* funnel steps: brand blue to brand dark */
+  --viz-ord-2: #0077B6;
+  --viz-ord-3: #03487a;
   --viz-grid: #e8edf3;
   --viz-axis: #94a3b8;
   --viz-surface: #ffffff;
   --viz-track: #f1f5f9;
 }
 html.dark .viz {
-  --viz-1: #3987e5;
+  --viz-1: #0096B4;      /* brand hover shade: sits inside the dark-mode lightness band */
   --viz-2: #d95926;
-  --viz-3: #199e70;
-  --viz-ord-1: #184f95;
-  --viz-ord-2: #2a78d6;
-  --viz-ord-3: #86b6ef;
+  --viz-3: #9085e9;
+  --viz-ord-1: #035e86;
+  --viz-ord-2: #00B4D8;
+  --viz-ord-3: #90E0EF;
   --viz-grid: #1e293b;
   --viz-axis: #64748b;
   --viz-surface: #0f172a;
   --viz-track: #1e293b;
 }
+
+/* Dashboard rows: one column on small screens, the row's own column template from xl up. */
+.dash-row { display: grid; gap: 1.5rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1280px) { .dash-row { grid-template-columns: var(--dash-cols); } }

@@ -8,6 +8,7 @@ import Papa from 'papaparse';
 import { BarList, ChartCard, FunnelChart, Legend, LineChart, Segmented, StatTile } from '../../Charts/Charts';
 import { ACTIVE_WINDOW_DAYS, growthSeries, platformAnalytics, type GrowthPeriod } from '../../../utils/analytics';
 import { downloadCsv } from '../../../utils/download';
+import { AllHiddenNote, DashRow, type SectionDef } from '../Shared/DashboardSections';
 
 const PERIODS: { id: GrowthPeriod; label: string }[] = [
   { id: 'daily', label: 'Daily' }, { id: 'weekly', label: 'Weekly' }, { id: 'monthly', label: 'Monthly' }, { id: 'yearly', label: 'Yearly' },
@@ -18,6 +19,21 @@ const SERIES = [
   { key: 'teachers', name: 'Teachers', color: 'var(--viz-2)' },
   { key: 'parents', name: 'Parents', color: 'var(--viz-3)' },
 ] as const;
+
+const TOP_SCHOOLS = 3;
+const TOP_INDUSTRIES = 4;
+
+/** Sections the admin can switch off. The headline numbers above them are always shown. */
+export const ADMIN_SECTIONS: SectionDef[] = [
+  { id: 'growth', label: 'Platform growth', description: 'Users joining over time' },
+  { id: 'funnel', label: 'Student invitation funnel', description: 'Invited, accepted, active' },
+  { id: 'topSize', label: 'Top schools by students', description: 'The 3 largest schools' },
+  { id: 'topEngagement', label: 'Top schools by engagement', description: 'The 3 most engaged schools' },
+  { id: 'performance', label: 'School performance', description: 'Top 3 schools, sortable' },
+  { id: 'demand', label: 'Career demand by industry', description: 'Top 4 industries' },
+  { id: 'counsellors', label: 'Counsellor workload', description: 'Sessions and coverage' },
+  { id: 'attention', label: 'Needs attention', description: 'Follow-ups and quick links' },
+];
 
 type SortKey = 'name' | 'students' | 'teachers' | 'activation' | 'active30' | 'avgEngagement';
 
@@ -32,7 +48,7 @@ export function exportSchoolsCsv() {
   return a.perSchool.length;
 }
 
-export default function AdminAnalytics() {
+export default function AdminAnalytics({ isVisible, hiddenCount, onShowAll }: { isVisible: (id: string) => boolean; hiddenCount: number; onShowAll: () => void }) {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<GrowthPeriod>('monthly');
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'students', desc: true });
@@ -47,13 +63,13 @@ export default function AdminAnalytics() {
   const detail = (t: { active: number; pending: number }) => `${t.active.toLocaleString()} active${t.pending ? ` · ${t.pending} pending` : ''}`;
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
 
-  const bySize = [...a.perSchool].sort((x, y) => y.students - x.students).slice(0, 6);
-  const byEngagement = a.perSchool.filter(p => p.enrolled >= 5).sort((x, y) => y.avgEngagement - x.avgEngagement).slice(0, 6);
+  const bySize = [...a.perSchool].sort((x, y) => y.students - x.students).slice(0, TOP_SCHOOLS);
+  const byEngagement = a.perSchool.filter(p => p.enrolled >= 5).sort((x, y) => y.avgEngagement - x.avgEngagement).slice(0, TOP_SCHOOLS);
   const table = [...a.perSchool].sort((x, y) => {
     const v = (p: typeof x) => (sort.key === 'name' ? p.school.name.toLowerCase() : p[sort.key]);
     const r = v(x) < v(y) ? -1 : v(x) > v(y) ? 1 : 0;
     return sort.desc ? -r : r;
-  });
+  }).slice(0, TOP_SCHOOLS);
   const sortBy = (key: SortKey) => setSort(s => ({ key, desc: s.key === key ? !s.desc : key !== 'name' }));
   const attentionCount = a.attention.lowActivation.length + a.attention.lowEngagement.length + (a.attention.pendingRequests > 0 ? 1 : 0);
 
@@ -76,15 +92,17 @@ export default function AdminAnalytics() {
       </div>
 
       {/* Growth and conversion */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <ChartCard title="Platform growth" subtitle={`Total users on OAICC, ${PERIOD_HINT[period]}`} className="xl:col-span-2"
+      <DashRow isVisible={isVisible} items={[
+          { id: 'growth', span: 2, node: (
+        <ChartCard title="Platform growth" subtitle={`Total users on OAICC, ${PERIOD_HINT[period]}`}
           action={<Segmented label="Time period" value={period} options={PERIODS} onChange={setPeriod} />}>
           <LineChart labels={growth.students.map(p => p.label)}
             series={SERIES.map(s => ({ name: s.name, color: s.color, values: growth[s.key].map(p => p.total) }))}
             tooltipExtra={i => [`New: ${SERIES.map(s => `${growth[s.key][i].added} ${s.name.toLowerCase()}`).join(', ')}`]} />
           <Legend items={SERIES.map(s => ({ name: s.name, color: s.color }))} />
         </ChartCard>
-
+          ) },
+          { id: 'funnel', node: (
         <ChartCard title="Student invitation funnel" subtitle="Students invited by schools, across the platform">
           <FunnelChart stages={[
             { label: 'Invited', value: a.funnel.invited, hint: 'Invited by their school' },
@@ -92,25 +110,32 @@ export default function AdminAnalytics() {
             { label: `Active (last ${ACTIVE_WINDOW_DAYS} days)`, value: a.funnel.active, hint: `Signed in within ${ACTIVE_WINDOW_DAYS} days` },
           ]} />
         </ChartCard>
-      </div>
+          ) },
+      ]} />
 
       {/* Schools compared */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Top schools by students" subtitle="Students on OAICC, including pending invitations">
+      <DashRow isVisible={isVisible} items={[
+          { id: 'topSize', node: (
+        <ChartCard title="Top schools by students" subtitle="The 3 largest schools, including pending invitations">
           <BarList items={bySize.map(p => ({
             id: p.school.id, label: p.school.name, value: p.students, note: p.pending ? `· ${p.pending} pending` : undefined,
             details: [p.school.location, `${p.enrolled} joined, ${p.pending} pending`, `${p.teachers} teachers`],
           }))} empty="No schools yet." />
         </ChartCard>
-        <ChartCard title="Top schools by student engagement" subtitle="Average engagement score out of 100 (schools with 5+ students)">
+          ) },
+          { id: 'topEngagement', node: (
+        <ChartCard title="Top schools by student engagement" subtitle="The 3 highest average scores out of 100 (schools with 5+ students)">
           <BarList max={100} items={byEngagement.map(p => ({
             id: p.school.id, label: p.school.name, value: p.avgEngagement, note: `· ${p.enrolled} students`,
             details: [`${p.active30} of ${p.enrolled} active in the last ${ACTIVE_WINDOW_DAYS} days`, 'Score: assessment, counselling, mentoring, saved careers and recent sign-ins'],
           }))} empty="Schools appear here once 5 or more students have joined." />
         </ChartCard>
-      </div>
+          ) },
+      ]} />
 
-      <ChartCard title="School performance" subtitle="Click a column to sort. Use Export data to download this table.">
+      <DashRow isVisible={isVisible} items={[
+          { id: 'performance', node: (
+      <ChartCard title="School performance" subtitle={`Top 3 of ${a.perSchool.length} schools by the selected column. Click a column to rank by it; Export data downloads every school.`}>
         <div className="overflow-x-auto -mx-6">
           <table className="w-full text-left text-sm min-w-[760px]">
             <thead>
@@ -139,14 +164,18 @@ export default function AdminAnalytics() {
           </table>
         </div>
       </ChartCard>
+          ) },
+      ]} />
 
       {/* Demand, capacity, follow-ups */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        <ChartCard title="Career demand by industry" subtitle="Students interested, from top matches and saved careers. Use it to plan careers, mentors and events.">
-          <BarList items={a.careerInterest.map(c => ({ id: c.label, label: c.label, value: c.students, note: 'students', details: [`Popular: ${c.topCareers.join(', ')}`] }))}
+      <DashRow isVisible={isVisible} items={[
+          { id: 'demand', node: (
+        <ChartCard title="Career demand by industry" subtitle="Top 4 industries by students interested, from top matches and saved careers">
+          <BarList items={a.careerInterest.slice(0, TOP_INDUSTRIES).map(c => ({ id: c.label, label: c.label, value: c.students, note: 'students', details: [`Popular: ${c.topCareers.join(', ')}`] }))}
             empty="Demand appears once students take the career assessment." />
         </ChartCard>
-
+          ) },
+          { id: 'counsellors', node: (
         <ChartCard title="Counsellor workload" subtitle="Sessions per counsellor (completed + upcoming)">
           <BarList items={a.counsellorLoad.map(c => ({
             id: c.name, label: c.name, value: c.total, note: `· ${c.upcoming} upcoming`, details: [`${c.completed} completed`, `${c.upcoming} upcoming`],
@@ -165,7 +194,8 @@ export default function AdminAnalytics() {
             </div>
           </dl>
         </ChartCard>
-
+          ) },
+          { id: 'attention', node: (
         <ChartCard title="Needs attention" subtitle={attentionCount ? `${attentionCount} item${attentionCount === 1 ? '' : 's'} to follow up` : 'Nothing needs follow-up'}>
           <ul className="space-y-3">
             {a.attention.lowActivation.map(p => (
@@ -193,7 +223,10 @@ export default function AdminAnalytics() {
             <QuickLink icon={Users} label="Manage users" onClick={() => navigate('/admin/users')} />
           </div>
         </ChartCard>
-      </div>
+          ) },
+      ]} />
+
+      {hiddenCount === ADMIN_SECTIONS.length && <AllHiddenNote onShowAll={onShowAll} />}
     </div>
   );
 }

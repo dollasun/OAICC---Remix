@@ -18,10 +18,10 @@ import {
   registeredEventsStorage, savedCareersStorage, schoolClassesStorage, schoolsDirectory, schoolStorage, strengthQuizStorage, studentMessagesStorage, studentsStorage,
 } from './storage';
 
-const FLAG = 'app_demo_seeded_v2';
+const FLAG = 'app_demo_seeded_v3';
 const DEMO_SCHOOL_EMAIL = 'school@oaicc.demo';
 /** Flags written by earlier versions of the demo; cleared on reset. */
-const OLD_FLAGS = ['app_demo_seeded_v1', 'app_demo_report_seeded_v1'];
+const OLD_FLAGS = ['app_demo_seeded_v1', 'app_demo_seeded_v2', 'app_demo_report_seeded_v1'];
 /** Every store the demo writes to. Reset clears these before seeding again. */
 const DEMO_KEYS = [
   'app_school', 'app_schools', 'app_school_classes', 'app_teachers', 'app_school_students', 'app_parents', 'app_invites', 'app_activity',

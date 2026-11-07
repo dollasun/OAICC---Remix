@@ -10,7 +10,7 @@ import type {
   ActivityEntry, InboxNotification, InviteRecord, MentorSession, ParentRecord, School, SchoolClass, StudentProgress,
   StudentRecord, TeacherRecord,
 } from '../types';
-import { initialsAvatar, type ChatThread } from '../utils/crossPortalMessaging';
+import { initialsAvatar, type ChatMessage, type ChatThread } from '../utils/crossPortalMessaging';
 import type { PortalEvent, EventAudience } from '../utils/portalEvents';
 
 export const DEMO_SCHOOL_ID = 'demo-school';
@@ -390,10 +390,11 @@ export function buildDemoData(questionTotal: number, now = Date.now()): DemoData
     emeka: who('demo-parent-okafor', 'Emeka Okafor', 'parent'),
   };
   type Who = typeof P[keyof typeof P];
-  const thread = (a: Who, b: Who, msgs: [Who, string, number][], unreadFor?: Who): ChatThread => {
-    const messages = msgs.map(([from, text, hoursAgo], i) => {
+  type Extra = Pick<ChatMessage, 'kind' | 'kudos' | 'reactions'>;
+  const thread = (a: Who, b: Who, msgs: ([Who, string, number] | [Who, string, number, Extra])[], unreadFor?: Who): ChatThread => {
+    const messages = msgs.map(([from, text, hoursAgo, extra], i) => {
       const ts = now - hoursAgo * HOUR;
-      return { id: `demo-msg-${a.id}-${b.id}-${i}`, senderId: from.id, senderRole: from.role, senderName: from.name, text, time: new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: ts, status: (i === msgs.length - 1 && unreadFor ? 'delivered' : 'read') as 'delivered' | 'read' };
+      return { id: `demo-msg-${a.id}-${b.id}-${i}`, senderId: from.id, senderRole: from.role, senderName: from.name, text, time: new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), timestamp: ts, status: (i === msgs.length - 1 && unreadFor ? 'delivered' : 'read') as 'delivered' | 'read', ...extra };
     });
     const last = messages[messages.length - 1];
     return {
@@ -405,19 +406,20 @@ export function buildDemoData(questionTotal: number, now = Date.now()): DemoData
   const threads: ChatThread[] = [
     thread(P.school, P.uzo, [
       [P.school, 'Good morning Mr. Kelechi. Could you share the SS3 mock exam summary before Friday\'s management meeting?', 30],
-      [P.uzo, 'Good morning. Yes, 7 of 8 students passed Mathematics. Two still need support with calculus, so I\'ve started Saturday revision classes.', 27],
+      [P.uzo, 'Good morning. Yes, 7 of 8 students passed Mathematics. Two still need support with calculus, so I\'ve started Saturday revision classes.', 27, { reactions: { '👏': [DEMO_SCHOOL_ID] } }],
       [P.school, 'Excellent. Please nudge the SS3 students who haven\'t finished the career assessment. JAMB registration opens soon.', 26],
-      [P.uzo, 'Will do. I\'ll give them 20 minutes in class on Wednesday to complete it.', 2],
+      [P.uzo, 'Will do. I\'ll give them 20 minutes in class on Wednesday to complete it.', 2, { reactions: { '👍': [DEMO_SCHOOL_ID] } }],
     ], P.school),
     thread(P.school, P.folake, [
-      [P.folake, 'The SS1 debate team made the state semi-finals! Gbenga Aina was named best speaker.', 50],
+      [P.folake, 'The SS1 debate team made the state semi-finals! Gbenga Aina was named best speaker.', 50, { reactions: { '🎉': [DEMO_SCHOOL_ID] } }],
       [P.school, 'Wonderful news. We\'ll announce it at assembly and feature it at Career Day.', 48],
+      [P.school, 'Congratulations to you and the SS1 debate team on reaching the semi-finals!', 47, { kind: 'kudos', kudos: { badge: 'star' }, reactions: { '❤️': ['demo-teacher-folake'] } }],
     ]),
     thread(P.school, P.funke, [
       [P.school, 'Dear Mrs. Aina, a reminder that the JSS3 Subject Selection Evening is on the calendar. Favour\'s teacher recommends the Arts and Design track.', 70],
       [P.funke, 'Thank you. We\'ve registered. Will there be someone to explain how the career assessment results fit in?', 66],
       [P.school, 'Yes, the OAICC counsellor will walk parents through each student\'s report card on the night.', 64],
-      [P.funke, 'Perfect, see you then.', 5],
+      [P.funke, 'Perfect, see you then.', 5, { reactions: { '👍': [DEMO_SCHOOL_ID] } }],
     ], P.school),
     thread(P.school, P.emeka, [
       [P.emeka, 'Good afternoon. Chinedu wants to apply for Engineering. Does the school help with university applications?', 20],
@@ -426,7 +428,7 @@ export function buildDemoData(questionTotal: number, now = Date.now()): DemoData
     thread(P.uzo, P.bisi, [
       [P.bisi, 'Good evening Mr. Kelechi. How is Bolu doing in Further Mathematics?', 40],
       [P.uzo, 'He\'s doing very well, and his robotics project is impressive. Extra practice on vectors would help before the exams.', 38],
-      [P.bisi, 'Thank you, we\'ll get him a tutor for that.', 3],
+      [P.bisi, 'Thank you, we\'ll get him a tutor for that.', 3, { reactions: { '👍': ['demo-teacher-1'] } }],
     ], P.uzo),
     thread(P.uzo, P.yetunde, [
       [P.uzo, 'Mrs. Adeyemi, Kunle\'s results suggest both Accounting and Law are strong options. A counselling session would help him decide.', 96],
@@ -435,10 +437,12 @@ export function buildDemoData(questionTotal: number, now = Date.now()): DemoData
     thread(P.uzo, P.folake, [
       [P.folake, 'Can we combine the SS1 and SS2 STEM and debate clubs for Career Day?', 12],
       [P.uzo, 'Great idea. Let\'s meet on Thursday to plan it.', 11],
+      [P.folake, 'Your STEM club has been brilliant this term. Thank you for always saying yes!', 10, { kind: 'kudos', kudos: { badge: 'team' } }],
     ]),
     thread(P.funke, P.grace, [
       [P.grace, 'Mrs. Aina, Favour\'s design work this term has been excellent. I\'ve added a note on her profile.', 150],
       [P.funke, 'We saw it, thank you so much for encouraging her!', 145],
+      [P.funke, 'Thank you for believing in Favour and championing her design work.', 144, { kind: 'kudos', kudos: { badge: 'thanks' }, reactions: { '❤️': ['demo-teacher-grace'] } }],
       [P.grace, 'You\'re welcome. Do bring her portfolio to the Subject Selection Evening.', 1],
     ], P.funke),
     thread(P.funke, P.folake, [

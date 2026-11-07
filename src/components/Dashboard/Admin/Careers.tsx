@@ -372,7 +372,8 @@ export default function AdminCareers() {
                   return (
                     <tr 
                       key={career.id} 
-                      className={`hover:bg-slate-50/70 dark:hover:bg-slate-900/50 transition-colors group ${
+                      onClick={() => navigate(`/admin/careers/${career.id}`)}
+                      className={`cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-900/50 transition-colors group ${
                         isSelected ? 'bg-brand/[0.04] dark:bg-brand/[0.08]' : ''
                       }`}
                     >
@@ -389,7 +390,7 @@ export default function AdminCareers() {
                         <div className="flex items-center gap-4">
                           <img src={career.image} alt={career.name} className="w-12 h-12 rounded-xl object-cover shadow-sm" />
                           <div>
-                            <p className="font-bold text-slate-900 dark:text-white">{career.name}</p>
+                            <p className="font-bold text-slate-900 dark:text-white group-hover:text-brand transition-colors">{career.name}</p>
                             <div className="flex items-center gap-3 mt-1">
                               <span className="flex items-center gap-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                                 <Video className="w-3 h-3" /> {career.videos || 0}
@@ -424,7 +425,7 @@ export default function AdminCareers() {
                         <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{career.mentors || 0}</span>
                       </td>
                       <td className="px-6 py-6 text-sm font-medium text-slate-500 dark:text-slate-400">{formatDate(career.date)}</td>
-                      <td className="px-6 py-6 text-right">
+                      <td className="px-6 py-6 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           <button 
                             onClick={() => navigate(`/admin/careers/edit/${career.id}`)}

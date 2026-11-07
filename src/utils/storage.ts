@@ -25,6 +25,7 @@ const STORAGE_KEY_COUNSELING_SESSIONS = 'app_counseling_sessions';
 const STORAGE_KEY_MESSAGES = 'app_messages';
 const STORAGE_KEY_STUDENT_MESSAGES = 'app_student_messages';
 const STORAGE_KEY_SCHOOL = 'app_school';
+const STORAGE_KEY_SCHOOLS = 'app_schools';
 const STORAGE_KEY_SCHOOL_CLASSES = 'app_school_classes';
 const STORAGE_KEY_COUNSELOR_PROFILE = 'app_counselor_personal_profile';
 
@@ -50,7 +51,27 @@ export const schoolStorage = {
       return null;
     }
   },
-  save: (school: School) => saveStoredData(STORAGE_KEY_SCHOOL, school),
+  /** Saves the signed-in school and records it in the platform-wide school directory. */
+  save: (school: School) => {
+    saveStoredData(STORAGE_KEY_SCHOOL, school);
+    schoolsDirectory.upsert(school);
+  },
+};
+
+/** Every school registered on the platform (the admin's view). The portal's own school is in here too. */
+export const schoolsDirectory = {
+  all: (): School[] => {
+    let list: School[] = [];
+    try { list = JSON.parse(localStorage.getItem(STORAGE_KEY_SCHOOLS) || '[]'); } catch { list = []; }
+    const current = schoolStorage.get();
+    return current && !list.some(s => s.id === current.id) ? [current, ...list] : list;
+  },
+  save: (list: School[]) => saveStoredData(STORAGE_KEY_SCHOOLS, list),
+  upsert: (school: School) => {
+    let list: School[] = [];
+    try { list = JSON.parse(localStorage.getItem(STORAGE_KEY_SCHOOLS) || '[]'); } catch { list = []; }
+    saveStoredData(STORAGE_KEY_SCHOOLS, [school, ...list.filter(s => s.id !== school.id)]);
+  },
 };
 
 export const schoolClassesStorage = {

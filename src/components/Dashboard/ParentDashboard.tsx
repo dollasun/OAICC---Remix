@@ -27,13 +27,14 @@ import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
+import { currentIdentity } from '../../utils/portalIdentity';
 
 export default function ParentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isChildrenExpanded, setIsChildrenExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { totalUnread } = useCrossPortalMessaging('parent-1', 'parent');
+  const { totalUnread } = useCrossPortalMessaging(currentIdentity('parent')?.id ?? '', 'parent');
   const session = sessionStore.get();
   const parent = session?.role === 'parent' ? parentsStore.get(session.userId) : undefined;
   const parentName = parent ? (fullName(parent) || parent.email) : 'Parent';

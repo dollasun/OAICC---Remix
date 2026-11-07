@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -25,10 +25,10 @@ import {
   DollarSign
 } from 'lucide-react';
 import { Activity } from '../../types';
-import { savedCareersStorage, schoolStorage } from '../../utils/storage';
+import { schoolStorage } from '../../utils/storage';
 import { activity, addStudentNote, className, fullName, parentsStore, sessionStore, studentsStore, teacherOfClass } from '../../utils/schoolData';
 import { trackerEntries } from './studentTimeline';
-import { getTopRecommendedCareers } from '../../utils/recommendations';
+import { careerInterestsFor } from '../../utils/studentCareers';
 
 export default function ChildDetails() {
   const { id } = useParams();
@@ -49,43 +49,8 @@ export default function ChildDetails() {
     avatar: `https://picsum.photos/seed/${id}/200/200`,
   };
 
-  // 1. Career Interest list: top 10 recommended careers + favorited careers
-  const recommendedCareers = getTopRecommendedCareers(5).slice(0, 6);
-  const [combinedCareers, setCombinedCareers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const saved = savedCareersStorage.get([]);
-    const careerList: any[] = [...recommendedCareers];
-
-    saved.forEach((savedCareer: any) => {
-      const existingIndex = careerList.findIndex(
-        (c: any) => c.id === savedCareer.id || c.title?.toLowerCase() === savedCareer.title?.toLowerCase()
-      );
-
-      if (existingIndex !== -1) {
-        careerList[existingIndex] = {
-          ...careerList[existingIndex],
-          isFavorited: true
-        };
-      } else {
-        careerList.push({
-          id: savedCareer.id || Date.now(),
-          title: savedCareer.title,
-          category: savedCareer.category || 'Technology',
-          description: savedCareer.description || `Explore career paths and opportunities in ${savedCareer.title}.`,
-          matchScore: savedCareer.matchScore || parseInt(savedCareer.match) || 92,
-          match: savedCareer.match || `${savedCareer.matchScore || 92}%`,
-          salary: savedCareer.salary || '$80,000 - $140,000',
-          growth: savedCareer.growth || '20%',
-          education: savedCareer.education || "Bachelor's Degree",
-          image: savedCareer.image || `https://picsum.photos/seed/${savedCareer.id || savedCareer.title}/600/400`,
-          isFavorited: true
-        });
-      }
-    });
-
-    setCombinedCareers(careerList);
-  }, []);
+  // 1. Career interests recorded on this child's own progress (recommendations + saved favourites)
+  const combinedCareers = careerInterestsFor(id);
 
   // 2. Activity Tracker data (same format as Student Activity Tracker)
   const trackerActivities = trackerEntries(id);
@@ -166,14 +131,17 @@ export default function ChildDetails() {
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">Top Recommended Careers</h2>
                   <p className="text-sm font-medium text-slate-500 mt-1">
-                    Top 10 recommended career paths for {child.firstName} along with saved favorites
+                    Top matches from {child.firstName}'s career assessment, plus careers they saved
                   </p>
                 </div>
               </div>
 
+              {combinedCareers.length === 0 && (
+                <p className="text-sm text-slate-500">{child.firstName} hasn't completed enough of the career assessment for recommendations yet.</p>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {combinedCareers.map((career, index) => {
-                  const matchValue = career.matchScore || parseInt(career.match) || 95;
+                  const matchValue = career.matchScore;
                   return (
                     <div key={`child-career-${career.id}-${index}`} className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 group hover:shadow-md transition-all flex flex-col">
                       <div className="relative h-40">
@@ -204,18 +172,22 @@ export default function ChildDetails() {
                             {career.description}
                           </p>
                           
-                          <div className="space-y-1.5 mb-6">
-                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
-                              <span className="text-slate-500">Match Score</span>
-                              <span className="text-brand font-extrabold">{matchValue}%</span>
+                          {matchValue !== undefined ? (
+                            <div className="space-y-1.5 mb-6">
+                              <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                                <span className="text-slate-500">Match Score</span>
+                                <span className="text-brand font-extrabold">{matchValue}%</span>
+                              </div>
+                              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-brand rounded-full" 
+                                  style={{ width: `${matchValue}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-brand rounded-full" 
-                                style={{ width: `${matchValue}%` }}
-                              />
-                            </div>
-                          </div>
+                          ) : (
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-6">Saved career · outside top matches</p>
+                          )}
                         </div>
 
                         <button 

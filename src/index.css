@@ -131,6 +131,8 @@ html.dark .bg-blue-100:not([class*="dark:bg-"]) { background-color: rgb(59 130 2
 html.dark .bg-rose-50:not([class*="dark:bg-"]) { background-color: rgb(244 63 94 / .12); }
 html.dark .bg-rose-100:not([class*="dark:bg-"]) { background-color: rgb(244 63 94 / .18); }
 html.dark .bg-purple-50:not([class*="dark:bg-"]) { background-color: rgb(168 85 247 / .12); }
+html.dark .bg-sky-50:not([class*="dark:bg-"]) { background-color: rgb(14 165 233 / .12); }
+html.dark .bg-violet-50:not([class*="dark:bg-"]) { background-color: rgb(139 92 246 / .12); }
 html.dark .bg-purple-100:not([class*="dark:bg-"]) { background-color: rgb(168 85 247 / .18); }
 html.dark .bg-cyan-50:not([class*="dark:bg-"]) { background-color: rgb(6 182 212 / .12); }
 html.dark .bg-cyan-100:not([class*="dark:bg-"]) { background-color: rgb(6 182 212 / .18); }
@@ -151,3 +153,29 @@ html.dark .from-amber-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rg
 html.dark .from-indigo-50\/50:not([class*="dark:from-"]) { --tw-gradient-from: rgb(99 102 241 / .12); }
 html.dark .via-cyan-50\/30:not([class*="dark:via-"]) { --tw-gradient-via: rgb(6 182 212 / .12); }
 html.dark .to-indigo-50\/40:not([class*="dark:to-"]) { --tw-gradient-to: rgb(99 102 241 / .12); }
+
+/* ───── Data visualisation tokens (validated palette: series 1-3 + an ordinal blue ramp) ───── */
+.viz {
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-ord-1: #86b6ef;
+  --viz-ord-2: #3987e5;
+  --viz-ord-3: #1c5cab;
+  --viz-grid: #e8edf3;
+  --viz-axis: #94a3b8;
+  --viz-surface: #ffffff;
+  --viz-track: #f1f5f9;
+}
+html.dark .viz {
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-ord-1: #184f95;
+  --viz-ord-2: #2a78d6;
+  --viz-ord-3: #86b6ef;
+  --viz-grid: #1e293b;
+  --viz-axis: #64748b;
+  --viz-surface: #0f172a;
+  --viz-track: #1e293b;
+}

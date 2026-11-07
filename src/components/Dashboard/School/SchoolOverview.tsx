@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
-import { ChevronLeft, ChevronRight, Download, Filter, Search, Trash2, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, Filter, GraduationCap, School as SchoolIcon, Search, Trash2, UserPlus, Users } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
 import { schoolClassesStorage, schoolStorage } from '../../../utils/storage';
 import {
@@ -11,6 +11,8 @@ import {
 import InviteUserModal from './InviteUserModal';
 import TeacherViewModal from './TeacherViewModal';
 import { downloadStudentsCsv } from '../../../utils/studentReport';
+import SchoolAnalytics from './SchoolAnalytics';
+import { StatTile } from '../../Charts/Charts';
 
 type UserRole = 'Teacher' | 'Parent' | 'Student';
 interface Row { id: string; name: string; email: string; role: UserRole; status: string; createdAt: string; initials: string; color: string }
@@ -57,11 +59,6 @@ export default function SchoolOverview() {
   const currentPage = Math.min(page, totalPages);
   const visible = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  const stats = [
-    { label: 'Total users', value: users.length },
-    { label: 'Total teachers', value: teachers.length },
-    { label: 'Total students', value: students.length },
-  ];
 
   const handleDownloadReport = () => {
     const count = downloadStudentsCsv(students.map(x => x.id), 'all-students');
@@ -119,14 +116,16 @@ export default function SchoolOverview() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map(stat => (
-          <div key={stat.label} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-            <p className="text-sm font-bold text-slate-400 mb-4">{stat.label}</p>
-            <p className="text-5xl font-bold text-slate-900 font-display">{stat.value}</p>
-          </div>
-        ))}
-      </div>
+      {school && users.length > 0 ? (
+        <SchoolAnalytics schoolId={school.id} version={version} onInvite={() => setIsInviteModalOpen(true)} onDownloadReport={handleDownloadReport} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <StatTile label="Total users" value={0} icon={Users} tone="bg-brand/10 text-brand" />
+          <StatTile label="Total students" value={0} icon={GraduationCap} tone="bg-blue-50 text-blue-600" />
+          <StatTile label="Total teachers" value={0} icon={SchoolIcon} tone="bg-amber-50 text-amber-600" />
+          <StatTile label="Total parents" value={0} icon={UserPlus} tone="bg-emerald-50 text-emerald-600" />
+        </div>
+      )}
 
       {users.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-20 flex flex-col items-center justify-center text-center">
@@ -136,7 +135,7 @@ export default function SchoolOverview() {
           <button onClick={() => setIsInviteModalOpen(true)} className="btn-primary px-10 py-4">Invite new users</button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div id="school-users" className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden scroll-mt-24">
           <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="relative w-full max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />

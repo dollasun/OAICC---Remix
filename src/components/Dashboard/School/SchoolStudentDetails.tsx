@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useToast } from '../../../context/ToastContext';
@@ -26,12 +26,12 @@ import {
   GraduationCap,
   DollarSign
 } from 'lucide-react';
-import { savedCareersStorage, schoolStorage } from '../../../utils/storage';
-import { className, fullName, initialsOf, studentsStore } from '../../../utils/schoolData';
+import { schoolStorage } from '../../../utils/storage';
+import { activity, addStudentNote, className, fullName, initialsOf, parentsStore, studentsStore, teacherOfClass } from '../../../utils/schoolData';
+import { careerInterestsFor } from '../../../utils/studentCareers';
 import { trackerEntries } from '../studentTimeline';
 import { downloadStudentReport, type ReportTheme } from '../../../utils/studentReport';
 import ReportStyleModal from './ReportStyleModal';
-import { getTopRecommendedCareers } from '../../../utils/recommendations';
 
 export default function SchoolStudentDetails() {
   const { id } = useParams();
@@ -74,43 +74,27 @@ export default function SchoolStudentDetails() {
     bio: record?.onboarded ? 'This student has completed onboarding.' : 'This student has not completed onboarding yet.',
   };
 
-  // 1. Career Interest list: top 10 recommended careers + favorited careers
-  const recommendedCareers = getTopRecommendedCareers(5).slice(0, 6);
-  const [combinedCareers, setCombinedCareers] = useState<any[]>([]);
-
-  useEffect(() => {
-    const saved = savedCareersStorage.get([]);
-    const careerList: any[] = [...recommendedCareers];
-
-    saved.forEach((savedCareer: any) => {
-      const existingIndex = careerList.findIndex(
-        (c: any) => c.id === savedCareer.id || c.title?.toLowerCase() === savedCareer.title?.toLowerCase()
-      );
-
-      if (existingIndex !== -1) {
-        careerList[existingIndex] = {
-          ...careerList[existingIndex],
-          isFavorited: true
-        };
-      } else {
-        careerList.push({
-          id: savedCareer.id || Date.now(),
-          title: savedCareer.title,
-          category: savedCareer.category || 'Technology',
-          description: savedCareer.description || `Explore career paths and opportunities in ${savedCareer.title}.`,
-          matchScore: savedCareer.matchScore || parseInt(savedCareer.match) || 92,
-          match: savedCareer.match || `${savedCareer.matchScore || 92}%`,
-          salary: savedCareer.salary || '$80,000 - $140,000',
-          growth: savedCareer.growth || '20%',
-          education: savedCareer.education || "Bachelor's Degree",
-          image: savedCareer.image || `https://picsum.photos/seed/${savedCareer.id || savedCareer.title}/600/400`,
-          isFavorited: true
-        });
-      }
-    });
-
-    setCombinedCareers(careerList);
-  }, []);
+  // 1. Career interests recorded on this student's own progress (recommendations + saved favourites)
+  const combinedCareers = careerInterestsFor(id);
+  const classTeacher = record?.classId ? teacherOfClass(record.classId) : undefined;
+  const guardians = (record?.parentIds ?? []).map(pid => parentsStore.get(pid)).filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const [noteVersion, setNoteVersion] = useState(0);
+  void noteVersion; // re-read the notes after saving one
+  const [noteText, setNoteText] = useState('');
+  const notes = id ? activity.forStudent(id).filter(a => a.type === 'note') : [];
+  const saveNote = () => {
+    if (!id || !noteText.trim()) return;
+    const author = studentSchool ? `${studentSchool.adminFirstName} ${studentSchool.adminLastName}`.trim() || studentSchool.name : 'School admin';
+    addStudentNote(id, author, 'School', noteText.trim());
+    setNoteText('');
+    setNoteVersion(v => v + 1);
+    setIsNoteModalOpen(false);
+    showToast('Note saved. The class teacher and parents have been notified.');
+  };
+  const ago = (iso: string) => {
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+    return days <= 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`;
+  };
 
   // 2. Activity Tracker data (same format as Student Activity Tracker)
   const trackerActivities = trackerEntries(id);
@@ -250,33 +234,39 @@ export default function SchoolStudentDetails() {
 
             <div className="space-y-8">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
-                <h3 className="text-xl font-bold text-slate-900 mb-6">Assigned Team</h3>
-                <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                  <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold">
-                    T1
-                  </div>
-                  <div>
-                    <p className="font-bold text-slate-900">Tech Innovators</p>
-                    <p className="text-xs text-slate-500">5 Members</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-slate-400 ml-auto" />
+                <h3 className="text-xl font-bold text-slate-900 mb-6">Class &amp; Guardians</h3>
+                <div className="space-y-3">
+                  {[
+                    ...(classTeacher ? [{ key: classTeacher.id, name: fullName(classTeacher) || classTeacher.email, label: `Class teacher · ${student.class}`, initials: initialsOf(classTeacher) }] : []),
+                    ...guardians.map(g => ({ key: g.id, name: fullName(g) || g.email, label: `Parent / Guardian${g.status === 'invited' ? ' · invited' : ''}`, initials: initialsOf(g) })),
+                  ].map(p => (
+                    <div key={p.key} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <div className="w-11 h-11 rounded-full bg-brand/10 flex items-center justify-center text-brand font-bold text-sm shrink-0">{p.initials}</div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 truncate">{p.name}</p>
+                        <p className="text-xs text-slate-500">{p.label}</p>
+                      </div>
+                    </div>
+                  ))}
+                  {!classTeacher && guardians.length === 0 && (
+                    <p className="text-sm text-slate-500">No class teacher or parent linked yet.</p>
+                  )}
                 </div>
               </div>
 
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-slate-900">Admin Notes</h3>
-                  <button className="text-brand font-bold text-sm hover:underline">View All</button>
+                  <h3 className="text-xl font-bold text-slate-900">Notes</h3>
+                  <button onClick={() => setIsNoteModalOpen(true)} className="text-brand font-bold text-sm hover:underline">Add note</button>
                 </div>
-                <div className="space-y-4">
-                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-sm text-slate-600 leading-relaxed mb-3 italic">
-                      "Esther has shown great progress in her robotics project. Recommended for the upcoming tech competition."
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-slate-400">By Admin • 2 days ago</p>
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {notes.length === 0 && <p className="text-sm text-slate-500">No notes yet. Notes from the school, class teacher and parents appear here.</p>}
+                  {notes.map(n => (
+                    <div key={n.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p className="text-sm text-slate-600 leading-relaxed mb-3 italic">"{n.text}"</p>
+                      <p className="text-xs font-bold text-slate-400">By {n.author ?? 'Unknown'} ({n.authorRole ?? 'Staff'}) • {ago(n.createdAt)}</p>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -297,14 +287,17 @@ export default function SchoolStudentDetails() {
                 <div>
                   <h2 className="text-2xl font-bold text-slate-900">Top Recommended Careers</h2>
                   <p className="text-sm font-medium text-slate-500 mt-1">
-                    Top 10 recommended career paths for {student.name} along with saved favorites
+                    Top matches from {student.name}'s career assessment, plus careers they saved
                   </p>
                 </div>
               </div>
 
+              {combinedCareers.length === 0 && (
+                <p className="text-sm text-slate-500">{student.name} hasn't completed enough of the career assessment for recommendations yet.</p>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {combinedCareers.map((career, index) => {
-                  const matchValue = career.matchScore || parseInt(career.match) || 95;
+                  const matchValue = career.matchScore;
                   return (
                     <div key={`school-career-${career.id}-${index}`} className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 group hover:shadow-md transition-all flex flex-col">
                       <div className="relative h-40">
@@ -335,18 +328,22 @@ export default function SchoolStudentDetails() {
                             {career.description}
                           </p>
                           
-                          <div className="space-y-1.5 mb-6">
-                            <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
-                              <span className="text-slate-500">Match Score</span>
-                              <span className="text-brand font-extrabold">{matchValue}%</span>
+                          {matchValue !== undefined ? (
+                            <div className="space-y-1.5 mb-6">
+                              <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                                <span className="text-slate-500">Match Score</span>
+                                <span className="text-brand font-extrabold">{matchValue}%</span>
+                              </div>
+                              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                                <div 
+                                  className="h-full bg-brand rounded-full" 
+                                  style={{ width: `${matchValue}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-brand rounded-full" 
-                                style={{ width: `${matchValue}%` }}
-                              />
-                            </div>
-                          </div>
+                          ) : (
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 mb-6">Saved career · outside top matches</p>
+                          )}
                         </div>
 
                         <button 
@@ -647,7 +644,11 @@ export default function SchoolStudentDetails() {
               <textarea 
                 placeholder="Type your note here..." 
                 className="input-field min-h-[150px] py-4 resize-none"
+                value={noteText}
+                onChange={e => setNoteText(e.target.value)}
+                autoFocus
               />
+              <p className="text-xs text-slate-400 font-medium mt-2">The class teacher and the student's parents will see this note.</p>
               <div className="flex gap-4 mt-8">
                 <button 
                   onClick={() => setIsNoteModalOpen(false)}
@@ -656,11 +657,9 @@ export default function SchoolStudentDetails() {
                   Cancel
                 </button>
                 <button 
-                  onClick={() => {
-                    setIsNoteModalOpen(false);
-                    showToast('Admin note saved successfully!');
-                  }}
-                  className="flex-1 btn-primary"
+                  onClick={saveNote}
+                  disabled={!noteText.trim()}
+                  className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Save Note
                 </button>

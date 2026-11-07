@@ -327,15 +327,20 @@ export function finishOnboarding(role: 'teacher' | 'parent' | 'student', profile
   }
 }
 
-/** A comment on a student's profile. Teacher comments notify the parents; parent notes notify the class teacher. */
-export function addStudentNote(studentId: string, author: string, authorRole: 'Teacher' | 'Parent', text: string) {
+/**
+ * A comment on a student's profile. Teacher comments notify the parents; parent notes notify the class
+ * teacher; school notes notify both.
+ */
+export function addStudentNote(studentId: string, author: string, authorRole: 'Teacher' | 'Parent' | 'School', text: string) {
   const s = studentsStore.get(studentId);
   activity.log(studentId, 'note', `${author} left a comment`, { author, authorRole, text });
   const who = s ? fullName(s) || 'your child' : 'your child';
-  if (authorRole === 'Teacher') {
+  if (authorRole !== 'Parent') {
     s?.parentIds.forEach(pid => inbox.notify('parent', pid, 'New comment on your child', `${author} commented on ${who}'s profile.`, `/parent/dashboard/child/${studentId}`, 'comments'));
-  } else if (s?.classId) {
-    notifyClassTeacher(s.classId, 'New parent note', `${author} left a note about ${who}.`, studentId, 'parentNotes');
+  }
+  if (authorRole !== 'Teacher' && s?.classId) {
+    const title = authorRole === 'Parent' ? 'New parent note' : 'New school note';
+    notifyClassTeacher(s.classId, title, `${author} left a note about ${who}.`, studentId, authorRole === 'Parent' ? 'parentNotes' : 'students');
   }
 }
 

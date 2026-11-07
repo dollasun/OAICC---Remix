@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Users, 
-  School, 
-  UserSquare2, 
-  Briefcase, 
-  TrendingUp, 
+  Users,     
   ArrowUpRight, 
   MoreHorizontal,
   Trash2,
@@ -17,9 +13,10 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { mentorsStorage, counselorsStorage, adminUsersStorage, studentsStorage } from '../../../utils/storage';
+import { mentorsStorage, counselorsStorage, studentsStorage } from '../../../utils/storage';
 import { useToast } from '../../../context/ToastContext';
 import BulkActionBar from '../../Common/BulkActionBar';
+import AdminAnalytics, { exportSchoolsCsv } from './AdminAnalytics';
 import BulkDeleteModal, { DeletableItemSummary } from '../../Common/BulkDeleteModal';
 
 export default function AdminOverview() {
@@ -33,25 +30,10 @@ export default function AdminOverview() {
   const [itemsToDelete, setItemsToDelete] = useState<any[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const [dynamicStats, setDynamicStats] = useState([
-    { label: 'Total Students', value: '0', icon: Users, color: 'bg-brand', trend: '+12%' },
-    { label: 'Total Schools', value: '50', icon: School, color: 'bg-indigo-500', trend: '+5%' },
-    { label: 'Total Parents', value: '12', icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
-    { label: 'Total Mentors', value: '0', icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
-  ]);
-
   useEffect(() => {
     const mentors = mentorsStorage.get([]);
     const counselors = counselorsStorage.get([]);
-    const admins = adminUsersStorage.get([]);
     const students = studentsStorage.get([]);
-    
-    setDynamicStats([
-      { label: 'Total Students', value: students.length.toString(), icon: Users, color: 'bg-brand', trend: '+12%' },
-      { label: 'Total Mentors', value: mentors.length.toString(), icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
-      { label: 'Total Counselors', value: counselors.length.toString(), icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
-      { label: 'Total Admins', value: admins.length.toString(), icon: School, color: 'bg-indigo-500', trend: '+5%' },
-    ]);
 
     // Combine some users for the "Recent Users" table
     const combined = [
@@ -140,18 +122,6 @@ export default function AdminOverview() {
       // Deselect deleted
       setSelectedUserKeys(prev => prev.filter(k => !keysToDelete.has(k)));
 
-      // Refresh dynamic stats
-      const updatedStudents = studentsStorage.get([]);
-      const updatedMentors = mentorsStorage.get([]);
-      const updatedCounselors = counselorsStorage.get([]);
-      const updatedAdmins = adminUsersStorage.get([]);
-      setDynamicStats([
-        { label: 'Total Students', value: updatedStudents.length.toString(), icon: Users, color: 'bg-brand', trend: '+12%' },
-        { label: 'Total Mentors', value: updatedMentors.length.toString(), icon: Briefcase, color: 'bg-amber-500', trend: '+8%' },
-        { label: 'Total Counselors', value: updatedCounselors.length.toString(), icon: UserSquare2, color: 'bg-emerald-500', trend: '+2%' },
-        { label: 'Total Admins', value: updatedAdmins.length.toString(), icon: School, color: 'bg-indigo-500', trend: '+5%' },
-      ]);
-
       showToast(`Successfully deleted ${itemsToDelete.length} user${itemsToDelete.length === 1 ? '' : 's'}!`);
       setIsDeleteModalOpen(false);
       setItemsToDelete([]);
@@ -165,36 +135,15 @@ export default function AdminOverview() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500 font-medium mt-1">Welcome back, here's what's happening today.</p>
+          <p className="text-slate-500 font-medium mt-1">How schools and students are using OAICC, and what needs your attention.</p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
+        <button onClick={() => { const n = exportSchoolsCsv(); showToast(`Exported performance data for ${n} ${n === 1 ? 'school' : 'schools'}.`); }}
+          className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:border-brand hover:text-brand transition-all shadow-sm">
           <ArrowUpRight className="w-5 h-5" /> Export Data
         </button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {dynamicStats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm group hover:shadow-sm hover:shadow-brand/5 transition-all"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 ${stat.color} rounded-xl flex items-center justify-center text-white shadow-sm shadow-current/20 group-hover:scale-110 transition-transform`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
-              <div className="flex items-center gap-1 text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">
-                <TrendingUp className="w-3 h-3" /> {stat.trend}
-              </div>
-            </div>
-            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-            <h3 className="text-3xl font-bold text-slate-900">{stat.value}</h3>
-          </motion.div>
-        ))}
-      </div>
+      <AdminAnalytics />
 
       {/* Recent Users Table */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

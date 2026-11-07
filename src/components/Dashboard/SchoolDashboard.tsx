@@ -41,6 +41,7 @@ import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
+import { currentIdentity } from '../../utils/portalIdentity';
 import { schoolStorage } from '../../utils/storage';
 
 export default function SchoolDashboard() {
@@ -50,7 +51,7 @@ export default function SchoolDashboard() {
   const school = schoolStorage.get();
   const schoolName = school?.name ?? 'Your school';
   const schoolInitials = schoolName.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
-  const { totalUnread } = useCrossPortalMessaging('admin-1', 'admin');
+  const { totalUnread } = useCrossPortalMessaging(currentIdentity('school')?.id ?? '', 'school');
   
   const isActive = (path: string) => {
     if (path === '/school/dashboard' && location.pathname === '/school/dashboard') return true;

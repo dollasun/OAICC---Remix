@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export type UserRole = 'student' | 'counselor' | 'parent' | 'admin' | 'teacher';
+export type UserRole = 'student' | 'counselor' | 'parent' | 'admin' | 'teacher' | 'school';
 
 export interface ChatMessage {
   id: string;
@@ -53,6 +53,8 @@ export const DEMO_USERS = {
   teacher1: { id: 'teacher-1', name: 'Mr. Mason Biyi', role: 'teacher' as UserRole, image: 'https://picsum.photos/seed/teacher1/100/100', online: true },
   teacher2: { id: 'teacher-2', name: 'Mrs. Folake Davies', role: 'teacher' as UserRole, image: 'https://picsum.photos/seed/teacher2/100/100', online: false },
 };
+
+const LEGACY_IDS = new Set(Object.values(DEMO_USERS).map(u => u.id));
 
 const INITIAL_THREADS: ChatThread[] = [
   {
@@ -269,21 +271,45 @@ export const findOrCreateThread = (userA: ChatParticipant, userB: ChatParticipan
   return { threads: updatedThreads, threadId: newThreadId };
 };
 
+/**
+ * Sends a message to a contact, opening a conversation with them first if there isn't one.
+ * Returns the thread id.
+ */
+export const startConversation = (me: ChatParticipant, contact: ChatParticipant, text: string): string => {
+  const threads = getCrossPortalThreads();
+  const existing = threads.find(t => t.participants.some(p => p.id === me.id) && t.participants.some(p => p.id === contact.id));
+  let threadId = existing?.id;
+  if (!threadId) {
+    threadId = `thread-${me.id}-${contact.id}`;
+    saveCrossPortalThreads([{
+      id: threadId, participants: [me, contact], lastMessage: '', lastMessageTime: 'Just now', lastMessageTimestamp: Date.now(),
+      unreadCount: { [me.id]: 0, [contact.id]: 0 }, messages: [],
+    }, ...threads]);
+  }
+  sendMessageToThread(threadId, { id: me.id, role: me.role, name: me.name }, text);
+  return threadId;
+};
+
+/** A small initials avatar as an inline SVG, so real people never get a random stock photo. */
+export const initialsAvatar = (name: string): string => {
+  const initials = name.replace(/^(Mr|Mrs|Ms|Dr|Prof|Barr)\.?\s+/i, '').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('') || '?';
+  const palette = ['#0e7490', '#4f46e5', '#b45309', '#047857', '#be185d', '#7c3aed', '#0369a1', '#c2410c'];
+  const colour = palette[[...name].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % palette.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><rect width="96" height="96" rx="20" fill="${colour}"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#fff">${initials}</text></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+};
+
 // React Hook for real-time reactive cross-portal messaging
 export function useCrossPortalMessaging(userId: string, userRole: UserRole) {
   const [threads, setThreads] = useState<ChatThread[]>(() => getCrossPortalThreads());
   const [activeThreadId, setActiveThreadId] = useState<string>('');
 
-  // Filter threads where user is a participant
-  const userThreads = threads.filter(t => 
-    t.participants.some(p => p.id === userId) || 
-    // Fallback match by role if user ID is general
-    (userRole === 'counselor' && t.participants.some(p => p.role === 'counselor')) ||
-    (userRole === 'student' && t.participants.some(p => p.role === 'student')) ||
-    (userRole === 'admin' && t.participants.some(p => p.role === 'admin')) ||
-    (userRole === 'parent' && t.participants.some(p => p.role === 'parent')) ||
-    (userRole === 'teacher' && t.participants.some(p => p.role === 'teacher'))
-  );
+  // Threads the user takes part in. The built-in placeholder accounts (DEMO_USERS) also see every
+  // thread of their role; real accounts only ever see their own conversations.
+  const isPlaceholder = LEGACY_IDS.has(userId);
+  const userThreads = threads
+    .filter(t => t.participants.some(p => p.id === userId) || (isPlaceholder && t.participants.some(p => p.role === userRole)))
+    .sort((a, b) => b.lastMessageTimestamp - a.lastMessageTimestamp);
 
   // Auto-set initial active thread
   useEffect(() => {

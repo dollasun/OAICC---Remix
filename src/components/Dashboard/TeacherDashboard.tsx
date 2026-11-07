@@ -28,13 +28,14 @@ import NotificationDropdown from '../Notifications/NotificationDropdown';
 import NotificationPage from '../Notifications/NotificationPage';
 import ThemeToggle from '../ThemeToggle';
 import { useCrossPortalMessaging } from '../../utils/crossPortalMessaging';
+import { currentIdentity } from '../../utils/portalIdentity';
 
 export default function TeacherDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isClassExpanded, setIsClassExpanded] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const { totalUnread } = useCrossPortalMessaging('teacher-1', 'teacher');
+  const { totalUnread } = useCrossPortalMessaging(currentIdentity('teacher')?.id ?? '', 'teacher');
   const session = sessionStore.get();
   const teacher = session?.role === 'teacher' ? teachersStore.get(session.userId) : undefined;
   const teacherName = teacher ? (fullName(teacher) || teacher.email) : 'Teacher';

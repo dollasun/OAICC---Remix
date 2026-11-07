@@ -19,6 +19,7 @@ import {
 } from './storage';
 
 const FLAG = 'app_demo_seeded_v2';
+const DEMO_SCHOOL_EMAIL = 'school@oaicc.demo';
 /** Flags written by earlier versions of the demo; cleared on reset. */
 const OLD_FLAGS = ['app_demo_seeded_v1', 'app_demo_report_seeded_v1'];
 /** Every store the demo writes to. Reset clears these before seeding again. */
@@ -54,7 +55,10 @@ export function seedDemoData(): boolean {
   seedStudentPortal();
   if (localStorage.getItem(FLAG)) return false;
   const existing = schoolStorage.get();
-  if (existing && existing.id !== DEMO_SCHOOL_ID) return false; // someone registered their own school: leave it alone
+  // A school registered with the demo email came from trying the prefilled sign-up form, so it is demo
+  // data too. Any other school was registered by someone for real: leave it alone.
+  const isDemoOwned = existing && (existing.id === DEMO_SCHOOL_ID || existing.adminEmail.trim().toLowerCase() === DEMO_SCHOOL_EMAIL);
+  if (existing && !isDemoOwned) return false;
   if (existing) clearDemoStores(); // an older demo: replace it with the current one
 
   const d = buildDemoData(INITIAL_QUESTIONS.length);

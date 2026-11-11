@@ -122,7 +122,7 @@ export default function CareerView() {
       </div>
 
       {/* Hero */}
-      <div className="relative h-[280px] sm:h-[340px] rounded-[28px] overflow-hidden shadow-lg">
+      <div className="relative h-[448px] sm:h-[544px] rounded-[28px] overflow-hidden shadow-lg">
         <img src={career.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-slate-900/10" />
         <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">

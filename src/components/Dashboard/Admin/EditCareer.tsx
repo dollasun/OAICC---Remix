@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   ArrowLeft, 
-  Camera, 
   Plus, 
   X, 
   Upload, 
@@ -20,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { careersStorage, careerCategoriesStorage } from '../../../utils/storage';
+import { useToast } from '../../../context/ToastContext';
+import CareerImageField, { type CareerImageValue } from './CareerImageField';
 import RichTextEditor from '../../Common/RichTextEditor';
 import AdminArticleViewModal from './AdminArticleViewModal';
 import { getArticleReaction } from '../../../utils/articleReactions';
@@ -28,9 +29,9 @@ export default function AdminEditCareer() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState<'basic' | 'resources'>('basic');
-  const [bgImage, setBgImage] = useState<string | null>(null);
+  const { showToast } = useToast();
+  const [imageValue, setImageValue] = useState<CareerImageValue>({ image: null });
   const [viewingArticle, setViewingArticle] = useState<any>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newSkill, setNewSkill] = useState('');
   const [newResponsibility, setNewResponsibility] = useState('');
@@ -181,7 +182,7 @@ export default function AdminEditCareer() {
           { country: 'United States', currency: '$', min: career.salaryMin || '100,000', max: career.salaryMax || '500,000' }
         ]
       });
-      setBgImage(career.image);
+      setImageValue({ image: career.image ?? null, original: career.imageOriginal, crop: career.imageCrop });
 
       // load every kind of resource the career has (videos and links were previously not loaded at all)
       setResources({
@@ -204,7 +205,9 @@ export default function AdminEditCareer() {
           title: formData.title,
           category: formData.category,
           description: formData.about,
-          image: bgImage,
+          image: imageValue.image,
+          imageOriginal: imageValue.original,
+          imageCrop: imageValue.crop,
           salaries: formData.salaries,
           salaryMin: formData.salaries[0]?.min || '100,000',
           salaryMax: formData.salaries[0]?.max || '500,000',
@@ -227,8 +230,14 @@ export default function AdminEditCareer() {
       }
       return c;
     });
-    careersStorage.save(updated);
-    navigate('/admin/careers');
+    try {
+      careersStorage.save(updated);
+    } catch {
+      showToast('Storage is full, so these changes could not be saved. Try a smaller image or remove unused careers.', 'error');
+      return;
+    }
+    showToast('Career updated successfully!');
+    navigate(`/admin/careers/${id}`);
   };
 
   // Filled from the career record by the effect above (starts empty rather than with placeholders).
@@ -302,15 +311,6 @@ export default function AdminEditCareer() {
     });
   };
 
-  const handleImageClick = () => fileInputRef.current?.click();
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setBgImage(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
 
   return (
     <div className="w-full max-w-[1400px] mx-auto pb-20">
@@ -355,34 +355,8 @@ export default function AdminEditCareer() {
             exit={{ opacity: 0, x: 20 }}
             className="space-y-10"
           >
-            {/* Background Image Upload */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
-              <h3 className="text-lg font-bold text-slate-900 mb-6">Background Image</h3>
-              <div 
-                onClick={handleImageClick}
-                className="relative h-64 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center cursor-pointer hover:border-brand/50 hover:bg-slate-100/50 transition-all group overflow-hidden"
-              >
-                {bgImage ? (
-                  <>
-                    <img src={bgImage} alt="Background" className="absolute inset-0 w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-sm">
-                        <Camera className="w-8 h-8 text-brand" />
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-16 h-16 bg-white rounded-xl shadow-sm flex items-center justify-center text-slate-400 mb-4 group-hover:scale-110 transition-transform">
-                      <Camera className="w-8 h-8" />
-                    </div>
-                    <p className="text-slate-500 font-bold">Click to upload or drag and drop</p>
-                    <p className="text-slate-400 text-sm font-medium mt-1">PNG, JPG or GIF (max. 10MB)</p>
-                  </>
-                )}
-                <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
-              </div>
-            </div>
+            {/* Background Image Upload (with crop and zoom) */}
+            <CareerImageField value={imageValue} onChange={setImageValue} />
 
             {/* Basic Details */}
             <div className="bg-white p-8 sm:p-10 rounded-2xl border border-slate-100 shadow-sm space-y-8">
